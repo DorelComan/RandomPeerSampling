@@ -6,7 +6,7 @@ public class MessageParser {
 
     }
 
-    public int getType(ByteBuf buf) throws MessageLengthException, UnknownMessage {
+    public int isRpsQuery(ByteBuf buf) throws MessageLengthException, UnknownMessage {
 
         int buf_size = buf.readableBytes();
 

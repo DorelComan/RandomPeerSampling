@@ -3,16 +3,20 @@ version '1.0-SNAPSHOT'
 
 apply plugin: 'java'
 
-sourceCompatibility = 1.5
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
-    mavenCentral()
-    maven { url 'https://oss.jfrog.org/libs-snapshot' }
+  mavenCentral()
+  maven { url 'https://oss.jfrog.org/libs-snapshot' }
 }
 
-dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.11'
-    compile 'io.reactivex:rxjava:1.1.5'
-    compile 'io.reactivex:rxnetty:0.4.16'
+def rxNetty = '0.5.2-rc.2'
 
+dependencies {
+  testCompile group: 'junit', name: 'junit', version: '4.11'
+  compile 'io.reactivex:rxjava:1.1.5'
+  compile "io.reactivex:rxnetty:$rxNetty"
+  compile "io.reactivex:rxnetty-common:$rxNetty"
+  compile "io.reactivex:rxnetty-tcp:$rxNetty"
 }
