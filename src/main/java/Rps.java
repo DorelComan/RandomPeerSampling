@@ -1,6 +1,7 @@
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.logging.LogLevel;
 import io.reactivex.netty.protocol.tcp.server.TcpServer;
+import rxnetty.ExamplesEnvironment;
 
 /**
  * @author Hannes Dorfmann
@@ -18,9 +19,8 @@ public class Rps {
     QueryReceiverServer queryReceiverServer = new QueryReceiverServer();
 
         /*Starts a new TCP server on an ephemeral port.*/
-    TcpServer<ByteBuf, ByteBuf> server = TcpServer.newServer(5000)
+    TcpServer<ByteBuf, ByteBuf> server = TcpServer.newServer(0)
         .enableWireLogging(LogLevel.DEBUG)
-        .unsafeSecure()
         .start(
             connection ->
                 connection.writeBytesAndFlushOnEach(connection.getInput()

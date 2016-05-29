@@ -13,8 +13,13 @@ public class QueryReceiverServer {
   public Observable<byte[]> handleIncommingMessage(ByteBuf incommingMessage) {
 
     return Observable.fromCallable(() -> {
+      /**
       parser.isRpsQuery(incommingMessage); // Will throw an exception otherwise
       return peerList.getRandomPeer();
     }).map(peerConverter::toByteArray);
+       */
+
+    return "Hello World".getBytes();
+    });
   }
 }
