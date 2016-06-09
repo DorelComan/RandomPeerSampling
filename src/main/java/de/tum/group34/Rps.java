@@ -1,3 +1,5 @@
+package de.tum.group34;
+
 /**
  * @author Hannes Dorfmann
  */
@@ -8,12 +10,12 @@ public class Rps {
     // TODO read config
 
     QueryServer queryServer = new QueryServer(11001);
-    PullServer pullServer = new PullServer(11002);
+    PullLocalViewServer pullLocalViewServer = new PullLocalViewServer(11002);
 
     queryServer.start();
-    pullServer.start();
+    pullLocalViewServer.start();
 
     queryServer.awaitShutdown();
-    pullServer.awaitShutdown();
+    pullLocalViewServer.awaitShutdown();
   }
 }

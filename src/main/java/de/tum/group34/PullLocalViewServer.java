@@ -1,3 +1,5 @@
+package de.tum.group34;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.logging.LogLevel;
 import io.reactivex.netty.protocol.tcp.server.TcpServer;
@@ -8,14 +10,14 @@ import java.util.logging.Logger;
  *
  * @author Hannes Dorfmann
  */
-public class PullServer {
+public class PullLocalViewServer {
 
-  private static final Logger log = Logger.getLogger(PullServer.class.getName());
+  private static final Logger log = Logger.getLogger(PullLocalViewServer.class.getName());
 
   private int port;
   private TcpServer<ByteBuf, ByteBuf> server;
 
-  public PullServer(int port) {
+  public PullLocalViewServer(int port) {
     this.port = port;
   }
 
