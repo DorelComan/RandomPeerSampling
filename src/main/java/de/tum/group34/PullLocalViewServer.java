@@ -14,19 +14,10 @@ public class PullLocalViewServer {
 
   private static final Logger log = Logger.getLogger(PullLocalViewServer.class.getName());
 
-  private int port;
   private TcpServer<ByteBuf, ByteBuf> server;
 
-  public PullLocalViewServer(int port) {
-    this.port = port;
-  }
-
-  /**
-   * Starts the server to listen for incoming QUERY REQUESTS
-   */
-  public void start() {
-    // TODO implement
-    server = TcpServer.newServer(port)
+  public PullLocalViewServer(TcpServer<ByteBuf, ByteBuf> s) {
+    this.server = s
         .enableWireLogging(LogLevel.DEBUG)
         .start(
             connection ->
@@ -39,7 +30,7 @@ public class PullLocalViewServer {
         );
   }
 
-  public void awaitShutdown(){
+  public void awaitShutdown() {
     server.awaitShutdown();
   }
 }

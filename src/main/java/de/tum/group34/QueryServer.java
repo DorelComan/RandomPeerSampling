@@ -14,19 +14,10 @@ public class QueryServer {
 
   private static final Logger log = Logger.getLogger(QueryServer.class.getName());
 
-  private int port;
   private TcpServer<ByteBuf, ByteBuf> server;
 
-  public QueryServer(int port) {
-    this.port = port;
-  }
-
-  /**
-   * Starts the server to listen for incoming QUERY REQUESTS
-   */
-  public void start() {
-    server = TcpServer.newServer(port)
-        .enableWireLogging(LogLevel.DEBUG)
+  public QueryServer(TcpServer<ByteBuf, ByteBuf> server) {
+    this.server = server.enableWireLogging(LogLevel.DEBUG)
         .start(
             connection ->
                 connection.writeBytesAndFlushOnEach(connection.getInput()
@@ -37,7 +28,8 @@ public class QueryServer {
   }
 
 
-  public void awaitShutdown(){
+
+  public void awaitShutdown() {
     server.awaitShutdown();
   }
 }
