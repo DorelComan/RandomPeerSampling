@@ -1,9 +1,11 @@
 package de.tum.group34;
 
+import de.tum.group34.nse.NseClient;
 import module.Peer;
 import module.Sampler;
 
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -16,6 +18,8 @@ public class Brahms {
     Integer samplSize; // l2
     Integer viewSize; // l1
 
+    NseClient nseClient;
+
     Float alfa;
     Float beta;
     Float gamma;
@@ -25,19 +29,21 @@ public class Brahms {
     /**
      *  Initialization of the algorithm
      * @param list
-     * @param samplSize
+     * @param size
      */
-    public Brahms(ArrayList<Peer> list, Integer samplSize){
+    public Brahms(ArrayList<Peer> list, NseClient nseClient){
 
         viewList = list;
-        this.samplSize = samplSize;
+        samplList = new ArrayList<>();
+        this.nseClient = nseClient;
+
+        this.samplSize = nseClient.getNetworkSize().toBlocking().first();
+        this.viewSize = this.samplSize;
 
         for(int i = 0; i < samplSize; i++)
             samplList.add(new Sampler());
 
         updateSample(list);
-
-
     }
 
     public void start(){
@@ -52,6 +58,7 @@ public class Brahms {
             Integer nmbPushes =  Math.round(alfa * viewSize);
             Integer nmbPulls = Math.round(beta * viewSize);
             Integer nmbSamples = Math.round(gamma * viewSize);
+
 
             for(int i = 0; i < nmbPushes; i++)
                  PushSender.pushRequest(rand(viewList,1)); // method to be implemented by the Push Sender
@@ -76,9 +83,9 @@ public class Brahms {
 
     public void validateSamples(){
 
-        for(Sampler s: samplList){
-            if(!s.validate())
-                s =  new Sampler();
+        for(int i = 0; i < samplSize; i++){
+            if(!samplList.get(i).validate())
+                samplList.set(i, new Sampler());
         }
     }
 
@@ -119,6 +126,24 @@ public class Brahms {
 
         return sizeEst;
     }
+
+
+    public Peer getRandomPeer(){
+
+
+
+        SecureRandom secureRandom = new SecureRandom();
+        Integer i = secureRandom.nextInt(viewList.size());
+
+        return viewList.get(i);
+    }
+
+    public ArrayList<Peer> getLocalView(){
+
+        return viewList;
+    }
+
+
 
 
 }
