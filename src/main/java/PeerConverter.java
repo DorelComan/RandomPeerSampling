@@ -1,3 +1,5 @@
+import module.Peer;
+
 /**
  * @author Hannes Dorfmann
  */

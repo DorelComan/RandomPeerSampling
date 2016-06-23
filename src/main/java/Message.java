@@ -8,5 +8,4 @@ public class Message {
 
     private int type;
 
-
 }

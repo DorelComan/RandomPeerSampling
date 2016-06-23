@@ -30,6 +30,9 @@ public class PullLocalViewServer {
         );
   }
 
+    // We have to save in a list who requested our View and also how old is the last request to be sure they not gonna
+    // ask to many times.
+
   public void awaitShutdown() {
     server.awaitShutdown();
   }
