@@ -17,9 +17,9 @@ public class Rps {
     PullLocalViewServer pullLocalViewServer = new PullLocalViewServer(TcpServer.newServer(11002));
 
     NseClient nseClient = new NseClient(TcpClient.newClient("127.0.0.1", 9899));
-    nseClient.startQueryingPeriodically();
 
     queryServer.awaitShutdown();
     pullLocalViewServer.awaitShutdown();
   }
+
 }

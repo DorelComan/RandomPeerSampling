@@ -18,12 +18,7 @@ public class NseClient {
   public NseClient(
       TcpClient<ByteBuf, ByteBuf> client) {
     this.client = client;
-  }
-
-  public void startQueryingPeriodically() {
-
-    client
-        .enableWireLogging(LogLevel.DEBUG)
+    this.client.enableWireLogging(LogLevel.DEBUG)
         .createConnectionRequest()
         .flatMap(connection ->
             Observable.interval(10, TimeUnit.SECONDS)
@@ -31,6 +26,6 @@ public class NseClient {
                     .cast(ByteBuf.class)
                     .concatWith(connection.getInput())
                 )
-        ).subscribe();
+        );
   }
 }
