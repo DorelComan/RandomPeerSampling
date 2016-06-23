@@ -20,6 +20,20 @@ public class MessageParser {
 
         int type = buf.getUnsignedShort(16);
 
+        //module.Peer Identity 256 bit
+
+
+        //Port 16 bit
+
+        int port = buf.getUnsignedShort(288);
+
+
+        //Reserverd 16 bit
+
+        // IPv4 32 bit / IPv6 128 bit
+
+        buf.getUnsignedInt(320);
+
         //TODO: write an if to control type is one of our ones
 
         return type;
