@@ -1,11 +1,14 @@
 package module;
 
+import java.io.Serializable;
 import java.net.InetSocketAddress;
 
 /**
  * @author Hannes Dorfmann
  */
-public class Peer {
+public class Peer implements Serializable {
+
+
   private String peerIdentity;
   private InetSocketAddress ipAddress; // SocketAddress
   private int port;
