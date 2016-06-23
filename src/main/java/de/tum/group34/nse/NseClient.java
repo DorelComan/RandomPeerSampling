@@ -28,4 +28,11 @@ public class NseClient {
                 )
         );
   }
+
+
+  public Observable<Integer> getNetworkSize(){
+    return Observable.just(5);
+  }
+
+
 }
