@@ -29,10 +29,8 @@ public class NseClient {
         );
   }
 
-
-  public Observable<Integer> getNetworkSize(){
+  public Observable<Integer> getNetworkSize() {
+    // TODO implement
     return Observable.just(5);
   }
-
-
 }
