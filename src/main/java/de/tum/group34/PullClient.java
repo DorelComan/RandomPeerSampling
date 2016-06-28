@@ -12,14 +12,14 @@ import rx.Observable;
  */
 public class PullClient {
 
-  public Observable<List<Peer>> makePullRequests(List<Peer> peers) {
+  public Observable<ArrayList<Peer>> makePullRequests(List<Peer> peers) {
 
     List<Observable<List<Peer>>> requestObservables =
         peers.stream().map((peer -> executePullRequest(peer))).collect(Collectors.toList());
 
     return Observable.combineLatest(requestObservables, responses -> {
 
-      List<Peer> result = new ArrayList<Peer>();
+      ArrayList<Peer> result = new ArrayList<Peer>();
       for (Object resp : responses) {
         List<Peer> response = (List<Peer>) resp;
         result.addAll(response);

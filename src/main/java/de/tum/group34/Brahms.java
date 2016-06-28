@@ -7,11 +7,12 @@ import java.util.Collections;
 import java.util.List;
 import module.Peer;
 import module.Sampler;
+import rx.schedulers.Schedulers;
 
 public class Brahms {
 
-  List<Sampler> samplList; // Sample list
-  List<Peer> viewList;     // View List
+  ArrayList<Sampler> samplList; // Sample list
+  ArrayList<Peer> viewList;     // View List
   Integer samplSize; // l2
   Integer viewSize; // l1
 
@@ -44,12 +45,9 @@ public class Brahms {
 
   public void start() {
 
-    List<Peer> pullList;
-    List<Peer> pushList;
-
     while (true) {            // every iteration to be executed periodically
-      pullList = new ArrayList<>();
-      pushList = new ArrayList<>();
+      final ArrayList<Peer> pullList = new ArrayList<>();
+      final ArrayList<Peer> pushList = new ArrayList<>();
 
       Integer nmbPushes = Math.round(alfa * viewSize);
       Integer nmbPulls = Math.round(beta * viewSize);
@@ -60,7 +58,12 @@ public class Brahms {
 
       // Send pull requests and save incoming lists in pullList
 
-      pullList = pullClient.makePullRequests(rand(viewList, nmbPulls)).toBlocking().first();
+      pullClient.makePullRequests(rand(viewList, nmbPulls))
+          .observeOn(Schedulers.immediate()) // Blocking call
+          .subscribe((newPullList) -> {
+            pullList.clear();
+            pullList.addAll(newPullList);
+          });
 
       // Save all push receive in pushList
 
@@ -129,7 +132,7 @@ public class Brahms {
     return viewList.get(i);
   }
 
-  public List<Peer> getLocalView() {
+  public ArrayList<Peer> getLocalView() {
 
     return viewList;
   }
