@@ -10,9 +10,7 @@ public class Peer implements Serializable {
 
 
   private String peerIdentity;
-  private InetSocketAddress ipAddress; // SocketAddress
-  private int port;
-
+  private InetSocketAddress ipAddress; // SocketAddress (includes port)
 
   public InetSocketAddress getIpAddress() {
     return ipAddress;
