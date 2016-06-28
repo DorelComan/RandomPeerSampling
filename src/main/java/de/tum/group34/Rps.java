@@ -17,10 +17,15 @@ public class Rps {
     // TODO read config
 
     PullClient pullClient = new PullClient();
+    PushSender pushSender = new PushSender();
+    PushReceiver pushReceiver = new PushReceiver();
 
     NseClient nseClient = new NseClient(TcpClient.newClient("127.0.0.1", 9899));
+
+    // TODO: add peer list from file
     Brahms brahms =
-        new Brahms(new ArrayList<>(), nseClient, pullClient); // TODO: add peer list from file
+        new Brahms(new ArrayList<>(), nseClient, pullClient, pushReceiver,
+            pushSender);
 
     QueryServer queryServer = new QueryServer(TcpServer.newServer((11001)));
     PullLocalViewServer pullLocalViewServer = new PullLocalViewServer(TcpServer.newServer(11002));

@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.List;
 import module.Peer;
 import module.Sampler;
-import rx.schedulers.Schedulers;
 
 public class Brahms {
 
@@ -18,6 +17,8 @@ public class Brahms {
 
   PullClient pullClient;
   NseClient nseClient;
+  PushReceiver pushReceiver;
+  PushSender pushSender;
 
   Float alfa;
   Float beta;
@@ -27,12 +28,15 @@ public class Brahms {
   /**
    * Initialization of the algorithm
    */
-  public Brahms(ArrayList<Peer> list, NseClient nseClient, PullClient pullClient) {
+  public Brahms(ArrayList<Peer> list, NseClient nseClient, PullClient pullClient,
+      PushReceiver pushReceiver, PushSender pushSender) {
 
     viewList = list;
     samplList = new ArrayList<>();
     this.nseClient = nseClient;
     this.pullClient = pullClient;
+    this.pushReceiver = pushReceiver;
+    this.pushSender = pushSender;
 
     this.samplSize = nseClient.getNetworkSize().toBlocking().first();
     this.viewSize = this.samplSize;
@@ -46,28 +50,20 @@ public class Brahms {
   public void start() {
 
     while (true) {            // every iteration to be executed periodically
-      final ArrayList<Peer> pullList = new ArrayList<>();
-      final ArrayList<Peer> pushList = new ArrayList<>();
-
       Integer nmbPushes = Math.round(alfa * viewSize);
       Integer nmbPulls = Math.round(beta * viewSize);
       Integer nmbSamples = Math.round(gamma * viewSize);
 
       for (int i = 0; i < nmbPushes; i++)
-        PushSender.pushRequest(rand(viewList, 1)); // method to be implemented by the Push Sender
+        pushSender.sendMyIdTo(rand(viewList, 1).get(0));
 
       // Send pull requests and save incoming lists in pullList
-
-      pullClient.makePullRequests(rand(viewList, nmbPulls))
-          .observeOn(Schedulers.immediate()) // Blocking call
-          .subscribe((newPullList) -> {
-            pullList.clear();
-            pullList.addAll(newPullList);
-          });
+      ArrayList<Peer> pullList = pullClient.makePullRequests(rand(viewList, nmbPulls))
+          .toBlocking().first();
 
       // Save all push receive in pushList
-
-      pushList = GossipReceiver.getPushList();
+      ArrayList<Peer> pushList = pushReceiver.getPushList()
+          .toBlocking().first();
 
       if (pushList.size() <= nmbPushes &&
           pushList.size() != 0 &&
