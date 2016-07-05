@@ -21,6 +21,7 @@ dependencies {
   //compile "io.reactivex:rxnetty:$rxNetty"
   compile "io.reactivex:rxnetty-common:$rxNetty"
   compile "io.reactivex:rxnetty-tcp:$rxNetty"
+  compile 'com.jakewharton.rxrelay:rxrelay:1.1.0'
 
   // compile fileTree(include: ['*.jar'], dir: 'libs')
   compile "org.slf4j:slf4j-log4j12:1.7.21"

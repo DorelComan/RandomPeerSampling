@@ -1,5 +1,7 @@
 package de.tum.group34.serialization;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -47,6 +49,16 @@ public class SerializationUtils {
   }
 
   /**
+   * Converts a serializeable object ot a {@link ByteBuf}
+   *
+   * @param object The object to serialize
+   * @return The ByteBuf representation of the passed object.
+   */
+  public static ByteBuf toByteBuf(Serializable object) {
+    return Unpooled.wrappedBuffer(toBytes(object));
+  }
+
+  /**
    * Converts a byte array into an object
    *
    * @param bytes The bytes representation of an object
@@ -72,5 +84,16 @@ public class SerializationUtils {
         throw new RuntimeException((ex));
       }
     }
+  }
+
+  /**
+   * Reads a serializeable object from a {@link ByteBuf}
+   *
+   * @param buf The input
+   * @param <T> The generic type of the object
+   * @return The deserialized object
+   */
+  public static <T> T fromByteBuf(ByteBuf buf) {
+    return fromBytes(buf.array());
   }
 }

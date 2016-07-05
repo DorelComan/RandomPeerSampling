@@ -1,20 +1,42 @@
 package de.tum.group34;
 
 import de.tum.group34.nse.NseClient;
+import de.tum.group34.serialization.SerializationUtils;
+import io.netty.handler.logging.LogLevel;
 import io.reactivex.netty.protocol.tcp.client.TcpClient;
 import io.reactivex.netty.protocol.tcp.server.TcpServer;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
+import module.Peer;
 import rx.Observable;
+import rx.subjects.PublishSubject;
 
 /**
  * @author Hannes Dorfmann
  */
 public class Rps {
 
+  private static final Logger log = Logger.getLogger(Rps.class.getName());
+
   public static void main(final String[] args) {
 
     // TODO read config
+    PublishSubject<Peer> incomingSocket = PublishSubject.create();
+
+    TcpServer.newServer(11003).enableWireLogging(LogLevel.DEBUG)
+        .start(
+            connection ->
+                connection.writeBytesAndFlushOnEach(connection.getInput()
+                    .doOnNext(byteBuf -> log.info("PULL REQUEST local view  received"))
+                    .map(byteBuf -> {
+                      Peer peer = SerializationUtils.fromBytes(byteBuf.array());
+                      return peer;
+                    })
+                    .doOnNext(peer -> incomingSocket.onNext(peer))
+                    .map(peer -> "".getBytes())
+                )
+        );
 
     PullClient pullClient = new PullClient();
     PushSender pushSender = new PushSender();
