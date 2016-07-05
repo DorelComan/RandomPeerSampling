@@ -22,25 +22,10 @@ public class Rps {
   public static void main(final String[] args) {
 
     // TODO read config
-    PublishSubject<Peer> incomingSocket = PublishSubject.create();
-
-    TcpServer.newServer(11003).enableWireLogging(LogLevel.DEBUG)
-        .start(
-            connection ->
-                connection.writeBytesAndFlushOnEach(connection.getInput()
-                    .doOnNext(byteBuf -> log.info("PULL REQUEST local view  received"))
-                    .map(byteBuf -> {
-                      Peer peer = SerializationUtils.fromBytes(byteBuf.array());
-                      return peer;
-                    })
-                    .doOnNext(peer -> incomingSocket.onNext(peer))
-                    .map(peer -> "".getBytes())
-                )
-        );
 
     PullClient pullClient = new PullClient();
     PushSender pushSender = new PushSender();
-    PushReceiver pushReceiver = new PushReceiver();
+    PushReceiver pushReceiver = initPushReceiver();
 
     NseClient nseClient = new NseClient(TcpClient.newClient("127.0.0.1", 9899));
 
@@ -62,5 +47,28 @@ public class Rps {
 
     queryServer.awaitShutdown();
     pullLocalViewServer.awaitShutdown();
+  }
+
+  private static PushReceiver initPushReceiver() {
+
+    PublishSubject<Peer> pushReceivingSocket = PublishSubject.create();
+    PublishSubject<Peer> gossipReceivingSocket = PublishSubject.create();
+
+    TcpServer.newServer(11003)
+        .enableWireLogging(LogLevel.DEBUG)
+        .start(
+            connection ->
+                connection.writeBytesAndFlushOnEach(connection.getInput()
+                    .doOnNext(byteBuf -> log.info("PULL REQUEST local view  received"))
+                    .map(byteBuf -> {
+                      Peer peer = SerializationUtils.fromBytes(byteBuf.array());
+                      return peer;
+                    })
+                    .doOnNext(peer -> pushReceivingSocket.onNext(peer))
+                    .map(peer -> "ok".getBytes())
+                )
+        );
+
+    return new PushReceiver(gossipReceivingSocket, pushReceivingSocket);
   }
 }
