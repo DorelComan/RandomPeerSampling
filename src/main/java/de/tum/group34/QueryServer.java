@@ -16,7 +16,8 @@ public class QueryServer {
 
   private TcpServer<ByteBuf, ByteBuf> server;
 
-  public QueryServer(TcpServer<ByteBuf, ByteBuf> server) {
+  public QueryServer(TcpServer<ByteBuf, ByteBuf> server, Brahms brahms) {
+
     this.server = server.enableWireLogging(LogLevel.DEBUG)
         .start(
             connection ->
@@ -25,6 +26,7 @@ public class QueryServer {
                     .map((byteBuf -> "QUERY Response".getBytes())) // TODO implement
                 )
         );
+
   }
 
   public void awaitShutdown() {
