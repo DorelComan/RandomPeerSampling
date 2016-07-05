@@ -41,6 +41,9 @@ public class Brahms {
     this.samplSize = nseClient.getNetworkSize().toBlocking().first();
     this.viewSize = this.samplSize;
 
+
+
+
     for (int i = 0; i < samplSize; i++)
       samplList.add(new Sampler());
 
