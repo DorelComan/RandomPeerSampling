@@ -7,8 +7,13 @@ import java.util.Collections;
 import java.util.List;
 import module.Peer;
 import module.Sampler;
+import rx.Observable;
+import rx.subjects.BehaviorSubject;
 
 public class Brahms {
+
+  private BehaviorSubject<ArrayList<Peer>> viewListSubject = BehaviorSubject.create();
+  private SecureRandom secureRandom = new SecureRandom();
 
   ArrayList<Sampler> samplList; // Sample list
   ArrayList<Peer> viewList;     // View List
@@ -41,9 +46,6 @@ public class Brahms {
     this.samplSize = nseClient.getNetworkSize().toBlocking().first();
     this.viewSize = this.samplSize;
 
-
-
-
     for (int i = 0; i < samplSize; i++)
       samplList.add(new Sampler());
 
@@ -74,6 +76,7 @@ public class Brahms {
         viewList = rand(pushList, nmbPushes);
         viewList.addAll(rand(pullList, nmbPulls));
         viewList.addAll(randSamples(samplList, nmbSamples));
+        viewListSubject.onNext(viewList); // Inform any waiting
       }
     }
   }
@@ -123,12 +126,12 @@ public class Brahms {
     return sizeEst;
   }
 
-  public Peer getRandomPeer() {
-
-    SecureRandom secureRandom = new SecureRandom();
-    Integer i = secureRandom.nextInt(viewList.size());
-
-    return viewList.get(i);
+  public Observable<Peer> getRandomPeerObservable() {
+    return viewListSubject
+        .flatMap(viewList -> {
+          Integer i = secureRandom.nextInt(viewList.size());
+          return Observable.just(viewList.get(i));
+        });
   }
 
   public ArrayList<Peer> getLocalView() {

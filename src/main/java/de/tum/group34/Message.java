@@ -1,3 +1,5 @@
+package de.tum.group34;
+
 import io.netty.buffer.ByteBuf;
 
 public class Message {
