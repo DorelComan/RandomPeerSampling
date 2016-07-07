@@ -24,7 +24,7 @@ public class SerializationUtils {
    * @param object The object you want to serialize
    * @return Byte array of the object to
    */
-  public static byte[] toBytes(Serializable object) {
+  public static byte[] toBytes(Object object) {
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
     ObjectOutputStream outputStream = null;
     try {

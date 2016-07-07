@@ -22,6 +22,10 @@ public class PushReceiver {
     this.pushReceivingSocket = pushReceivingSocket.buffer(1, TimeUnit.MINUTES).onBackpressureDrop();
   }
 
+  public Observable<List<Peer>> incomingPeersFromGossip(){
+    return gossipSocket;
+  }
+
   public Observable<ArrayList<Peer>> getPushList() {
     return Observable.combineLatest(gossipSocket, pushReceivingSocket,
         (gossipResonse, pushSocketResponse) -> {

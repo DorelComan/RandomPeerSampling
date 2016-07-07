@@ -12,28 +12,28 @@ import rx.subjects.BehaviorSubject;
 
 public class Brahms {
 
-  private BehaviorSubject<ArrayList<Peer>> viewListSubject = BehaviorSubject.create();
+  private BehaviorSubject<List<Peer>> viewListSubject = BehaviorSubject.create();
   private SecureRandom secureRandom = new SecureRandom();
 
-  ArrayList<Sampler> samplList; // Sample list
-  ArrayList<Peer> viewList;     // View List
-  Integer samplSize; // l2
-  Integer viewSize; // l1
+  private List<Sampler> samplList; // Sample list
+  private List<Peer> viewList;     // View List
+  private int samplSize; // l2
+  private int viewSize; // l1
 
-  PullClient pullClient;
-  NseClient nseClient;
-  PushReceiver pushReceiver;
-  PushSender pushSender;
+  private PullClient pullClient;
+  private NseClient nseClient;
+  private PushReceiver pushReceiver;
+  private PushSender pushSender;
 
-  Float alfa;
-  Float beta;
-  Float gamma;
-  Integer sizeEst;
+  private float alfa;
+  private float beta;
+  private float gamma;
+  private int sizeEst;
 
   /**
    * Initialization of the algorithm
    */
-  public Brahms(ArrayList<Peer> list, NseClient nseClient, PullClient pullClient,
+  public Brahms(List<Peer> list, NseClient nseClient, PullClient pullClient,
       PushReceiver pushReceiver, PushSender pushSender) {
 
     viewList = list;
@@ -90,25 +90,25 @@ public class Brahms {
     }
   }
 
-  public void updateSample(ArrayList<Peer> list) {
+  public void updateSample(List<Peer> list) {
 
     for (Sampler s : samplList)
       for (Peer p : list)
         s.next(p);
   }
 
-  public static ArrayList<Peer> rand(List<Peer> list, Integer n) {
+  public static List<Peer> rand(List<Peer> list, Integer n) {
 
     Collections.shuffle(list);
 
-    return (ArrayList<Peer>) list.subList(0, n - 1);
+    return list.subList(0, n - 1);
   }
 
-  public static ArrayList<Peer> randSamples(List<Sampler> list, Integer n) {
+  public static List<Peer> randSamples(List<Sampler> list, Integer n) {
 
     Collections.shuffle(list);
 
-    ArrayList<Peer> randList = new ArrayList<>();
+    List<Peer> randList = new ArrayList<>();
 
     for (int i = 0; i < n; i++)
       randList.add(list.get(i).sample());
@@ -134,7 +134,7 @@ public class Brahms {
         });
   }
 
-  public ArrayList<Peer> getLocalView() {
+  public List<Peer> getLocalView() {
 
     return viewList;
   }

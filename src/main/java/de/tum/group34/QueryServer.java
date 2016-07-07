@@ -26,6 +26,7 @@ public class QueryServer {
                     .doOnNext(byteBuf -> MessageParser.isRpsQuery(byteBuf))
                     .flatMap(toBeIgnored -> brahms.getRandomPeerObservable())
                     .map(peer -> MessageParser.buildRpsRespone(peer).array())
+
                 )
         );
   }

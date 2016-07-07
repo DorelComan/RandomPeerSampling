@@ -5,7 +5,7 @@ import de.tum.group34.serialization.SerializationUtils;
 import io.netty.handler.logging.LogLevel;
 import io.reactivex.netty.protocol.tcp.client.TcpClient;
 import io.reactivex.netty.protocol.tcp.server.TcpServer;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import module.Peer;
@@ -29,9 +29,11 @@ public class Rps {
 
     NseClient nseClient = new NseClient(TcpClient.newClient("127.0.0.1", 9899));
 
+    List<Peer> initialList = pushReceiver.incomingPeersFromGossip().toBlocking().first();
+
     // TODO: add peer list from file
     Brahms brahms =
-        new Brahms(new ArrayList<>(), nseClient, pullClient, pushReceiver,
+        new Brahms(initialList, nseClient, pullClient, pushReceiver,
             pushSender);
 
     QueryServer queryServer = new QueryServer(TcpServer.newServer((11001)), brahms);
