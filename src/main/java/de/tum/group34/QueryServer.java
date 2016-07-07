@@ -25,7 +25,7 @@ public class QueryServer {
                     .doOnNext(byteBuf -> log.info("QUERY REQUEST received"))
                     .doOnNext(byteBuf -> MessageParser.isRpsQuery(byteBuf))
                     .flatMap(toBeIgnored -> brahms.getRandomPeerObservable())
-                    .map(peer -> "To be done".getBytes()) // TODO must be done
+                    .map(peer -> MessageParser.buildRpsRespone(peer).array())
 
                 )
         );
