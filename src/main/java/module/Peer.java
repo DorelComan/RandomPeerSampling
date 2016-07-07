@@ -12,6 +12,7 @@ public class Peer implements Serializable {
   private String peerIdentity;
   private InetSocketAddress ipAddress; // SocketAddress (includes port)
   private Integer msgID;
+  private byte[] hostkey;
 
   public InetSocketAddress getIpAddress() {
     return ipAddress;
@@ -29,5 +30,13 @@ public class Peer implements Serializable {
   public Integer getMessageID(){
 
     return msgID;
+  }
+
+  public void setHostkey(byte[] hostkey) {
+    this.hostkey = hostkey;
+  }
+
+  public byte[] getHostkey() {
+    return hostkey;
   }
 }
