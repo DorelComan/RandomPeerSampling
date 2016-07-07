@@ -1,6 +1,5 @@
 package de.tum.group34.nse;
 
-import de.tum.group34.Message;
 import de.tum.group34.MessageParser;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.logging.LogLevel;
@@ -30,12 +29,11 @@ public class NseClient {
                     .cast(ByteBuf.class)
                     .concatWith(connection.getInput())
                 )
-            .map(byteBuf -> MessageParser.getSizeFromNseMessage(byteBuf))
+                .map(byteBuf -> MessageParser.getSizeFromNseMessage(byteBuf))
         ).subscribe(networkSize);
   }
 
   public Observable<Integer> getNetworkSize() {
-    // TODO implement
-    return Observable.just(5);
+    return networkSize;
   }
 }
