@@ -8,11 +8,13 @@ import java.net.InetSocketAddress;
  */
 public class Peer implements Serializable {
 
-
   private String peerIdentity;
   private InetSocketAddress ipAddress; // SocketAddress (includes port)
   private Integer msgID;
   private byte[] hostkey;
+
+  public Peer() {
+  }
 
   public InetSocketAddress getIpAddress() {
     return ipAddress;
@@ -27,7 +29,7 @@ public class Peer implements Serializable {
     this.msgID = id;
   }
 
-  public Integer getMessageID(){
+  public Integer getMessageID() {
 
     return msgID;
   }

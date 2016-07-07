@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import module.Peer;
-import rx.Observable;
 
 /**
  * @author Hannes Dorfmann
@@ -21,19 +20,17 @@ public class Rps {
 
     // TODO read config
 
+    Peer ownIdentity = new Peer(); // TODO do this properly
+
     PullClient pullClient = new PullClient();
     PushSender pushSender = new PushSender();
     PushReceiver pushReceiver = initPushReceiver();
 
     NseClient nseClient = new NseClient(TcpClient.newClient("127.0.0.1", 9899));
 
-    GossipSender gossipSender = new GossipSender();
-    Observable.interval(0, 30, TimeUnit.MINUTES)
-        .flatMap(gossipSender::sendMessage)
-        .subscribe((result) -> {
-        }, (error) -> {
-          error.printStackTrace();
-        });
+    GossipSender gossipSender =
+        new GossipSender(ownIdentity, TcpClient.newClient("127.0.0.1", 11007));
+    gossipSender.sendOwnPeerPeriodically(30, TimeUnit.MINUTES, 20).subscribe();
 
     List<Peer> initialList = pushReceiver.gossipSocket().toBlocking().first();
 
@@ -52,7 +49,7 @@ public class Rps {
 
   private static PushReceiver initPushReceiver() {
     return new PushReceiver(
-        InetSocketAddress.createUnresolved("127.0.0.1", 11003)
+        InetSocketAddress.createUnresolved("127.0.0.1", 11003),
         TcpServer.newServer(11004),
         TcpServer.newServer(11005));
   }

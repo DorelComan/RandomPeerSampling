@@ -109,4 +109,12 @@ public class MessageParser {
 
     return byteBuf;
   }
+
+  public static ByteBuf getNseQuery() {
+    return null;
+  }
+
+  public static int getSizeFromNseMessage(ByteBuf byteBuf) {
+    return 0;
+  }
 }
