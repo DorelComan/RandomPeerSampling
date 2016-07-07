@@ -1,3 +1,5 @@
+package de.tum.group34;
+
 import de.tum.group34.serialization.SerializationUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;

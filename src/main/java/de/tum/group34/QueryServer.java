@@ -23,10 +23,11 @@ public class QueryServer {
             connection ->
                 connection.writeBytesAndFlushOnEach(connection.getInput()
                     .doOnNext(byteBuf -> log.info("QUERY REQUEST received"))
-                    .map((byteBuf -> "QUERY Response".getBytes())) // TODO implement
+                    .doOnNext(byteBuf -> MessageParser.isRpsQuery(byteBuf))
+                    .flatMap(toBeIgnored -> brahms.getRandomPeerObservable())
+                    .map(peer -> MessageParser.buildRpsRespone(peer).array())
                 )
         );
-
   }
 
   public void awaitShutdown() {
