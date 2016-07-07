@@ -117,4 +117,11 @@ public class MessageParser {
   public static int getSizeFromNseMessage(ByteBuf byteBuf) {
     return 0;
   }
+
+  /**
+   * The message that will be send from one RPS module to another to ask for the locl view list.
+   */
+  public static ByteBuf getPullLocalView() {
+    return null;
+  }
 }

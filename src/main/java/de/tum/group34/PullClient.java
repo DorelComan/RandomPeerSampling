@@ -1,7 +1,9 @@
 package de.tum.group34;
 
+import de.tum.group34.serialization.SerializationUtils;
+import io.netty.buffer.ByteBuf;
+import io.reactivex.netty.protocol.tcp.client.TcpClient;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import module.Peer;
@@ -36,7 +38,15 @@ public class PullClient {
    */
   private Observable<List<Peer>> executePullRequest(Peer peer) {
 
-    // TODO implement
-    return Observable.just(Collections.emptyList());
+    return TcpClient.newClient(peer.getIpAddress())
+        .createConnectionRequest()
+        .flatMap(
+            connection ->
+                connection.write(Observable.just(MessageParser.getPullLocalView()))
+                    .cast(ByteBuf.class)
+                    .concatWith(connection.getInput())
+        )
+        .take(1)
+        .map(byteBuf -> SerializationUtils.fromByteBuf(byteBuf));
   }
 }
