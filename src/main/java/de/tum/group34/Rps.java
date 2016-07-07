@@ -3,6 +3,7 @@ package de.tum.group34;
 import de.tum.group34.nse.NseClient;
 import io.reactivex.netty.protocol.tcp.client.TcpClient;
 import io.reactivex.netty.protocol.tcp.server.TcpServer;
+import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
@@ -51,7 +52,8 @@ public class Rps {
 
   private static PushReceiver initPushReceiver() {
     return new PushReceiver(
-        TcpServer.newServer(11003),
-        TcpServer.newServer(11004));
+        InetSocketAddress.createUnresolved("127.0.0.1", 11003)
+        TcpServer.newServer(11004),
+        TcpServer.newServer(11005));
   }
 }

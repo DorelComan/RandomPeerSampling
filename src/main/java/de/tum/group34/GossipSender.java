@@ -1,9 +1,5 @@
 package de.tum.group34;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.handler.logging.LogLevel;
-import io.reactivex.netty.protocol.tcp.client.TcpClient;
-import java.net.SocketAddress;
 import rx.Observable;
 
 /**
@@ -21,17 +17,4 @@ public class GossipSender {
     return Observable.empty();
   }
 
-  public Observable<Boolean> registerToGossip(SocketAddress gossipSocketAddress) {
-
-    return TcpClient.newClient(gossipSocketAddress)
-        .enableWireLogging(LogLevel.DEBUG)
-        .createConnectionRequest()
-        .flatMap(connection ->
-            connection.writeString(Observable.just("Hello World!"))
-                .cast(ByteBuf.class)
-                .concatWith(connection.getInput())
-        )
-        .take(1)
-        .map(byteBuf -> true);
-  }
 }

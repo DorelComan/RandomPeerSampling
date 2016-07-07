@@ -3,7 +3,9 @@ package de.tum.group34;
 import de.tum.group34.serialization.SerializationUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.logging.LogLevel;
+import io.reactivex.netty.protocol.tcp.client.TcpClient;
 import io.reactivex.netty.protocol.tcp.server.TcpServer;
+import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -30,6 +32,7 @@ public class PushReceiver {
   private final TcpServer<ByteBuf, ByteBuf> pushReceivingServerSocket;
 
   public PushReceiver(
+      SocketAddress gossipSocketAddress,
       TcpServer<ByteBuf, ByteBuf> gossipServerSocket,
       TcpServer<ByteBuf, ByteBuf> pushReceivingServerSocket) {
 
@@ -40,20 +43,23 @@ public class PushReceiver {
     this.gossipServerSocket = gossipServerSocket;
     this.pushReceivingServerSocket = pushReceivingServerSocket;
 
-    gossipServerSocket.
-        enableWireLogging(LogLevel.DEBUG)
-        .start(
-            connection ->
-                connection.writeBytesAndFlushOnEach(connection.getInput()
-                    .doOnNext(byteBuf -> log.info("Gossip (Push) Message Received"))
-                    .map(byteBuf -> {
-                      Peer peer = SerializationUtils.fromBytes(byteBuf.array());
-                      return peer;
-                    })
-                    .doOnNext(peer -> pushReceivingSocketBridge.onNext(peer))
-                    .map(peer -> "ok".getBytes()) // TODO what should the answer be?
-                )
-        );
+    registerToGossip(gossipSocketAddress).map(registerd ->
+
+        gossipServerSocket.
+            enableWireLogging(LogLevel.DEBUG)
+            .start(
+                connection ->
+                    connection.writeBytesAndFlushOnEach(connection.getInput()
+                        .doOnNext(byteBuf -> log.info("Gossip (Push) Message Received"))
+                        .map(byteBuf -> {
+                          Peer peer = SerializationUtils.fromBytes(byteBuf.array());
+                          return peer;
+                        })
+                        .doOnNext(peer -> pushReceivingSocketBridge.onNext(peer))
+                        .map(peer -> new byte[0]) // TODO what should the answer be?
+                    )
+            )
+    ).subscribe();
 
     pushReceivingServerSocket.
         enableWireLogging(LogLevel.DEBUG)
@@ -66,7 +72,7 @@ public class PushReceiver {
                       return peer;
                     })
                     .doOnNext(peer -> pushReceivingSocketBridge.onNext(peer))
-                    .map(peer -> "ok".getBytes()) // TODO what should the answer be?
+                    .map(peer -> new byte[0]) // TODO what should the answer be?
                 )
         );
   }
@@ -75,6 +81,9 @@ public class PushReceiver {
     return gossipSocket;
   }
 
+  /**
+   * Get the merged (gossip socket and push server socket) list of "pushlist" for Brahms
+   */
   public Observable<ArrayList<Peer>> getPushList() {
     return Observable.combineLatest(gossipSocket, pushReceivingSocket,
         (gossipResonse, pushSocketResponse) -> {
@@ -85,6 +94,22 @@ public class PushReceiver {
           return new ArrayList<Peer>(mergedPeers.stream().distinct().collect(Collectors.toList()));
         }
     );
+  }
+
+  /**
+   * Registers to the gossip module to receive further norification of incoming PUSH announcements
+   * of a gossip.
+   */
+  private Observable<Boolean> registerToGossip(SocketAddress gossipSocketAddress) {
+
+    return TcpClient.newClient(gossipSocketAddress)
+        .enableWireLogging(LogLevel.DEBUG)
+        .createConnectionRequest()
+        .flatMap(connection ->
+            connection.writeBytes(Observable.just(MessageParser.getGossipNotifyForPush().array()))
+        )
+        .take(1)
+        .map(byteBuf -> true);
   }
 
   public void awaitShutdown() {
