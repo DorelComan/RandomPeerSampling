@@ -34,7 +34,7 @@ public class Rps {
         new Brahms(new ArrayList<>(), nseClient, pullClient, pushReceiver,
             pushSender);
 
-    QueryServer queryServer = new QueryServer(TcpServer.newServer((11001)));
+    QueryServer queryServer = new QueryServer(TcpServer.newServer((11001)), brahms);
     PullLocalViewServer pullLocalViewServer = new PullLocalViewServer(TcpServer.newServer(11002));
 
     GossipPush gossipPush = new GossipPush();
