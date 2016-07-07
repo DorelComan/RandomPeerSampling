@@ -1,11 +1,17 @@
 package de.tum.group34;
 
+import de.tum.group34.serialization.SerializationUtils;
+import io.netty.buffer.ByteBuf;
+import io.netty.handler.logging.LogLevel;
+import io.reactivex.netty.protocol.tcp.server.TcpServer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import module.Peer;
 import rx.Observable;
+import rx.subjects.PublishSubject;
 
 /**
  * This class is responsible to receive Peers, either over gossip or directly pushed by {@link
@@ -13,16 +19,59 @@ import rx.Observable;
  */
 public class PushReceiver {
 
-  Observable<List<Peer>> gossipSocket;
-  Observable<List<Peer>> pushReceivingSocket;
+  private static final Logger log = Logger.getLogger(PushReceiver.class.getName());
 
-  public PushReceiver(Observable<Peer> gossipSocket,
-      Observable<Peer> pushReceivingSocket) {
-    this.gossipSocket = gossipSocket.buffer(1, TimeUnit.MINUTES).onBackpressureDrop();
-    this.pushReceivingSocket = pushReceivingSocket.buffer(1, TimeUnit.MINUTES).onBackpressureDrop();
+  private final PublishSubject<Peer> pushReceivingSocketBridge = PublishSubject.create();
+  private final PublishSubject<Peer> gossipSocketBridge = PublishSubject.create();
+  private final Observable<List<Peer>> gossipSocket;
+  private final Observable<List<Peer>> pushReceivingSocket;
+
+  private final TcpServer<ByteBuf, ByteBuf> gossipServerSocket;
+  private final TcpServer<ByteBuf, ByteBuf> pushReceivingServerSocket;
+
+  public PushReceiver(
+      TcpServer<ByteBuf, ByteBuf> gossipServerSocket,
+      TcpServer<ByteBuf, ByteBuf> pushReceivingServerSocket) {
+
+    gossipSocket = gossipSocketBridge.buffer(1, TimeUnit.MINUTES).onBackpressureDrop();
+    pushReceivingSocket =
+        pushReceivingSocketBridge.buffer(1, TimeUnit.MINUTES).onBackpressureDrop();
+
+    this.gossipServerSocket = gossipServerSocket;
+    this.pushReceivingServerSocket = pushReceivingServerSocket;
+
+    gossipServerSocket.
+        enableWireLogging(LogLevel.DEBUG)
+        .start(
+            connection ->
+                connection.writeBytesAndFlushOnEach(connection.getInput()
+                    .doOnNext(byteBuf -> log.info("Gossip (Push) Message Received"))
+                    .map(byteBuf -> {
+                      Peer peer = SerializationUtils.fromBytes(byteBuf.array());
+                      return peer;
+                    })
+                    .doOnNext(peer -> pushReceivingSocketBridge.onNext(peer))
+                    .map(peer -> "ok".getBytes()) // TODO what should the answer be?
+                )
+        );
+
+    pushReceivingServerSocket.
+        enableWireLogging(LogLevel.DEBUG)
+        .start(
+            connection ->
+                connection.writeBytesAndFlushOnEach(connection.getInput()
+                    .doOnNext(byteBuf -> log.info("Push Responding Socket received a Message"))
+                    .map(byteBuf -> {
+                      Peer peer = SerializationUtils.fromBytes(byteBuf.array());
+                      return peer;
+                    })
+                    .doOnNext(peer -> pushReceivingSocketBridge.onNext(peer))
+                    .map(peer -> "ok".getBytes()) // TODO what should the answer be?
+                )
+        );
   }
 
-  public Observable<List<Peer>> incomingPeersFromGossip(){
+  public Observable<List<Peer>> gossipSocket() {
     return gossipSocket;
   }
 
@@ -36,5 +85,10 @@ public class PushReceiver {
           return new ArrayList<Peer>(mergedPeers.stream().distinct().collect(Collectors.toList()));
         }
     );
+  }
+
+  public void awaitShutdown() {
+    gossipServerSocket.awaitShutdown();
+    pushReceivingServerSocket.awaitShutdown();
   }
 }
