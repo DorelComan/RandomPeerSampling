@@ -46,7 +46,7 @@ public class PullClient {
                     .cast(ByteBuf.class)
                     .concatWith(connection.getInput())
         )
-        .take(1)
+        .first()
         .map(byteBuf -> SerializationUtils.fromByteBuf(byteBuf));
   }
 }
