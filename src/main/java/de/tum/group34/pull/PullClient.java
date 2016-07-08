@@ -1,4 +1,4 @@
-package de.tum.group34;
+package de.tum.group34.pull;
 
 import de.tum.group34.serialization.MessageParser;
 import de.tum.group34.serialization.SerializationUtils;

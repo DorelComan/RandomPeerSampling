@@ -1,4 +1,4 @@
-package de.tum.group34;
+package de.tum.group34.pull;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.logging.LogLevel;

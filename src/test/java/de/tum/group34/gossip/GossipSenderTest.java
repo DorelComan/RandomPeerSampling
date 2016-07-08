@@ -1,10 +1,10 @@
-package de.tum.group34;
+package de.tum.group34.gossip;
 
 import de.tum.group34.mock.MockTcpClient;
+import de.tum.group34.model.Peer;
 import de.tum.group34.serialization.MessageParser;
 import io.netty.buffer.ByteBuf;
 import java.util.concurrent.TimeUnit;
-import de.tum.group34.model.Peer;
 import org.junit.Test;
 import rx.Subscription;
 import rx.observers.TestSubscriber;

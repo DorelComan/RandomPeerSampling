@@ -1,4 +1,4 @@
-package de.tum.group34;
+package de.tum.group34.gossip;
 
 import de.tum.group34.serialization.MessageParser;
 import io.netty.buffer.ByteBuf;

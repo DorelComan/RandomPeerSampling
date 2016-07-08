@@ -1,5 +1,6 @@
-package de.tum.group34;
+package de.tum.group34.query;
 
+import de.tum.group34.Brahms;
 import de.tum.group34.serialization.MessageParser;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.logging.LogLevel;
