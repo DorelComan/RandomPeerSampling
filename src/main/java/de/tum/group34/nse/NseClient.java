@@ -1,6 +1,6 @@
 package de.tum.group34.nse;
 
-import de.tum.group34.MessageParser;
+import de.tum.group34.serialization.MessageParser;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.logging.LogLevel;
 import io.reactivex.netty.protocol.tcp.client.TcpClient;

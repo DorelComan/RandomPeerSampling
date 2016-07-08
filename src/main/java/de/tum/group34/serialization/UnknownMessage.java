@@ -1,4 +1,4 @@
-package de.tum.group34;
+package de.tum.group34.serialization;
 
 public class UnknownMessage extends RuntimeException{
 }

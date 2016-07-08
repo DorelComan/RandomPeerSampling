@@ -1,6 +1,5 @@
-package de.tum.group34;
+package de.tum.group34.serialization;
 
-import de.tum.group34.serialization.SerializationUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.net.InetAddress;
