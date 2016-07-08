@@ -3,6 +3,8 @@ package de.tum.group34.mock;
 import io.netty.buffer.ByteBuf;
 import io.reactivex.netty.client.ConnectionRequest;
 import io.reactivex.netty.protocol.tcp.client.TcpClient;
+import java.util.ArrayList;
+import java.util.List;
 import org.mockito.Mockito;
 
 /**
@@ -22,7 +24,6 @@ public abstract class MockTcpClient extends TcpClient<ByteBuf, ByteBuf> {
 
     MockTcpClient tcpClient = Mockito.spy(MockTcpClient.class);
     Mockito.when(tcpClient.createConnectionRequest()).thenReturn(connectionRequest);
-    // Mockito.when(tcpClient.getConnection()).thenCallRealMethod();
 
     tcpClient.setConnection(connection);
 
@@ -43,5 +44,18 @@ public abstract class MockTcpClient extends TcpClient<ByteBuf, ByteBuf> {
 
   public void assertLastSentMessageEquals(ByteBuf lastMessage) {
     getConnection().assertLastSentMessageEquals(lastMessage);
+  }
+
+  public void assertMessageSent(ByteBuf... messages) {
+    List<ByteBuf> msgList = new ArrayList<>(messages.length);
+    for (ByteBuf b : messages) {
+      msgList.add(b);
+    }
+
+    assertMessageSent(msgList);
+  }
+
+  public void assertMessageSent(List<ByteBuf> messages) {
+    getConnection().assertMessageSent(messages);
   }
 }

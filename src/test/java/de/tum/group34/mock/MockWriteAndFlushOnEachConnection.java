@@ -165,4 +165,8 @@ class MockWriteAndFlushOnEachConnection extends Connection<ByteBuf, ByteBuf> {
   @Override public Observable<Void> closeListener() {
     return null;
   }
+
+  public void assertMessageSent(List<ByteBuf> messages) {
+    Assert.assertEquals(messages, lastSentMessages);
+  }
 }
