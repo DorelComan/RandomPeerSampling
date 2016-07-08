@@ -1,4 +1,4 @@
-package de.tum.group34;
+package de.tum.group34.mock;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
@@ -8,6 +8,9 @@ import io.netty.channel.FileRegion;
 import io.netty.util.concurrent.EventExecutorGroup;
 import io.reactivex.netty.channel.AllocatingTransformer;
 import io.reactivex.netty.channel.Connection;
+import java.util.ArrayList;
+import java.util.List;
+import org.junit.Assert;
 import org.mockito.Mockito;
 import rx.Observable;
 import rx.functions.Action1;
@@ -18,8 +21,24 @@ class MockWriteAndFlushOnEachConnection extends Connection<ByteBuf, ByteBuf> {
     super(Mockito.mock(Channel.class));
   }
 
+  public List<ByteBuf> lastSentMessages = new ArrayList<>();
+
   @Override public Observable<Void> writeAndFlushOnEach(Observable<ByteBuf> msgs) {
+
+    lastSentMessages.add(msgs.toBlocking().first());
+
     return Observable.just(null);
+  }
+
+  public void assertMessagesSent(int count) {
+    Assert.assertEquals(count, lastSentMessages.size());
+  }
+
+  public void assertLastSentMessageEquals(ByteBuf lastMessage) {
+    ByteBuf lastMsg =
+        lastSentMessages.isEmpty() ? null : lastSentMessages.get(lastSentMessages.size() - 1);
+
+    Assert.assertEquals(lastMessage, lastMsg);
   }
 
   @Override

@@ -1,4 +1,4 @@
-package de.tum.group34;
+package de.tum.group34.mock;
 
 import io.netty.buffer.ByteBuf;
 import io.reactivex.netty.channel.Connection;

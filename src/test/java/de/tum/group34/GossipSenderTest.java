@@ -1,14 +1,9 @@
 package de.tum.group34;
 
-import io.netty.buffer.ByteBuf;
-import io.reactivex.netty.channel.Connection;
-import io.reactivex.netty.client.ConnectionRequest;
-import io.reactivex.netty.protocol.tcp.client.TcpClient;
+import de.tum.group34.mock.MockTcpClient;
 import java.util.concurrent.TimeUnit;
 import module.Peer;
 import org.junit.Test;
-import org.mockito.Mockito;
-import rx.Observable;
 
 /**
  * @author Hannes Dorfmann
@@ -20,18 +15,12 @@ public class GossipSenderTest {
 
     int ttl = 20;
     Peer ownIdentity = new Peer();
-    TcpClient<ByteBuf, ByteBuf> tcpClient = Mockito.mock(TcpClient.class);
-    Connection<ByteBuf, ByteBuf> connection = Mockito.spy(new MockWriteAndFlushOnEachConnection());
-    ConnectionRequest<ByteBuf, ByteBuf> connectionRequest = new MockConnectionRequest(connection);
-
-    Mockito.when(tcpClient.createConnectionRequest()).thenReturn(connectionRequest);
+    MockTcpClient tcpClient = MockTcpClient.create();
 
     GossipSender sender = new GossipSender(ownIdentity, tcpClient);
     sender.sendOwnPeerPeriodically(500, TimeUnit.MILLISECONDS, ttl).toBlocking().first();
 
-    Mockito
-        .verify(connection, Mockito.only())
-        .writeAndFlushOnEach(
-            Mockito.any(Observable.class));
+    tcpClient.assertMessagesSent(1);
+    tcpClient.assertLastSentMessageEquals(MessageParser.buildGossipPush(ownIdentity, ttl));
   }
 }
