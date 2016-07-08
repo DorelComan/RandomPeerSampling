@@ -1,5 +1,6 @@
 package module;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
 
@@ -8,7 +9,6 @@ import java.net.InetSocketAddress;
  */
 public class Peer implements Serializable {
 
-  private String peerIdentity;
   private InetSocketAddress ipAddress; // SocketAddress (includes port)
   private Integer msgID;
   private byte[] hostkey;
@@ -34,10 +34,12 @@ public class Peer implements Serializable {
     return msgID;
   }
 
+  @SuppressFBWarnings("EI_EXPOSE_REP")
   public void setHostkey(byte[] hostkey) {
     this.hostkey = hostkey;
   }
 
+  @SuppressFBWarnings("EI_EXPOSE_REP")
   public byte[] getHostkey() {
     return hostkey;
   }

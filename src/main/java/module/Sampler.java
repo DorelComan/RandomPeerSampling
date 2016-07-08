@@ -1,5 +1,6 @@
 package module;
 
+import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -7,7 +8,7 @@ public class Sampler {
 
   private MessageDigest randomPRF;
   private Peer q;
-  private Double randNumber;
+  private double randNumber;
 
   public Sampler() {
     q = null;
@@ -23,15 +24,15 @@ public class Sampler {
 
   public void next(Peer elem) {
 
-    String strElem = elem.getIpAddress().toString() + randNumber.toString();
+    String strElem = elem.getIpAddress().toString() + randNumber;
 
     String hashQ = "";
     if (q != null) {
-      String strQ = q.getIpAddress().toString() + randNumber.toString();
-      hashQ = convertByteArrayToHexString(randomPRF.digest(strQ.getBytes()));
+      String strQ = q.getIpAddress().toString() + randNumber;
+      hashQ = convertByteArrayToHexString(randomPRF.digest(strQ.getBytes(Charset.forName("UTF-8"))));
     }
 
-    String hashElem = convertByteArrayToHexString(randomPRF.digest(strElem.getBytes()));
+    String hashElem = convertByteArrayToHexString(randomPRF.digest(strElem.getBytes(Charset.forName("UTF-8"))));
 
     System.out.println(hashQ);
     System.out.println(hashElem);

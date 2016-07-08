@@ -21,7 +21,6 @@ public class Brahms {
   private int viewSize; // l1
 
   private PullClient pullClient;
-  private NseClient nseClient;
   private PushReceiver pushReceiver;
   private PushSender pushSender;
 
@@ -38,7 +37,6 @@ public class Brahms {
 
     viewList = list;
     samplList = new ArrayList<>();
-    this.nseClient = nseClient;
     this.pullClient = pullClient;
     this.pushReceiver = pushReceiver;
     this.pushSender = pushSender;
@@ -55,9 +53,9 @@ public class Brahms {
   public void start() {
 
     while (true) {            // every iteration to be executed periodically
-      Integer nmbPushes = Math.round(alfa * viewSize);
-      Integer nmbPulls = Math.round(beta * viewSize);
-      Integer nmbSamples = Math.round(gamma * viewSize);
+      int nmbPushes = Math.round(alfa * viewSize);
+      int nmbPulls = Math.round(beta * viewSize);
+      int nmbSamples = Math.round(gamma * viewSize);
 
       for (int i = 0; i < nmbPushes; i++)
         pushSender.sendMyIdTo(rand(viewList, 1).get(0));

@@ -42,7 +42,7 @@ public class GossipSenderTest {
     Subscription sub =
         sender.sendOwnPeerPeriodically(250, TimeUnit.MILLISECONDS, ttl).subscribe(subscriber);
 
-    Thread.sleep(650); // Assume 3 times sent in the mean time
+    Thread.sleep(650); // Assume 3 times sent in the mean time (at 0, 250, 500)
     sub.unsubscribe();
 
     tcpClient.assertMessagesSent(3);
