@@ -3,7 +3,7 @@ package de.tum.group34;
 import de.tum.group34.mock.MockTcpClient;
 import io.netty.buffer.ByteBuf;
 import java.util.concurrent.TimeUnit;
-import module.Peer;
+import de.tum.group34.model.Peer;
 import org.junit.Test;
 import rx.Subscription;
 import rx.observers.TestSubscriber;

@@ -5,7 +5,7 @@ import io.reactivex.netty.client.ConnectionRequest;
 import io.reactivex.netty.protocol.tcp.client.TcpClient;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
-import module.Peer;
+import de.tum.group34.model.Peer;
 import rx.Observable;
 
 /**

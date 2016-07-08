@@ -7,7 +7,7 @@ import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
-import module.Peer;
+import de.tum.group34.model.Peer;
 
 /**
  * @author Hannes Dorfmann

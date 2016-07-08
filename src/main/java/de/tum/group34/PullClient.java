@@ -6,7 +6,7 @@ import io.reactivex.netty.protocol.tcp.client.TcpClient;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import module.Peer;
+import de.tum.group34.model.Peer;
 import rx.Observable;
 
 /**

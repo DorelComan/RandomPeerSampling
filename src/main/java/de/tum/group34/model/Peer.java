@@ -1,4 +1,4 @@
-package module;
+package de.tum.group34.model;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.Serializable;

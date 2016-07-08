@@ -1,4 +1,4 @@
-package module;
+package de.tum.group34.model;
 
 import java.nio.charset.Charset;
 import java.security.MessageDigest;

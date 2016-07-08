@@ -1,6 +1,6 @@
 package de.tum.group34;
 
-import module.Peer;
+import de.tum.group34.model.Peer;
 
 public class PushSender {
 

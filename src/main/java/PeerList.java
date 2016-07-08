@@ -1,4 +1,4 @@
-import module.Peer;
+import de.tum.group34.model.Peer;
 
 import java.util.List;
 

@@ -5,8 +5,8 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import module.Peer;
-import module.Sampler;
+import de.tum.group34.model.Peer;
+import de.tum.group34.model.Sampler;
 import rx.Observable;
 import rx.subjects.BehaviorSubject;
 

@@ -1,7 +1,7 @@
 import java.net.InetSocketAddress;
 import java.security.NoSuchAlgorithmException;
-import module.Peer;
-import module.Sampler;
+import de.tum.group34.model.Peer;
+import de.tum.group34.model.Sampler;
 
 public class SampleTest {
 

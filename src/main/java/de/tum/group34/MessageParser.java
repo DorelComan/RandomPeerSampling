@@ -4,7 +4,7 @@ import de.tum.group34.serialization.SerializationUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.net.InetAddress;
-import module.Peer;
+import de.tum.group34.model.Peer;
 
 public class MessageParser {
 

@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import module.Peer;
+import de.tum.group34.model.Peer;
 import rx.Observable;
 import rx.subjects.PublishSubject;
 
