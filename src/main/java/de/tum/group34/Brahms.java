@@ -24,13 +24,14 @@ public class Brahms {
   private int viewSize; // l1
 
   private PullClient pullClient;
+  private NseClient nseClient;
   private PushReceiver pushReceiver;
   private PushSender pushSender;
 
-  private float alfa;
-  private float beta;
-  private float gamma;
-  private int sizeEst;
+  private Double alfa;
+  private Double beta;
+  private Double gamma;
+  private Double sizeEst;
 
   /**
    * Initialization of the algorithm
@@ -38,14 +39,17 @@ public class Brahms {
   public Brahms(List<Peer> list, NseClient nseClient, PullClient pullClient,
       PushReceiver pushReceiver, PushSender pushSender) {
 
+    alfa = beta = 0.45;
+    gamma = 0.1;
+
     viewList = list;
     samplList = new ArrayList<>();
+    this.nseClient = nseClient;
     this.pullClient = pullClient;
     this.pushReceiver = pushReceiver;
     this.pushSender = pushSender;
 
-    this.samplSize = nseClient.getNetworkSize().toBlocking().first();
-    this.viewSize = this.samplSize;
+    setSizeEstimation();
 
     for (int i = 0; i < samplSize; i++)
       samplList.add(new Sampler());
@@ -56,9 +60,11 @@ public class Brahms {
   public void start() {
 
     while (true) {            // every iteration to be executed periodically
-      int nmbPushes = Math.round(alfa * viewSize);
-      int nmbPulls = Math.round(beta * viewSize);
-      int nmbSamples = Math.round(gamma * viewSize);
+
+      setSizeEstimation();
+      Integer nmbPushes = ((int) Math.round(alfa * viewSize));
+      Integer nmbPulls = (int) Math.round(beta * viewSize);
+      Integer nmbSamples = (int) Math.round(gamma * viewSize);
 
       for (int i = 0; i < nmbPushes; i++)
         pushSender.sendMyIdTo(rand(viewList, 1).get(0));
@@ -102,7 +108,10 @@ public class Brahms {
 
     Collections.shuffle(list);
 
-    return list.subList(0, n - 1);
+    if(n > list.size())
+      return list;
+    else
+      return list.subList(0, n - 1);
   }
 
   public static List<Peer> randSamples(List<Sampler> list, Integer n) {
@@ -111,18 +120,27 @@ public class Brahms {
 
     List<Peer> randList = new ArrayList<>();
 
-    for (int i = 0; i < n; i++)
-      randList.add(list.get(i).sample());
+    if( n < list.size())
+      for (int i = 0; i < n; i++)
+        randList.add(list.get(i).sample());
+
+    else
+      for (int i = 0; i < list.size(); i++)
+        randList.add(list.get(i).sample());
 
     return randList;
   }
 
-  public synchronized void setSizeEstimation(Integer size) {
+  public synchronized void setSizeEstimation() { // It sets the size estimation of the netork
 
-    sizeEst = size;
+    sizeEst = Math.cbrt(nseClient.getNetworkSize().toBlocking().first());
+
+    Double samplSize = Math.cbrt(sizeEst);
+    this.samplSize = samplSize.intValue();
+    this.viewSize = this.samplSize;
   }
 
-  private synchronized Integer getSizeEstim() {
+  private synchronized Double getSizeEstim() {
 
     return sizeEst;
   }
