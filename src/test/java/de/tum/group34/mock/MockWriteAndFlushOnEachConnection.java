@@ -8,25 +8,42 @@ import io.netty.channel.FileRegion;
 import io.netty.util.concurrent.EventExecutorGroup;
 import io.reactivex.netty.channel.AllocatingTransformer;
 import io.reactivex.netty.channel.Connection;
+import io.reactivex.netty.channel.ContentSource;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Assert;
 import org.mockito.Mockito;
 import rx.Observable;
+import rx.Subscriber;
 import rx.functions.Action1;
 import rx.functions.Func1;
+import rx.subjects.BehaviorSubject;
+
+import static javafx.scene.input.KeyCode.T;
 
 class MockWriteAndFlushOnEachConnection extends Connection<ByteBuf, ByteBuf> {
+
+  private BehaviorSubject<ByteBuf> incomingMessage = BehaviorSubject.create();
+  private ContentSource<ByteBuf> contentSource;
+
   public MockWriteAndFlushOnEachConnection() {
     super(Mockito.mock(Channel.class));
+
+    final Func1<Subscriber<? super T>, Object> subscriptionEventFactory =
+        subscriber -> incomingMessage;
+
+    ChannelPipeline mockChannelPipeline = Mockito.mock(ChannelPipeline.class);
+    Channel mockChannel = Mockito.mock(Channel.class);
+
+    Mockito.doReturn(mockChannelPipeline).when(mockChannel).pipeline();
+
+    contentSource = new ContentSource(mockChannel, subscriptionEventFactory);
   }
 
   public List<ByteBuf> lastSentMessages = new ArrayList<>();
 
   @Override public Observable<Void> writeAndFlushOnEach(Observable<ByteBuf> msgs) {
-
     lastSentMessages.add(msgs.toBlocking().first());
-
     return Observable.just(null);
   }
 
@@ -39,6 +56,10 @@ class MockWriteAndFlushOnEachConnection extends Connection<ByteBuf, ByteBuf> {
         lastSentMessages.isEmpty() ? null : lastSentMessages.get(lastSentMessages.size() - 1);
 
     Assert.assertEquals(lastMessage, lastMsg);
+  }
+
+  @Override public ContentSource<ByteBuf> getInput() {
+    return contentSource;
   }
 
   @Override
@@ -147,7 +168,6 @@ class MockWriteAndFlushOnEachConnection extends Connection<ByteBuf, ByteBuf> {
   }
 
   @Override public void flush() {
-
   }
 
   @Override public Observable<Void> close() {
