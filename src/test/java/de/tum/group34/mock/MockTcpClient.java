@@ -1,6 +1,7 @@
 package de.tum.group34.mock;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.handler.logging.LogLevel;
 import io.reactivex.netty.client.ConnectionRequest;
 import io.reactivex.netty.protocol.tcp.client.TcpClient;
 import java.util.ArrayList;
@@ -34,28 +35,70 @@ public abstract class MockTcpClient extends TcpClient<ByteBuf, ByteBuf> {
     this.connection = connection;
   }
 
+  @Override
+  public final TcpClient<ByteBuf, ByteBuf> enableWireLogging(String name,
+      LogLevel wireLoggingLevel) {
+    return this;
+  }
+
+  @Override public final TcpClient<ByteBuf, ByteBuf> enableWireLogging(LogLevel wireLoggingLevel) {
+    return this;
+  }
+
   final MockWriteAndFlushOnEachConnection getConnection() {
     return connection;
   }
 
-  public void assertMessagesSent(int count) {
+  public MockTcpClient assertMessagesSent(int count) {
     getConnection().assertMessagesSent(count);
+    return this;
   }
 
-  public void assertLastSentMessageEquals(ByteBuf lastMessage) {
+  public MockTcpClient assertLastSentMessageEquals(ByteBuf lastMessage) {
     getConnection().assertLastSentMessageEquals(lastMessage);
+    return this;
   }
 
-  public void assertMessageSent(ByteBuf... messages) {
+  public MockTcpClient assertMessagesSent(ByteBuf... messages) {
     List<ByteBuf> msgList = new ArrayList<>(messages.length);
     for (ByteBuf b : messages) {
       msgList.add(b);
     }
 
-    assertMessageSent(msgList);
+    assertMessagesSent(msgList);
+    return this;
   }
 
-  public void assertMessageSent(List<ByteBuf> messages) {
+  public MockTcpClient assertMessagesSent(List<ByteBuf> messages) {
     getConnection().assertMessageSent(messages);
+    return this;
+  }
+
+  /**
+   * Deliver a incoming message right now
+   *
+   * @param message The message to deliver
+   */
+  public MockTcpClient deliverIncomingMessage(ByteBuf message) {
+    deliverIncomingMessageDelayed(message, 0);
+    return this;
+  }
+
+  /**
+   * Deliver incoming message after waiting a period of time (blocking)
+   *
+   * @param message the message to deliver
+   * @param sleepMs The miliseconds do wait (blocking) before delivering the message
+   */
+  public MockTcpClient deliverIncomingMessageDelayed(ByteBuf message, long sleepMs) {
+    if (sleepMs > 0) {
+      try {
+        Thread.sleep(sleepMs);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+    }
+    getConnection().deliverIncomingMessage(message);
+    return this;
   }
 }

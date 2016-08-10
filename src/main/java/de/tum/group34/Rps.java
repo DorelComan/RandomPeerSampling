@@ -1,6 +1,7 @@
 package de.tum.group34;
 
 import de.tum.group34.gossip.GossipSender;
+import de.tum.group34.model.Peer;
 import de.tum.group34.nse.NseClient;
 import de.tum.group34.pull.PullClient;
 import de.tum.group34.pull.PullLocalViewServer;
@@ -13,7 +14,6 @@ import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
-import de.tum.group34.model.Peer;
 
 /**
  * @author Hannes Dorfmann
@@ -32,7 +32,8 @@ public class Rps {
     PushSender pushSender = new PushSender();
     PushReceiver pushReceiver = initPushReceiver();
 
-    NseClient nseClient = new NseClient(TcpClient.newClient("127.0.0.1", 9899));
+    NseClient nseClient =
+        new NseClient(TcpClient.newClient("127.0.0.1", 9899), 30, TimeUnit.SECONDS);
 
     GossipSender gossipSender =
         new GossipSender(ownIdentity, TcpClient.newClient("127.0.0.1", 11007));

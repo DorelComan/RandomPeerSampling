@@ -1,9 +1,9 @@
 package de.tum.group34.serialization;
 
+import de.tum.group34.model.Peer;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.net.InetAddress;
-import de.tum.group34.model.Peer;
 
 public class MessageParser {
 
@@ -58,18 +58,22 @@ public class MessageParser {
   public static Peer buildPeerFromGossipPush(ByteBuf buf) throws MessageException {
 
     int buf_size = buf.readableBytes();
-    if (buf_size > Message.MAX_LENGTH)
+    if (buf_size > Message.MAX_LENGTH) {
       throw new MessageException();
+    }
 
     int size = unsignedIntFromShort(buf.getShort(0)); // Reading size of the header
     if (size != buf_size)    // verifying the declared size and the received one
+    {
       throw new MessageException();
+    }
 
     int messageID = unsignedIntFromShort(buf.getShort(32));
     int type = unsignedIntFromShort(buf.getShort(48));
 
-    if (type != Message.GOSSIP_PUSH)
+    if (type != Message.GOSSIP_PUSH) {
       throw new MessageException();
+    }
 
     ByteBuf dst = Unpooled.buffer();
     buf.getBytes(64, dst);
@@ -82,40 +86,39 @@ public class MessageParser {
 
   public static ByteBuf buildGossipPush(Peer peer, int ttl) {
 
-      int size = 64;
-      ByteBuf byteBuf = Unpooled.buffer();
+    int size = 64;
+    ByteBuf byteBuf = Unpooled.buffer();
 
-      byteBuf.setShort(16, (short) Message.GOSSIP_ANNUNCE); // setting type of announce
-      byteBuf.setShort(48, (short) Message.GOSSIP_PUSH);
-      byteBuf.setByte(32, (byte)(ttl & 0xFF));
-      byteBuf.setByte(33,(byte)((ttl >> 8) & 0xFF));
+    byteBuf.setShort(16, (short) Message.GOSSIP_ANNUNCE); // setting type of announce
+    byteBuf.setShort(48, (short) Message.GOSSIP_PUSH);
+    byteBuf.setByte(32, (byte) (ttl & 0xFF));
+    byteBuf.setByte(33, (byte) ((ttl >> 8) & 0xFF));
 
-      size += SerializationUtils.toByteBuf(peer).readableBytes();
+    size += SerializationUtils.toByteBuf(peer).readableBytes();
 
-      byteBuf.setShort(0, (short) size);
+    byteBuf.setShort(0, (short) size);
 
-      return byteBuf;
+    return byteBuf;
   }
 
   public static ByteBuf getGossipNotifyForPush() {
 
     ByteBuf byteBuf = Unpooled.buffer();
 
-      byteBuf.setShort(0, (short) 64); // Setting size of GOSSIP NOTIFY
-      byteBuf.setShort(16,(short) Message.GOSSIP_NOTIFY);
-      byteBuf.setShort(48,(short) Message.GOSSIP_PUSH);
+    byteBuf.setShort(0, (short) 64); // Setting size of GOSSIP NOTIFY
+    byteBuf.setShort(16, (short) Message.GOSSIP_NOTIFY);
+    byteBuf.setShort(48, (short) Message.GOSSIP_PUSH);
 
-      return byteBuf;
-    }
+    return byteBuf;
+  }
 
-    public static short unsignedShortFromByte(byte value) {
-        return (short) (value & ((short) 0xff));
-    }
+  public static short unsignedShortFromByte(byte value) {
+    return (short) (value & ((short) 0xff));
+  }
 
-    public static int unsignedIntFromShort(short value) {
-        return ((int)value) & 0xffff;
-    }
-
+  public static int unsignedIntFromShort(short value) {
+    return ((int) value) & 0xffff;
+  }
 
   public static ByteBuf getNseQuery() {
     return null;

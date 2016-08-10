@@ -49,24 +49,38 @@ public abstract class MockTcpServer extends TcpServer<ByteBuf, ByteBuf> {
     return server;
   }
 
-  public void assertMessagesSent(int count) {
+  public MockTcpServer assertMessagesSent(int count) {
     getConnection().assertMessagesSent(count);
+    return this;
   }
 
-  public void assertLastSentMessageEquals(ByteBuf lastMessage) {
+  public MockTcpServer assertLastSentMessageEquals(ByteBuf lastMessage) {
     getConnection().assertLastSentMessageEquals(lastMessage);
+    return this;
   }
 
-  public void assertMessageSent(ByteBuf... messages) {
+  public MockTcpServer assertMessageSent(ByteBuf... messages) {
     List<ByteBuf> msgList = new ArrayList<>(messages.length);
     for (ByteBuf b : messages) {
       msgList.add(b);
     }
 
     assertMessageSent(msgList);
+    return this;
   }
 
-  public void assertMessageSent(List<ByteBuf> messages) {
+  public MockTcpServer assertMessageSent(List<ByteBuf> messages) {
     getConnection().assertMessageSent(messages);
+    return this;
+  }
+
+  public MockTcpServer addIncomingMessage(ByteBuf message) {
+    getConnection().deliverIncomingMessage(message);
+    return this;
+  }
+
+  public MockTcpServer simulateIncomingSocketError(Throwable error){
+    getConnection().simulateIncommingSocketError(error);
+    return this;
   }
 }

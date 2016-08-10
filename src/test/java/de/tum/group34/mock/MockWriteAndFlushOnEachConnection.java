@@ -56,6 +56,18 @@ class MockWriteAndFlushOnEachConnection extends Connection<ByteBuf, ByteBuf> {
     Assert.assertEquals(lastMessage, lastMsg);
   }
 
+  public void assertMessageSent(List<ByteBuf> messages) {
+    Assert.assertEquals(messages, lastSentMessages);
+  }
+
+  public void deliverIncomingMessage(ByteBuf msg) {
+    incomingMessage.onNext(msg);
+  }
+
+  public void simulateIncommingSocketError(Throwable e) {
+    incomingMessage.onError(e);
+  }
+
   @Override public ContentSource<ByteBuf> getInput() {
     return contentSource;
   }
@@ -182,9 +194,5 @@ class MockWriteAndFlushOnEachConnection extends Connection<ByteBuf, ByteBuf> {
 
   @Override public Observable<Void> closeListener() {
     return null;
-  }
-
-  public void assertMessageSent(List<ByteBuf> messages) {
-    Assert.assertEquals(messages, lastSentMessages);
   }
 }

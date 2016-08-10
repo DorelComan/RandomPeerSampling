@@ -5,7 +5,7 @@ import de.tum.group34.model.Peer;
 import de.tum.group34.serialization.MessageParser;
 import io.netty.buffer.ByteBuf;
 import java.util.concurrent.TimeUnit;
-import org.junit.Test;
+import org.junit.*;
 import rx.Subscription;
 import rx.observers.TestSubscriber;
 
@@ -26,8 +26,8 @@ public class GossipSenderTest {
     GossipSender sender = new GossipSender(ownIdentity, tcpClient);
     sender.sendOwnPeerPeriodically(500, TimeUnit.MILLISECONDS, ttl).toBlocking().first();
 
-    tcpClient.assertMessagesSent(1);
-    tcpClient.assertLastSentMessageEquals(buildGossipPush(ownIdentity, ttl));
+    tcpClient.assertMessagesSent(1)
+        .assertLastSentMessageEquals(buildGossipPush(ownIdentity, ttl));
   }
 
   @Test
@@ -46,8 +46,8 @@ public class GossipSenderTest {
     Thread.sleep(650); // Assume 3 times sent in the mean time (at 0, 250, 500)
     sub.unsubscribe();
 
-    tcpClient.assertMessagesSent(3);
     ByteBuf ownPeerMessage = MessageParser.buildGossipPush(ownIdentity, ttl);
-    tcpClient.assertMessageSent(ownPeerMessage, ownPeerMessage, ownPeerMessage);
+    tcpClient.assertMessagesSent(3)
+        .assertMessagesSent(ownPeerMessage, ownPeerMessage, ownPeerMessage);
   }
 }
