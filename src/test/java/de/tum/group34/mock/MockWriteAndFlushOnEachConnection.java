@@ -11,15 +11,13 @@ import io.reactivex.netty.channel.Connection;
 import io.reactivex.netty.channel.ContentSource;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Assert;
+import org.junit.*;
 import org.mockito.Mockito;
 import rx.Observable;
 import rx.Subscriber;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.subjects.BehaviorSubject;
-
-import static javafx.scene.input.KeyCode.T;
 
 class MockWriteAndFlushOnEachConnection extends Connection<ByteBuf, ByteBuf> {
 
@@ -29,7 +27,7 @@ class MockWriteAndFlushOnEachConnection extends Connection<ByteBuf, ByteBuf> {
   public MockWriteAndFlushOnEachConnection() {
     super(Mockito.mock(Channel.class));
 
-    final Func1<Subscriber<? super T>, Object> subscriptionEventFactory =
+    final Func1<Subscriber<? super ByteBuf>, Object> subscriptionEventFactory =
         subscriber -> incomingMessage;
 
     ChannelPipeline mockChannelPipeline = Mockito.mock(ChannelPipeline.class);

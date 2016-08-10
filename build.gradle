@@ -30,9 +30,8 @@ def rxNetty = '0.5.2-rc.3'
 
 dependencies {
   testCompile group: 'junit', name: 'junit', version: '4.11'
-  compile 'io.reactivex:rxjava:1.1.6'
+  compile 'io.reactivex:rxjava:1.1.8'
 
-  //compile "io.reactivex:rxnetty:$rxNetty"
   compile "io.reactivex:rxnetty-common:$rxNetty"
   compile "io.reactivex:rxnetty-tcp:$rxNetty"
   compile 'com.jakewharton.rxrelay:rxrelay:1.1.0'

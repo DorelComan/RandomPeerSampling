@@ -89,6 +89,7 @@ public class Brahms {
     }
   }
 
+  /*
   public void validateSamples() {
 
     for (int i = 0; i < samplSize; i++) {
@@ -97,6 +98,7 @@ public class Brahms {
       }
     }
   }
+  */
 
   /**
    * Method used for updating the Sampler peers given a list using the probabilistic method next()

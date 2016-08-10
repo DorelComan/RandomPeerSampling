@@ -1,15 +1,11 @@
 package de.tum.group34;
 
-import de.tum.group34.serialization.Message;
 import de.tum.group34.serialization.MessageParser;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.nio.ByteBuffer;
 
 public class QueryServerTest {
-
-    ByteBuf queryBuf;
 
     public QueryServerTest(){
         ByteBuf byteBuf = Unpooled.buffer();
