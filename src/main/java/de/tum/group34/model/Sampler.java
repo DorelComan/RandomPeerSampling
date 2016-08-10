@@ -4,11 +4,12 @@ import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+
 public class Sampler {
 
-  private MessageDigest randomPRF;
+  private MessageDigest randomPRF; // Hash function
   private Peer q;
-  private double randNumber;
+  private double randNumber; // Random number intialized when the sampler is created, this makes the hashing unique
 
   public Sampler() {
     q = null;
@@ -16,12 +17,18 @@ public class Sampler {
     try {
       randomPRF = MessageDigest.getInstance("SHA-1");
     } catch (NoSuchAlgorithmException e) {
-      e.printStackTrace();
+      e.printStackTrace(); // TODO: how do we catch this, what to do in case?
     }
 
     randNumber = Math.random();
   }
 
+  /**
+   * Method that evaluate the hash values of the candidate peer and the peer of Sampler and keep in the Sampler the one
+   * with the lowest value.
+   *
+   * @param elem candidate to substitute the element in the Sampler
+     */
   public void next(Peer elem) {
 
     String strElem = elem.getIpAddress().toString() + randNumber;
@@ -34,8 +41,8 @@ public class Sampler {
 
     String hashElem = convertByteArrayToHexString(randomPRF.digest(strElem.getBytes(Charset.forName("UTF-8"))));
 
-    System.out.println(hashQ);
-    System.out.println(hashElem);
+   // System.out.println(hashQ);
+   // System.out.println(hashElem);
 
     if (q == null || hashElem.compareTo(hashQ) < 0) {
       q = elem;
@@ -46,6 +53,12 @@ public class Sampler {
 
     return q;
   }
+
+    /**
+     * Used for internal conversion from byte[] to String
+     * @param arrayBytes
+     * @return
+     */
 
   private static String convertByteArrayToHexString(byte[] arrayBytes) {
     StringBuffer stringBuffer = new StringBuffer();
@@ -61,6 +74,6 @@ public class Sampler {
    */
 
   public boolean validate() {
-    return true; // TODO wtf?
+    return true; // TODO wtf? We should ping it, and see if it answer, how do we do it?
   }
 }

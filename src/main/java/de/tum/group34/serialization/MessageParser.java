@@ -122,7 +122,8 @@ public class MessageParser {
   }
 
   public static int getSizeFromNseMessage(ByteBuf byteBuf) {
-    return 0;
+
+    return (int) byteBuf.getUnsignedInt(32);
   }
 
   /**
