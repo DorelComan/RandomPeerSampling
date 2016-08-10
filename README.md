@@ -5,7 +5,7 @@ From command line use:
 
 # TASKS
 
-- Do the file reader
+- Think how to set setSizeEstimation, if the NSEClient update automatically the value
 - 
 
 

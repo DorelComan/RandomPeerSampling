@@ -20,8 +20,8 @@ public class Brahms {
 
   private List<Sampler> samplList; // Sample list
   private List<Peer> viewList;     // View List
-  private int samplSize; // l2
-  private int viewSize; // l1
+  private int samplSize; // l2 - size of the list of Samplers
+  private int viewSize; // l1 - size of the local View
 
   private PullClient pullClient;
   private NseClient nseClient;
@@ -49,9 +49,9 @@ public class Brahms {
     this.pushReceiver = pushReceiver;
     this.pushSender = pushSender;
 
-    setSizeEstimation();
+    setSizeEstimation(); // Setting the size estimation for the network thanks to NSE
 
-    for (int i = 0; i < samplSize; i++)
+    for (int i = 0; i < samplSize; i++) // Setting the list of samplers
       samplList.add(new Sampler());
 
     updateSample(list);
@@ -59,13 +59,14 @@ public class Brahms {
 
   public void start() {
 
-    while (true) {            // every iteration to be executed periodically
+    while (true) { // every iteration to be executed periodically
 
       setSizeEstimation();
       Integer nmbPushes = ((int) Math.round(alfa * viewSize));
       Integer nmbPulls = (int) Math.round(beta * viewSize);
       Integer nmbSamples = (int) Math.round(gamma * viewSize);
 
+      // Push to Peers from local View - TODO: problem if have a small list and what about re-sending to the same
       for (int i = 0; i < nmbPushes; i++)
         pushSender.sendMyIdTo(rand(viewList, 1).get(0));
 
@@ -97,6 +98,9 @@ public class Brahms {
     }
   }
 
+  /**
+   * Method used for updating the Sampler peers given a list using the probabilistic method next()
+   */
   public void updateSample(List<Peer> list) {
 
     for (Sampler s : samplList)
@@ -131,13 +135,16 @@ public class Brahms {
     return randList;
   }
 
-  public synchronized void setSizeEstimation() { // It sets the size estimation of the netork
+  /**
+   * It invokes the NSE module to recover the network size estimation
+   */
+  public synchronized void setSizeEstimation() {
 
     sizeEst = Math.cbrt(nseClient.getNetworkSize().toBlocking().first());
 
-    Double samplSize = Math.cbrt(sizeEst);
-    this.samplSize = samplSize.intValue();
-    this.viewSize = this.samplSize;
+    // Double samplSize = Math.cbrt(sizeEst);
+    this.samplSize = sizeEst.intValue();
+    this.viewSize = sizeEst.intValue();
   }
 
   private synchronized Double getSizeEstim() {
@@ -146,6 +153,7 @@ public class Brahms {
   }
 
   public Observable<Peer> getRandomPeerObservable() {
+
     return viewListSubject
         .flatMap(viewList -> {
           Integer i = secureRandom.nextInt(viewList.size());
