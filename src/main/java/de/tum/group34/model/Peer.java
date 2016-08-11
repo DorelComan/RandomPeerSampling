@@ -16,6 +16,11 @@ public class Peer implements Serializable {
   public Peer() {
   }
 
+  public Peer(InetSocketAddress inetSocketAddress) {
+
+    this.ipAddress = inetSocketAddress;
+  }
+
   public InetSocketAddress getIpAddress() {
     return ipAddress;
   }
