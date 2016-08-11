@@ -33,12 +33,9 @@ public class Pull_simple_test {
         PullServer pullServer = new PullServer(brahms, TcpServer.newServer(1102));
         Peer peer = new Peer(new InetSocketAddress("127.0.0.1", 1102));
 
-       /* Socket clientSocket = new Socket("127.0.0.1", 1102);
+        /*Socket clientSocket = new Socket("127.0.0.1", 1102);
         DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
         BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-
-        List<Peer> serverList = new ArrayList<>();
-        ArrayList<Observable<ArrayList<Peer>>> response = new ArrayList<>();
 
         byte[] hello = MessageParser.getPullLocalView().array();
 
@@ -51,7 +48,7 @@ public class Pull_simple_test {
         TcpClient.newClient(peer.getIpAddress())
                 .createConnectionRequest()
                 .flatMap(connection ->
-                                connection.write(Observable.just(MessageParser.getPullLocalView()))
+                                connection.writeString(Observable.just("Hello"))
                                         .cast(ByteBuf.class)
                                         .concatWith(connection.getInput())
                 )
