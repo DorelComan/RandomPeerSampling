@@ -1,4 +1,4 @@
-package de.tum.group34;
+package de.tum.group34.realsockets;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -11,7 +11,7 @@ import java.nio.charset.Charset;
  *
  * @author Hannes Dorfmann
  */
-public class NseServer {
+public class NseServerRunner {
 
   public static final int PORT = 9944;
 

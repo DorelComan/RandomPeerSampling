@@ -15,6 +15,7 @@ import java.util.logging.Logger;
  */
 public class PullServer {
 
+  private static final String LOG_TAG = "PullServer";
   private static final Logger log = Logger.getLogger(PullServer.class.getName());
 
   private TcpServer<ByteBuf, ByteBuf> server;
@@ -22,18 +23,28 @@ public class PullServer {
 
   public PullServer(Brahms brahms, TcpServer<ByteBuf, ByteBuf> server) {
     this.brahms = brahms;
-    this.server = server.enableWireLogging(LogLevel.DEBUG)
+    this.server = server.enableWireLogging(LOG_TAG, LogLevel.DEBUG)
         .start(
             connection ->
                 connection.writeBytesAndFlushOnEach(connection.getInput()
-                    .doOnNext(byteBuf -> log.info("PULL QUERY REQUEST received"))
-                    .map((byteBuf -> SerializationUtils.toBytes(brahms.getLocalView()))
-                    )
+                    .doOnNext(byteBuf -> log.info(LOG_TAG + " Query request received"))
+                    .map((byteBuf -> SerializationUtils.toBytes(brahms.getLocalView())))
+                    .doOnNext(bytes -> log.info(LOG_TAG + " sending query response"))
                 )
         );
   }
 
+  /**
+   * Runs the server forever (until shutdown)
+   */
   public void awaitShutdown() {
     server.awaitShutdown();
+  }
+
+  /**
+   * Shuts the server down
+   */
+  public void shutDown() {
+    server.shutdown();
   }
 }
