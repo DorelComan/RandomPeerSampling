@@ -126,7 +126,7 @@ public class MessageParser {
     buf.setShort(0,32);
     buf.setShort(16, 520);
 
-    return null;
+    return buf;
   }
 
   public static int getSizeFromNseMessage(ByteBuf byteBuf) {
