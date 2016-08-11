@@ -1,9 +1,7 @@
 package de.tum.group34.nse;
 
+import de.tum.group34.TcpClientFactory;
 import de.tum.group34.serialization.MessageParser;
-import io.netty.buffer.ByteBuf;
-import io.netty.handler.logging.LogLevel;
-import io.reactivex.netty.protocol.tcp.client.TcpClient;
 import java.util.concurrent.TimeUnit;
 import rx.Observable;
 import rx.subjects.BehaviorSubject;
@@ -16,30 +14,25 @@ import rx.subjects.BehaviorSubject;
  */
 public class NseClient {
 
-  private TcpClient<ByteBuf, ByteBuf> client;
-  private BehaviorSubject<Integer> networkSize = BehaviorSubject.create();
+  private BehaviorSubject<Integer> networkSize;
 
   /**
    * Creates a new instance
    *
-   * @param client The TcpClient
+   * @param clientFactory The Factory to create TcpClients on the fly
    * @param interval The time interval when to query the network size
    * @param timeUnit The intervals time unit
    */
   public NseClient(
-      TcpClient<ByteBuf, ByteBuf> client, long interval, TimeUnit timeUnit) {
-    this.client = client;
-    this.client.enableWireLogging(LogLevel.DEBUG)
-        .createConnectionRequest()
-        .flatMap(connection ->
-            Observable.interval(interval, timeUnit)
-                .flatMap(
-                    intervalCount -> connection.write(Observable.just(MessageParser.getNseQuery()))
-                        .cast(ByteBuf.class)
-                        .concatWith(connection.getInput())
-                )
-                .map(byteBuf -> MessageParser.getSizeFromNseMessage(byteBuf))
-        )
+      TcpClientFactory clientFactory, long interval, TimeUnit timeUnit) {
+
+    networkSize = BehaviorSubject.create();
+
+    Observable.interval(0, interval, timeUnit)
+        .flatMap(aLong -> clientFactory.newClient().createConnectionRequest())
+        .onBackpressureLatest()
+        .flatMap(connection -> connection.getInput())
+        .map(byteBuf -> MessageParser.getSizeFromNseMessage(byteBuf))
         .subscribe(networkSize);
   }
 
