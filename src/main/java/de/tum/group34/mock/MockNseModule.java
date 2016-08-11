@@ -4,7 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.logging.LogLevel;
 import io.reactivex.netty.protocol.tcp.server.TcpServer;
-import rx.Observable;
+import java.nio.charset.Charset;
 
 /**
  * A very simply Mock NSE Module that answers with some random / or predefined NetworkSize numbers
@@ -22,10 +22,12 @@ public class MockNseModule {
 
     TcpServer<ByteBuf, ByteBuf> server =
         TcpServer.newServer(PORT).enableWireLogging("Mock NSE Module", LogLevel.DEBUG)
-            .start(connection -> connection.writeAndFlushOnEach(
+            .start(connection -> connection.writeBytesAndFlushOnEach(
                 connection.getInput()
-                    .doOnNext(byteBuf -> System.out.println("NSE: Incoming Query "+byteBuf))
-                    .flatMap(byteBuf -> Observable.just(buf))
+                    .doOnNext(
+                        byteBuf -> System.out.println(
+                            "NSE: Incoming Query " + byteBuf.toString(Charset.defaultCharset())))
+                    .map(byteBuf -> buf.array())
                 )
             );
 

@@ -36,8 +36,8 @@ public class NseClient {
     Observable.interval(0, interval, timeUnit)
         .flatMap(aLong -> clientFactory.newClient().createConnectionRequest())
         .onBackpressureLatest()
-        .flatMap(connection -> connection.writeString(
-            Observable.just("Hello"))
+        .flatMap(connection -> connection.writeBytes(
+            Observable.just(MessageParser.getNseQuery().array()))
             .cast(ByteBuf.class)
             .concatWith(connection.getInput())
             .take(1)
