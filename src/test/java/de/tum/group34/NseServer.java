@@ -11,7 +11,7 @@ import java.nio.charset.Charset;
  *
  * @author Hannes Dorfmann
  */
-public class MockNseModule {
+public class NseServer {
 
   public static final int PORT = 9944;
 

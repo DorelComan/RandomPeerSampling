@@ -11,7 +11,7 @@ public class NseClientTest {
   public static void main(String[] args) {
 
     NseClient nseClient =
-        new NseClient(new TcpClientFactory("127.0.0.1", MockNseModule.PORT, "NseClient"), 1,
+        new NseClient(new TcpClientFactory("127.0.0.1", NseServer.PORT, "NseClient"), 1,
             TimeUnit.SECONDS);
 
     nseClient.getNetworkSize()
