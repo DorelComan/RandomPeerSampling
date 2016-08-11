@@ -17,19 +17,19 @@ public class MockNseModule {
 
   public static void main(String[] args) {
 
+    ByteBuf buf = Unpooled.buffer();
+    buf.setShort(16, 23);
+
     TcpServer<ByteBuf, ByteBuf> server =
         TcpServer.newServer(PORT).enableWireLogging("Mock NSE Module", LogLevel.DEBUG)
-            .start(connection -> {
-                  ByteBuf buf = Unpooled.buffer();
-                  buf.setShort(16, 23);
-                  return connection.writeAndFlushOnEach(
-                      connection.getInput()
-                          .doOnNext(byteBuf -> System.out.println("NSE: Incoming Query"))
-                          .flatMap(byteBuf -> Observable.just(buf))
-                  );
-                }
+            .start(connection -> connection.writeAndFlushOnEach(
+                connection.getInput()
+                    .doOnNext(byteBuf -> System.out.println("NSE: Incoming Query"))
+                    .flatMap(byteBuf -> Observable.just(buf))
+                )
             );
 
+    System.out.println("NSE module server started");
     server.awaitShutdown();
   }
 }

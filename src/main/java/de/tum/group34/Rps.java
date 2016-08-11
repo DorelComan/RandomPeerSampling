@@ -33,7 +33,7 @@ public class Rps {
     PushReceiver pushReceiver = initPushReceiver();
 
     NseClient nseClient =
-        new NseClient(TcpClient.newClient("127.0.0.1", 9899), 30, TimeUnit.SECONDS);
+        new NseClient(new TcpClientFactory("127.0.0.1", 9899, "NseClient"), 30, TimeUnit.SECONDS);
 
     GossipSender gossipSender =
         new GossipSender(ownIdentity, TcpClient.newClient("127.0.0.1", 11007));
