@@ -24,7 +24,7 @@ public class MockNseModule {
         TcpServer.newServer(PORT).enableWireLogging("Mock NSE Module", LogLevel.DEBUG)
             .start(connection -> connection.writeAndFlushOnEach(
                 connection.getInput()
-                    .doOnNext(byteBuf -> System.out.println("NSE: Incoming Query"))
+                    .doOnNext(byteBuf -> System.out.println("NSE: Incoming Query "+byteBuf))
                     .flatMap(byteBuf -> Observable.just(buf))
                 )
             );
