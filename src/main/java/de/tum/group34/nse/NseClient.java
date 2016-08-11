@@ -2,7 +2,6 @@ package de.tum.group34.nse;
 
 import de.tum.group34.TcpClientFactory;
 import de.tum.group34.serialization.MessageParser;
-import io.netty.buffer.ByteBuf;
 import java.util.concurrent.TimeUnit;
 import rx.Observable;
 import rx.subjects.BehaviorSubject;
@@ -15,7 +14,7 @@ import rx.subjects.BehaviorSubject;
  */
 public class NseClient {
 
-  private BehaviorSubject<Integer> networkSize = BehaviorSubject.create();
+  private BehaviorSubject<Integer> networkSize;
 
   /**
    * Creates a new instance
@@ -27,15 +26,13 @@ public class NseClient {
   public NseClient(
       TcpClientFactory clientFactory, long interval, TimeUnit timeUnit) {
 
+    networkSize = BehaviorSubject.create();
+
     Observable.interval(0, interval, timeUnit)
         .flatMap(aLong -> clientFactory.newClient().createConnectionRequest())
         .onBackpressureLatest()
-        .flatMap(connection -> connection.write(
-            Observable.just(MessageParser.getNseQuery())
-            ).cast(ByteBuf.class)
-                .concatWith(connection.getInput())
-                .map(byteBuf -> MessageParser.getSizeFromNseMessage(byteBuf))
-        )
+        .flatMap(connection -> connection.getInput())
+        .map(byteBuf -> MessageParser.getSizeFromNseMessage(byteBuf))
         .subscribe(networkSize);
   }
 
