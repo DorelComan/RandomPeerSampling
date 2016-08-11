@@ -1,8 +1,11 @@
 package de.tum.group34.nse;
 
 import de.tum.group34.TcpClientFactory;
+import de.tum.group34.pull.PullServer;
 import de.tum.group34.serialization.MessageParser;
+import io.netty.buffer.ByteBuf;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 import rx.Observable;
 import rx.subjects.BehaviorSubject;
 
@@ -13,6 +16,8 @@ import rx.subjects.BehaviorSubject;
  * @author Hannes Dorfmann
  */
 public class NseClient {
+
+  private static final Logger log = Logger.getLogger(PullServer.class.getName());
 
   private BehaviorSubject<Integer> networkSize;
 
@@ -31,7 +36,12 @@ public class NseClient {
     Observable.interval(0, interval, timeUnit)
         .flatMap(aLong -> clientFactory.newClient().createConnectionRequest())
         .onBackpressureLatest()
-        .flatMap(connection -> connection.getInput())
+        .flatMap(connection -> connection.writeString(
+            Observable.just("Hello"))
+            .cast(ByteBuf.class)
+            .concatWith(connection.getInput())
+            .take(1)
+        )
         .map(byteBuf -> MessageParser.getSizeFromNseMessage(byteBuf))
         .subscribe(networkSize);
   }

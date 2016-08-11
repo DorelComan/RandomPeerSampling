@@ -1,13 +1,14 @@
 package de.tum.group34.pull;
 
+import de.tum.group34.model.Peer;
 import de.tum.group34.serialization.MessageParser;
 import de.tum.group34.serialization.SerializationUtils;
 import io.netty.buffer.ByteBuf;
+import io.netty.handler.logging.LogLevel;
 import io.reactivex.netty.protocol.tcp.client.TcpClient;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import de.tum.group34.model.Peer;
 import rx.Observable;
 
 /**
@@ -40,6 +41,7 @@ public class PullClient {
   private Observable<List<Peer>> executePullRequest(Peer peer) {
 
     return TcpClient.newClient(peer.getIpAddress())
+        .enableWireLogging("PullClient", LogLevel.DEBUG)
         .createConnectionRequest()
         .flatMap(
             connection ->
@@ -47,7 +49,7 @@ public class PullClient {
                     .cast(ByteBuf.class)
                     .concatWith(connection.getInput())
         )
-        .first()
-        .map(byteBuf -> SerializationUtils.fromByteBuf(byteBuf));
+        .take(1)
+        .map(SerializationUtils::fromByteBuf);
   }
 }
