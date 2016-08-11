@@ -20,9 +20,6 @@ public class MockPeers {
         Integer val1, val2;
         Peer peer;
 
-        if(((int)Math.random()% 4) < 2)
-            return peers;
-
         for (int i=0; i < 20; i++){
             val1 = (int)(Math.random()%255);
             val2 = (int)(Math.random()%255);

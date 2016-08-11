@@ -1,6 +1,7 @@
 package de.tum.group34.realsockets;
 
 import de.tum.group34.Brahms;
+import de.tum.group34.model.Peer;
 import de.tum.group34.pull.MockPeers;
 import de.tum.group34.pull.PullServer;
 import de.tum.group34.serialization.SerializationUtils;
@@ -9,6 +10,7 @@ import io.reactivex.netty.protocol.tcp.client.TcpClient;
 import io.reactivex.netty.protocol.tcp.server.TcpServer;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.List;
 import org.mockito.Mockito;
 import rx.Observable;
 
@@ -19,14 +21,18 @@ public class PullServerRunner {
   }
 
   public static void main(String[] args) throws IOException {
-    Brahms brahms = Mockito.mock(Brahms.class);
-    Mockito.when(brahms.getLocalView()).thenReturn(MockPeers.getPeerList());
 
-    PullServer pullServer = new PullServer(brahms, TcpServer.newServer(1102));
+    int port = 7726;
+
+    Brahms brahms = Mockito.mock(Brahms.class);
+    List<Peer> peerList = MockPeers.getPeerList();
+    Mockito.when(brahms.getLocalView()).thenReturn(peerList);
+
+    PullServer pullServer = new PullServer(brahms, TcpServer.newServer(port));
 
     ResultHolder resultHolder = new ResultHolder();
 
-    TcpClient.newClient(new InetSocketAddress("127.0.0.1", 1102))
+    TcpClient.newClient(new InetSocketAddress("127.0.0.1", port))
         .createConnectionRequest()
         .flatMap(connection ->
             connection.writeString(Observable.just("Hello"))
@@ -34,11 +40,16 @@ public class PullServerRunner {
                 .concatWith(connection.getInput())
         )
         .take(1)
+        .doOnNext(byteBuf -> System.out.println("Tcp Client received an answer"))
         .map(SerializationUtils::fromByteBuf)
         .subscribe(o -> {
-          resultHolder.result = o;
-          pullServer.shutDown();
-        });
+              resultHolder.result = o;
+              pullServer.shutDown();
+            },
+            t -> {
+              pullServer.shutDown();
+              t.printStackTrace();
+            });
 
     pullServer.awaitShutdown();
 
