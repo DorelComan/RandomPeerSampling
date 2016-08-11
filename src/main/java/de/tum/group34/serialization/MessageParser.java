@@ -78,8 +78,7 @@ public class MessageParser {
     ByteBuf dst = Unpooled.buffer();
     buf.getBytes(64, dst);
 
-    Peer peer = SerializationUtils.fromByteBuf(dst);
-    peer.setMessageID(messageID);
+    Peer peer = SerializationUtils.fromByteBuf(dst);peer.setMessageID(messageID);
 
     return peer;
   }
@@ -121,6 +120,12 @@ public class MessageParser {
   }
 
   public static ByteBuf getNseQuery() {
+
+    //TODO: take a better look if short is correct
+    ByteBuf buf = Unpooled.buffer();
+    buf.setShort(0,32);
+    buf.setShort(16, 520);
+
     return null;
   }
 
@@ -133,6 +138,10 @@ public class MessageParser {
    * The message that will be send from one RPS module to another to ask for the local view list.
    */
   public static ByteBuf getPullLocalView() {
-    return null;
+
+    ByteBuf buf = Unpooled.buffer();
+    buf.setShort(16, 550);
+
+    return buf;
   }
 }
