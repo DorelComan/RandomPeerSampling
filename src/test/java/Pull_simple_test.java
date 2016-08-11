@@ -1,25 +1,14 @@
 import de.tum.group34.Brahms;
-import de.tum.group34.model.Peer;
 import de.tum.group34.pull.MockPeers;
 import de.tum.group34.pull.PullServer;
-import de.tum.group34.serialization.MessageParser;
 import de.tum.group34.serialization.SerializationUtils;
 import io.netty.buffer.ByteBuf;
-import io.reactivex.netty.RxNetty;
 import io.reactivex.netty.protocol.tcp.client.TcpClient;
 import io.reactivex.netty.protocol.tcp.server.TcpServer;
+import java.io.IOException;
+import java.net.InetSocketAddress;
 import org.mockito.Mockito;
 import rx.Observable;
-
-
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Pull_simple_test {
 
@@ -31,7 +20,6 @@ public class Pull_simple_test {
         Mockito.when(brahms.getLocalView()).thenReturn(MockPeers.getPeerList());
 
         PullServer pullServer = new PullServer(brahms, TcpServer.newServer(1102));
-        Peer peer = new Peer(new InetSocketAddress("127.0.0.1", 1102));
 
         /*Socket clientSocket = new Socket("127.0.0.1", 1102);
         DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
@@ -45,7 +33,7 @@ public class Pull_simple_test {
         System.out.println("FROM SERVER: " + modifiedSentence);
         clientSocket.close(); */
 
-        TcpClient.newClient(peer.getIpAddress())
+        TcpClient.newClient(new InetSocketAddress("127.0.0.1", 1102))
                 .createConnectionRequest()
                 .flatMap(connection ->
                                 connection.writeString(Observable.just("Hello"))

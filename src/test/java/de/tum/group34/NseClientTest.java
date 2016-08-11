@@ -1,6 +1,5 @@
-package de.tum.group34.mock;
+package de.tum.group34;
 
-import de.tum.group34.TcpClientFactory;
 import de.tum.group34.nse.NseClient;
 import java.util.concurrent.TimeUnit;
 

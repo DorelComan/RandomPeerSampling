@@ -1,4 +1,4 @@
-package de.tum.group34.mock;
+package de.tum.group34;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
