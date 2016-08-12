@@ -8,7 +8,7 @@ import java.util.Arrays;
 /**
  * @author Hannes Dorfmann
  */
-public class Peer implements Serializable{
+public class Peer implements Serializable, Cloneable {
 
   private InetSocketAddress ipAddress; // SocketAddress (includes port)
   private Integer msgID;
@@ -17,7 +17,7 @@ public class Peer implements Serializable{
   public Peer() {
   }
 
-  public Peer(InetSocketAddress inetSocketAddress){
+  public Peer(InetSocketAddress inetSocketAddress) {
 
     this.ipAddress = inetSocketAddress;
   }
@@ -76,8 +76,9 @@ public class Peer implements Serializable{
         '}';
   }
 
-  public Peer clone(){
-
+  @SuppressFBWarnings("CN_IDIOM_NO_SUPER_CALL")
+  @Override
+  public Peer clone() {
     Peer peer = new Peer(this.ipAddress);
     peer.hostkey = this.hostkey;
     peer.msgID = this.msgID;

@@ -46,7 +46,7 @@ public class Rps {
     // TODO: add peer list from file?
     Brahms brahms =
         new Brahms(initialList, nseClient, pullClient, pushReceiver,
-            pushSender);
+            pushSender, new RxTcpClientFactory("Brahms"));
 
     brahms.start(); //TODO: Decide when to start it
 

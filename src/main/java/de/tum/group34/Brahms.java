@@ -1,25 +1,21 @@
 package de.tum.group34;
 
+import de.tum.group34.model.Peer;
+import de.tum.group34.model.Sampler;
 import de.tum.group34.nse.NseClient;
 import de.tum.group34.pull.PullClient;
 import de.tum.group34.push.PushReceiver;
 import de.tum.group34.push.PushSender;
 import java.security.SecureRandom;
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Timer;
-
-import de.tum.group34.model.Peer;
-import de.tum.group34.model.Sampler;
-import org.mockito.Mockito;
 import rx.Observable;
 import rx.subjects.BehaviorSubject;
 
 public class Brahms {
 
-  private static final long SLEEP_TIME  = 2000;
+  private static final long SLEEP_TIME = 2000;
 
   private BehaviorSubject<List<Peer>> viewListSubject = BehaviorSubject.create();
   private SecureRandom secureRandom = new SecureRandom();
@@ -38,18 +34,20 @@ public class Brahms {
   private Double beta;
   private Double gamma;
   private Double sizeEst; // Size estimation from NSE
+  private TcpClientFactory tcpClientFactory;
 
   /**
    * Initialization of the algorithm
    */
   public Brahms(List<Peer> list, NseClient nseClient, PullClient pullClient,
-      PushReceiver pushReceiver, PushSender pushSender) {
+      PushReceiver pushReceiver, PushSender pushSender, TcpClientFactory tcpClientFactory) {
 
     alfa = beta = 0.45;
     gamma = 0.1;
 
     setLocalView(list);
     samplList = new ArrayList<>();
+    this.tcpClientFactory = tcpClientFactory;
     this.nseClient = nseClient;
     this.pullClient = pullClient;
     this.pushReceiver = pushReceiver;
@@ -83,11 +81,11 @@ public class Brahms {
       Integer nmbPulls = (int) Math.round(beta * viewSize);
       Integer nmbSamples = (int) Math.round(gamma * viewSize);
 
-      System.out.println("nmbPushes: " +  nmbPushes + " nmbSamples " + nmbSamples);//todo
+      System.out.println("nmbPushes: " + nmbPushes + " nmbSamples " + nmbSamples);//todo
 
       // Push to Peers from local View - TODO: problem if have a small list and what about re-sending to the same
 
-      for (int i = 0; i < nmbPushes; i++){
+      for (int i = 0; i < nmbPushes; i++) {
         List<Peer> peer;
         peer = rand(getLocalView(), 1);
         //System.out.println("PUSH: " + peer.get(0).getIpAddress().toString()); //todo
@@ -97,13 +95,13 @@ public class Brahms {
       // Send pull requests and save incoming lists in pullList
       ArrayList<Peer> pullList = new ArrayList<>();
       pullList.addAll(pullClient.makePullRequests(rand(getLocalView(), nmbPulls))
-              .toBlocking().first());
+          .toBlocking().first());
 
       // System.out.println("\nPulled peers: " + pullList.size());//todo
       // pullList.forEach(peer -> System.out.println(peer.getIpAddress().toString()));//todo
 
       // Save all push receive in pushList
-      ArrayList<Peer> pushList =  new ArrayList<>();
+      ArrayList<Peer> pushList = new ArrayList<>();
       pushList.addAll(pushReceiver.getPushList().toBlocking().first());
 
       // System.out.println("\nPushReceived: " + pushList.size());//todo
@@ -125,16 +123,36 @@ public class Brahms {
       pushList.addAll(pullList); // pushList + pullList to be added at sample
       updateSample(pushList);
 
-      //todo
-     // System.out.println("\nNew Local");
-     // getLocalView().forEach(peer -> System.out.println(peer.getIpAddress().toString()));
-     // System.out.println("\nNew Sample");
+      List<Peer> peersThatAreAlive = getPeersThatAreAlive(getLocalView()).toBlocking().first();
+      setLocalView(peersThatAreAlive);
+
+      // TODO
+      // System.out.println("\nNew Sample");
       // samplList.forEach(sampler -> System.out.println(sampler.sample().getIpAddress().toString()));
 
       Thread.sleep(SLEEP_TIME);
     }
   }
 
+  /**
+   * Checks if the peers are still alive (TCP connection can be established)
+   *
+   * @param peersToCheck The list of peers we want to check if they are still alive
+   * @return A list of peers that are alive. The peer that are not alive has been filtered out from
+   * original input parameter.
+   */
+  Observable<List<Peer>> getPeersThatAreAlive(List<Peer> peersToCheck) {
+    return Observable.from(peersToCheck)
+        .flatMap(peer ->
+            tcpClientFactory.newClient(peer.getIpAddress())
+                .createConnectionRequest()
+                .flatMap(connection -> connection
+                    .ignoreInput().map(aVoid -> true)) // Peer alive -> return true
+                .onErrorReturn(throwable -> false) // Peer no longer alive -> return false
+                .filter(peerAlive -> peerAlive) // Only continues with peers that are alive
+                .map(aVoid -> peer)
+        ).toList();
+  }
 
   public void validateSamples() {
 
@@ -145,20 +163,19 @@ public class Brahms {
     }
   }
 
-
   /**
    * Method used for updating the Sampler peers given a list using the probabilistic method next()
    */
   public void updateSample(List<Peer> list) {
 
-    if(samplList.size() != samplSize){
+    if (samplList.size() != samplSize) {
 
-      if(samplList.size() < samplSize)
+      if (samplList.size() < samplSize) {
         for (int i = samplList.size(); i < samplSize; i++)
           samplList.add(new Sampler());
-
-      else
+      } else {
         samplList = samplList.subList(0, samplSize);
+      }
     }
 
     for (Sampler s : samplList)
@@ -167,22 +184,22 @@ public class Brahms {
   }
 
   /**
-   * It will return a sublist of n elements shuffled of the original, it may return a list with less than n elements
-   * if the list is not enough long
+   * It will return a sublist of n elements shuffled of the original, it may return a list with less
+   * than n elements if the list is not enough long
    *
    * @param list list from where to take @n random elements
    * @param n number of elements to be returned
-   *
    * @return shuffled list
-     */
+   */
   public static List<Peer> rand(List<Peer> list, Integer n) {
 
     Collections.shuffle(list);
 
-    if(n >= list.size())
+    if (n >= list.size()) {
       return list;
-    else
+    } else {
       return list.subList(0, n);
+    }
   }
 
   public static List<Peer> randSamples(List<Sampler> list, Integer n) {
@@ -190,11 +207,12 @@ public class Brahms {
     Collections.shuffle(list);
     List<Peer> randList = new ArrayList<>();
 
-    if( n < list.size())
+    if (n < list.size()) {
       for (int i = 0; i < n; i++)
         randList.add(list.get(i).sample());
-    else
+    } else {
       for (Sampler aList : list) randList.add(aList.sample());
+    }
 
     return randList;
   }
@@ -226,15 +244,12 @@ public class Brahms {
   }
 
   public synchronized List<Peer> getLocalView() {
-
     return viewList;
   }
 
-  private synchronized void setLocalView(List<Peer> list){
+  private synchronized void setLocalView(List<Peer> list) {
 
     viewList = new ArrayList<>();
     list.forEach(peer -> viewList.add(peer.clone()));
-    
   }
-
 }
