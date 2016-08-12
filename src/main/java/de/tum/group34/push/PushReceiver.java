@@ -54,7 +54,7 @@ public class PushReceiver {
                     connection.writeBytesAndFlushOnEach(connection.getInput()
                         .doOnNext(byteBuf -> log.info("Gossip (Push) Message Received"))
                         .map(byteBuf -> {
-                          Peer peer = SerializationUtils.fromBytes(byteBuf.array());
+                          Peer peer = SerializationUtils.fromBytes(byteBuf);
                           return peer;
                         })
                         .doOnNext(peer -> pushReceivingSocketBridge.onNext(peer))
@@ -70,7 +70,7 @@ public class PushReceiver {
                 connection.writeBytesAndFlushOnEach(connection.getInput()
                     .doOnNext(byteBuf -> log.info("Push Responding Socket received a Message"))
                     .map(byteBuf -> {
-                      Peer peer = SerializationUtils.fromBytes(byteBuf.array());
+                      Peer peer = SerializationUtils.fromBytes(byteBuf);
                       return peer;
                     })
                     .doOnNext(peer -> pushReceivingSocketBridge.onNext(peer))
