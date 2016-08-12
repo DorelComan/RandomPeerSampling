@@ -19,10 +19,8 @@ public class PullServer {
   private static final Logger log = Logger.getLogger(PullServer.class.getName());
 
   private TcpServer<ByteBuf, ByteBuf> server;
-  private Brahms brahms;
 
   public PullServer(Brahms brahms, TcpServer<ByteBuf, ByteBuf> server) {
-    this.brahms = brahms;
     this.server = server.enableWireLogging(LOG_TAG, LogLevel.DEBUG)
         .start(
             connection ->

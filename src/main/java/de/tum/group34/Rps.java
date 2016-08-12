@@ -4,12 +4,10 @@ import de.tum.group34.gossip.GossipSender;
 import de.tum.group34.model.Peer;
 import de.tum.group34.nse.NseClient;
 import de.tum.group34.pull.PullClient;
-import de.tum.group34.pull.PullLocalViewServer;
 import de.tum.group34.pull.PullServer;
 import de.tum.group34.push.PushReceiver;
 import de.tum.group34.push.PushSender;
 import de.tum.group34.query.QueryServer;
-import de.tum.group34.serialization.FileParser;
 import io.reactivex.netty.protocol.tcp.client.TcpClient;
 import io.reactivex.netty.protocol.tcp.server.TcpServer;
 import java.net.InetSocketAddress;
@@ -36,7 +34,8 @@ public class Rps {
     PushReceiver pushReceiver = initPushReceiver();
 
     NseClient nseClient =
-        new NseClient(new TcpClientFactory("127.0.0.1", 9899, "NseClient"), 30, TimeUnit.SECONDS);
+        new NseClient(new RxTcpClientFactory("NseClient"), new InetSocketAddress("127.0.0.1", 9899),
+            30, TimeUnit.SECONDS);
 
     GossipSender gossipSender =
         new GossipSender(ownIdentity, TcpClient.newClient("127.0.0.1", 11007));

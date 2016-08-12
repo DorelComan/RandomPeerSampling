@@ -1,14 +1,13 @@
 package de.tum.group34.serialization;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufInputStream;
+import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 
 /**
  * @author Hannes Dorfmann
@@ -25,27 +24,26 @@ public class SerializationUtils {
    * @return Byte array of the object to
    */
   public static byte[] toBytes(Object object) {
-    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+    ByteBufOutputStream bos = new ByteBufOutputStream(Unpooled.buffer());
     ObjectOutputStream outputStream = null;
     try {
       outputStream = new ObjectOutputStream(bos);
       outputStream.writeObject(object);
+      outputStream.flush();
     } catch (IOException e) {
       throw new RuntimeException(e);
     } finally {
       if (outputStream != null) {
         try {
           outputStream.close();
-
-          if (bos != null) {
-            bos.close();
-          }
+          bos.close();
         } catch (IOException e) {
           throw new RuntimeException(e);
         }
       }
     }
-    return bos.toByteArray();
+    return bos.buffer().array();
   }
 
   /**
@@ -54,7 +52,7 @@ public class SerializationUtils {
    * @param object The object to serialize
    * @return The ByteBuf representation of the passed object.
    */
-  public static ByteBuf toByteBuf(Serializable object) {
+  public static ByteBuf toByteBuf(Object object) {
     return Unpooled.wrappedBuffer(toBytes(object));
   }
 
@@ -65,8 +63,8 @@ public class SerializationUtils {
    * @param <T> The generic type (will automatically cast the object to the desired Type)
    * @return The object
    */
-  public static <T> T fromBytes(byte[] bytes) {
-    ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+  public static <T> T fromBytes(ByteBuf bytes) {
+    ByteBufInputStream bis = new ByteBufInputStream(bytes);
     ObjectInput in = null;
     try {
       in = new ObjectInputStream(bis);
@@ -94,6 +92,6 @@ public class SerializationUtils {
    * @return The deserialized object
    */
   public static <T> T fromByteBuf(ByteBuf buf) {
-    return fromBytes(buf.array());
+    return fromBytes(buf);
   }
 }

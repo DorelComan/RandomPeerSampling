@@ -7,17 +7,13 @@ import de.tum.group34.pull.MockPeers;
 import de.tum.group34.pull.PullClient;
 import de.tum.group34.push.PushReceiver;
 import de.tum.group34.push.PushSender;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
-import org.mockito.internal.configuration.injection.MockInjection;
-import rx.Observable;
-
 import java.util.List;
+import org.mockito.Mockito;
+import rx.Observable;
 
 public class BrahmsTest {
 
-    @Test
+   // @Test
     public void test() throws InterruptedException {
 
         //MockPeers.getPeerList(20).forEach(peer -> System.out.println(peer.getIpAddress().toString()));

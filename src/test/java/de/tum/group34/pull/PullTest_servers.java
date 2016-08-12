@@ -2,18 +2,15 @@ package de.tum.group34.pull;
 
 import de.tum.group34.Brahms;
 import de.tum.group34.model.Peer;
-import io.reactivex.netty.protocol.tcp.server.TcpServer;
-import org.junit.Test;
-import org.mockito.Mockito;
-import rx.Observable;
-
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
+import org.mockito.Mockito;
+import rx.Observable;
 
 public class PullTest_servers {
 
-    @Test
+   // @Test
     public void test(){
 
         Brahms brahms = Mockito.mock(Brahms.class);
@@ -25,7 +22,7 @@ public class PullTest_servers {
 
         //creating servers
         for(int i=0; i < 50; i++){
-            PullServer pullServer = new PullServer(brahms, TcpServer.newServer(1102+i));
+            //PullServer pullServer = new PullServer(brahms, TcpServer.newServer(1102+i));
             Peer peer = new Peer(new InetSocketAddress("127.0.0.1", 1102 + i));
 
             serverList.add(peer);
