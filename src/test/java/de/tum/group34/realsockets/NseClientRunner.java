@@ -6,6 +6,9 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * <b>This is not a UNIT TEST</b>
+ *
+ * This is just a stand alone NSE Client to test some things
  * @author Hannes Dorfmann
  */
 public class NseClientRunner {

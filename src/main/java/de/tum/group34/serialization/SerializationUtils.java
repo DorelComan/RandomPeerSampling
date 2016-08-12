@@ -29,6 +29,7 @@ public class SerializationUtils {
     try {
       outputStream = new ObjectOutputStream(bos);
       outputStream.writeObject(object);
+      outputStream.flush();
     } catch (IOException e) {
       throw new RuntimeException(e);
     } finally {

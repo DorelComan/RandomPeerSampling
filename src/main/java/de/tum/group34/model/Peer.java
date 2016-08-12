@@ -56,8 +56,9 @@ public class Peer implements Serializable {
 
     Peer peer = (Peer) o;
 
-    if (ipAddress != null ? !ipAddress.equals(peer.ipAddress) : peer.ipAddress != null)
+    if (ipAddress != null ? !ipAddress.equals(peer.ipAddress) : peer.ipAddress != null) {
       return false;
+    }
     if (msgID != null ? !msgID.equals(peer.msgID) : peer.msgID != null) return false;
     return Arrays.equals(hostkey, peer.hostkey);
   }
@@ -67,5 +68,11 @@ public class Peer implements Serializable {
     result = 31 * result + (msgID != null ? msgID.hashCode() : 0);
     result = 31 * result + Arrays.hashCode(hostkey);
     return result;
+  }
+
+  @Override public String toString() {
+    return "Peer{" +
+        "ipAddress=" + ipAddress +
+        '}';
   }
 }
