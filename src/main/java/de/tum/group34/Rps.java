@@ -34,7 +34,7 @@ public class Rps {
     PushReceiver pushReceiver = initPushReceiver();
 
     NseClient nseClient =
-        new NseClient(new TcpClientFactory("NseClient"), new InetSocketAddress("127.0.0.1", 9899),
+        new NseClient(new RxTcpClientFactory("NseClient"), new InetSocketAddress("127.0.0.1", 9899),
             30, TimeUnit.SECONDS);
 
     GossipSender gossipSender =

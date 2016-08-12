@@ -51,10 +51,11 @@ public class SerializationTest {
 
   @Test
   public void xxlPeerList() {
-    int elements = 20;
+    int elements = 1000;
     List<Peer> peers = MockPeers.getPeerList(elements);
     ByteBuf buf = SerializationUtils.toByteBuf(peers);
-    List<Peer> peers2 = SerializationUtils.fromByteBuf(buf);
+    ByteBuf copy = buf.copy();
+    List<Peer> peers2 = SerializationUtils.fromByteBuf(copy);
 
     Assert.assertEquals(elements, peers2.size());
     Assert.assertEquals(peers, peers2);
