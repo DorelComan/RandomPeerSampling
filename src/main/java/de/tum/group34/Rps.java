@@ -43,12 +43,18 @@ public class Rps {
 
     List<Peer> initialList = pushReceiver.gossipSocket().toBlocking().first();
 
-    // TODO: add peer list from file?
+    // TODO: add peer list from file? I guess Nein
     Brahms brahms =
         new Brahms(initialList, nseClient, pullClient, pushReceiver,
             pushSender);
 
-    brahms.start(); //TODO: Decide when to start it
+    new Thread(()->{
+      try {
+        brahms.start();
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+    }).start();
 
     QueryServer queryServer = new QueryServer(TcpServer.newServer((11001)), brahms);
     PullServer pullServer = new PullServer(brahms, TcpServer.newServer(11002));

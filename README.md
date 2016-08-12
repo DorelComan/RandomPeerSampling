@@ -5,8 +5,9 @@ From command line use:
 
 # TASKS
 
-- Think how to set setSizeEstimation, if the NSEClient update automatically the value
-- 
+- implement PushSender
+- validate() in Sampler
+- Set the file read (FileParser) in RPS
 
 
 # MessageParser  - methods - 
@@ -18,16 +19,16 @@ From command line use:
  
  
 # Modules 
-    - PushSender
+    - PushSender [Controlled by Brahms]
     - PushReceiver [Queried by brahms]
     
     - PullServer [Autonomous]          
     - PullClient [Brahms]
     
-    - Brahms - OK
+    + Brahms - OK
     - GossipSender [Autonomous]
     - QueryServer [connected to Brahms localView]
-    - NseClient - OK
+    + NseClient - OK
     
     - Rps
     
@@ -35,6 +36,6 @@ From command line use:
 
     
     
-    Brahms connect to : NseClient - G
+    Brahms connect to : NseClient - PushSender - Push Receiver
 
  

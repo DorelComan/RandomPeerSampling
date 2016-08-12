@@ -22,9 +22,12 @@ public class FileParser {
     }
   }
 
-  public String getHostkey() {
+  public byte[] getHostkey() {
 
-    return ini.getString("HOSTKEY");
+    String path = ini.getString("HOSTKEY");
+    byte[] hostkey = null;
+
+    return hostkey;
   }
 
   public int getGossipPort() throws URISyntaxException {
