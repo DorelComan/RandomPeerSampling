@@ -19,16 +19,22 @@ From command line use:
  
 # Modules 
     - PushSender
-    - PushReceiver
+    - PushReceiver [Queried by brahms]
     
-    - PullServer
-    - PullClient
+    - PullServer [Autonomous]          
+    - PullClient [Brahms]
     
-    - Brahms
-    - GossiPSender
-    - QueryServer
-    - NseClient
+    - Brahms - OK
+    - GossipSender [Autonomous]
+    - QueryServer [connected to Brahms localView]
+    - NseClient - OK
     
     - Rps
+    
+# Steps in Brahms testing
+
+    
+    
+    Brahms connect to : NseClient - G
 
  

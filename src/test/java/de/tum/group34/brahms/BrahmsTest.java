@@ -22,7 +22,8 @@ public class BrahmsTest {
 
         //MockPeers.getPeerList(20).forEach(peer -> System.out.println(peer.getIpAddress().toString()));
 
-        PullClient pullClient = Mockito.mock(PullClient.class);
+        PullClient pullClient = new MockPullClient();
+
 
         // Class clazz = List.class;
         // ArgumentCaptor<List<Peer>> argumentCaptor = ArgumentCaptor.forClass(clazz);

@@ -13,6 +13,7 @@ import java.util.Timer;
 
 import de.tum.group34.model.Peer;
 import de.tum.group34.model.Sampler;
+import org.mockito.Mockito;
 import rx.Observable;
 import rx.subjects.BehaviorSubject;
 
@@ -58,7 +59,6 @@ public class Brahms {
     list.forEach(peer -> System.out.println(peer.getIpAddress().toString()));//todo
 
     setSizeEstimation(); // Setting the size estimation for the network thanks to NSE
-    System.out.println("\nSampl: " + samplSize + "\nsizeEst " + sizeEst);
 
     for (int i = 0; i < samplSize; i++) // Setting the list of samplers
       samplList.add(new Sampler());
@@ -70,63 +70,72 @@ public class Brahms {
 
     List<Peer> tempList;
 
-    Integer iter = 0;
+    Integer iter = 0; //todo
 
     while (true) { // every iteration to be executed periodically
 
       System.out.println("\n -- ITER: " + iter++ + " -- ");
 
       setSizeEstimation();
+      System.out.println("\nSampl: " + samplSize + " sizeEst " + sizeEst);
+
       Integer nmbPushes = ((int) Math.round(alfa * viewSize));
       Integer nmbPulls = (int) Math.round(beta * viewSize);
       Integer nmbSamples = (int) Math.round(gamma * viewSize);
 
-      System.out.println("nmbPushes: " +  nmbPushes + " nmbSamples " + nmbSamples);
+      System.out.println("nmbPushes: " +  nmbPushes + " nmbSamples " + nmbSamples);//todo
 
       // Push to Peers from local View - TODO: problem if have a small list and what about re-sending to the same
-
-      //tempList = rand(getLocalView(), 1);
-      //tempList.forEach(peer -> System.out.println(peer.getIpAddress().toString()));
 
       for (int i = 0; i < nmbPushes; i++){
         List<Peer> peer;
         peer = rand(getLocalView(), 1);
-        System.out.println("PUSH: " + peer.get(0).getIpAddress().toString()); //todo
+        //System.out.println("PUSH: " + peer.get(0).getIpAddress().toString()); //todo
         pushSender.sendMyIdTo(peer.get(0));
       }
 
       // Send pull requests and save incoming lists in pullList
-      ArrayList<Peer> pullList = pullClient.makePullRequests(rand(getLocalView(), nmbPulls))
-          .toBlocking().first();
+      ArrayList<Peer> pullList = new ArrayList<>();
+      pullList.addAll(pullClient.makePullRequests(rand(getLocalView(), nmbPulls))
+              .toBlocking().first());
 
-      System.out.println("\nPulled peers");
-      pullList.forEach(peer -> System.out.println(peer.getIpAddress().toString()));
+      // System.out.println("\nPulled peers: " + pullList.size());//todo
+      // pullList.forEach(peer -> System.out.println(peer.getIpAddress().toString()));//todo
 
       // Save all push receive in pushList
-      ArrayList<Peer> pushList = pushReceiver.getPushList()
-          .toBlocking().first();
+      ArrayList<Peer> pushList =  new ArrayList<>();
+      pushList.addAll(pushReceiver.getPushList().toBlocking().first());
 
-      System.out.println("\nPushReceived");
-      pushList.forEach(peer -> System.out.println(peer.getIpAddress().toString()));
+      // System.out.println("\nPushReceived: " + pushList.size());//todo
+      // pushList.forEach(peer -> System.out.println(peer.getIpAddress().toString()));//todo
 
       if (pushList.size() <= nmbPushes &&
           pushList.size() != 0 &&
           pullList.size() != 0) {
-        tempList = rand(pushList, nmbPushes);
+
+        System.out.println("Modifing stuff");//todo
+        tempList = new ArrayList<>();
+        tempList.addAll(rand(pushList, nmbPushes));
         tempList.addAll(rand(pullList, nmbPulls));
         tempList.addAll(randSamples(samplList, nmbSamples));
         setLocalView(tempList);
         viewListSubject.onNext(getLocalView()); // Inform any waiting
       }
 
-      System.out.println("\nNew Local");
-      getLocalView().forEach(peer -> System.out.println(peer.getIpAddress().toString()));
+      pushList.addAll(pullList); // pushList + pullList to be added at sample
+      updateSample(pushList);
+
+      //todo
+     // System.out.println("\nNew Local");
+     // getLocalView().forEach(peer -> System.out.println(peer.getIpAddress().toString()));
+     // System.out.println("\nNew Sample");
+      // samplList.forEach(sampler -> System.out.println(sampler.sample().getIpAddress().toString()));
 
       Thread.sleep(SLEEP_TIME);
     }
   }
 
-  /*
+
   public void validateSamples() {
 
     for (int i = 0; i < samplSize; i++) {
@@ -135,12 +144,22 @@ public class Brahms {
       }
     }
   }
-  */
+
 
   /**
    * Method used for updating the Sampler peers given a list using the probabilistic method next()
    */
   public void updateSample(List<Peer> list) {
+
+    if(samplList.size() != samplSize){
+
+      if(samplList.size() < samplSize)
+        for (int i = samplList.size(); i < samplSize; i++)
+          samplList.add(new Sampler());
+
+      else
+        samplList = samplList.subList(0, samplSize);
+    }
 
     for (Sampler s : samplList)
       for (Peer p : list)
@@ -169,16 +188,13 @@ public class Brahms {
   public static List<Peer> randSamples(List<Sampler> list, Integer n) {
 
     Collections.shuffle(list);
-
     List<Peer> randList = new ArrayList<>();
 
     if( n < list.size())
       for (int i = 0; i < n; i++)
         randList.add(list.get(i).sample());
-
     else
-      for (int i = 0; i < list.size(); i++)
-        randList.add(list.get(i).sample());
+      for (Sampler aList : list) randList.add(aList.sample());
 
     return randList;
   }
@@ -216,7 +232,9 @@ public class Brahms {
 
   private synchronized void setLocalView(List<Peer> list){
 
-    this.viewList = list;
+    viewList = new ArrayList<>();
+    list.forEach(peer -> viewList.add(peer.clone()));
+    
   }
 
 }

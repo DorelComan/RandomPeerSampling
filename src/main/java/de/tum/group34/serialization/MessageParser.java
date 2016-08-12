@@ -123,7 +123,7 @@ public class MessageParser {
 
     //TODO: take a better look if short is correct
     ByteBuf buf = Unpooled.buffer();
-    buf.setShort(0,32);
+    buf.setShort(0, 32);
     buf.setShort(16, 520);
 
     return buf;

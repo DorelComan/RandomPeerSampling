@@ -5,6 +5,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.handler.logging.LogLevel;
 import io.reactivex.netty.protocol.tcp.server.TcpServer;
 import java.nio.charset.Charset;
+import java.util.Scanner;
 
 /**
  * A very simply Mock NSE Module that answers with some random / or predefined NetworkSize numbers
@@ -13,25 +14,42 @@ import java.nio.charset.Charset;
  */
 public class NseServerRunner {
 
-  public static final int PORT = 9944;
+    public static final int PORT = 9944;
 
-  public static void main(String[] args) {
+    private ByteBuf buf;
 
-    ByteBuf buf = Unpooled.buffer();
-    buf.setShort(16, 23);
+    public static void main(String[] args) {
 
-    TcpServer<ByteBuf, ByteBuf> server =
-        TcpServer.newServer(PORT).enableWireLogging("Mock NSE Module", LogLevel.DEBUG)
-            .start(connection -> connection.writeBytesAndFlushOnEach(
-                connection.getInput()
-                    .doOnNext(
-                        byteBuf -> System.out.println(
-                            "NSE: Incoming Query " + byteBuf.toString(Charset.defaultCharset())))
-                    .map(byteBuf -> buf.array())
-                )
-            );
+        NseServerRunner server = new NseServerRunner();
+        server.start();
+    }
 
-    System.out.println("NSE module server started");
-    server.awaitShutdown();
-  }
+    public void start(){
+
+        buf = Unpooled.buffer();
+        setSize(1000);
+
+        TcpServer<ByteBuf, ByteBuf> server =
+                TcpServer.newServer(PORT).enableWireLogging("Mock NSE Module", LogLevel.DEBUG)
+                        .start(connection -> connection.writeBytesAndFlushOnEach(
+                                connection.getInput()
+                                        .doOnNext(
+                                                byteBuf -> System.out.println(
+                                                        "NSE: Incoming Query " + byteBuf.toString(Charset.defaultCharset())))
+                                        .map(byteBuf -> getBuf().array())
+                                )
+                        );
+
+        System.out.println("NSE module server started");
+        server.awaitShutdown();
+    }
+
+    private synchronized ByteBuf getBuf() {
+        return buf;
+    }
+
+    public synchronized void setSize(Integer size) {
+
+        buf.setInt(32, size);
+    }
 }

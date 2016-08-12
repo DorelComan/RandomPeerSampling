@@ -74,6 +74,7 @@ public class Sampler {
    */
 
   public boolean validate() {
+
     return true; // TODO wtf? We should ping it, and see if it answer, how do we do it?
   }
 }
