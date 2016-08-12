@@ -25,7 +25,7 @@ public class PullServerRunner {
     int port = 7726;
 
     Brahms brahms = Mockito.mock(Brahms.class);
-    List<Peer> peerList = MockPeers.getPeerList();
+    List<Peer> peerList = MockPeers.getPeerList(20);
     Mockito.when(brahms.getLocalView()).thenReturn(peerList);
 
     PullServer pullServer = new PullServer(brahms, TcpServer.newServer(port));

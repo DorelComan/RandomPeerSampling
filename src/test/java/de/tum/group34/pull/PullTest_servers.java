@@ -11,13 +11,13 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PullTest {
+public class PullTest_servers {
 
     @Test
     public void test(){
 
         Brahms brahms = Mockito.mock(Brahms.class);
-        Mockito.when(brahms.getLocalView()).thenReturn(MockPeers.getPeerList());
+        Mockito.when(brahms.getLocalView()).thenReturn(MockPeers.getPeerList(20));
 
         List<Peer> serverList = new ArrayList<>();
         List<Peer> tempList;

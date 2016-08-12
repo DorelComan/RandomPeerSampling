@@ -5,9 +5,11 @@ import de.tum.group34.model.Peer;
 import de.tum.group34.nse.NseClient;
 import de.tum.group34.pull.PullClient;
 import de.tum.group34.pull.PullLocalViewServer;
+import de.tum.group34.pull.PullServer;
 import de.tum.group34.push.PushReceiver;
 import de.tum.group34.push.PushSender;
 import de.tum.group34.query.QueryServer;
+import de.tum.group34.serialization.FileParser;
 import io.reactivex.netty.protocol.tcp.client.TcpClient;
 import io.reactivex.netty.protocol.tcp.server.TcpServer;
 import java.net.InetSocketAddress;
@@ -22,9 +24,10 @@ public class Rps {
 
   private static final Logger log = Logger.getLogger(Rps.class.getName());
 
-  public static void main(final String[] args) {
+  public static void main(final String[] args) throws InterruptedException {
 
     // TODO read config
+    //FileParser fileParser =  new FileParser("Insert file path");
 
     Peer ownIdentity = new Peer(); // TODO do this properly
 
@@ -46,11 +49,13 @@ public class Rps {
         new Brahms(initialList, nseClient, pullClient, pushReceiver,
             pushSender);
 
+    brahms.start(); //TODO: Decide when to start it
+
     QueryServer queryServer = new QueryServer(TcpServer.newServer((11001)), brahms);
-    PullLocalViewServer pullLocalViewServer = new PullLocalViewServer(TcpServer.newServer(11002));
+    PullServer pullServer = new PullServer(brahms, TcpServer.newServer(11002));
 
     queryServer.awaitShutdown();
-    pullLocalViewServer.awaitShutdown();
+    pullServer.awaitShutdown();
     pushReceiver.awaitShutdown();
   }
 
