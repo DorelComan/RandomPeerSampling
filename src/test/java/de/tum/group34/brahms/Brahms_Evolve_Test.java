@@ -1,6 +1,7 @@
 package de.tum.group34.brahms;
 
 import de.tum.group34.Brahms;
+import de.tum.group34.RxTcpClientFactory;
 import de.tum.group34.TcpClientFactory;
 import de.tum.group34.model.Peer;
 import de.tum.group34.nse.NseClient;
@@ -64,7 +65,7 @@ public class Brahms_Evolve_Test {
         });
         t1.start();
 
-        Brahms brahms = new Brahms(initialList, nseClient, pullClient, pushReceiver, pushSender);
+        Brahms brahms = new Brahms(initialList, nseClient, pullClient, pushReceiver, pushSender, new RxTcpClientFactory("Brahms"));
         brahms.start();
 
 

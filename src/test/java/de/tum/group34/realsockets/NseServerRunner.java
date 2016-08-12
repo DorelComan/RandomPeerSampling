@@ -26,7 +26,7 @@ public class NseServerRunner {
 
     public void start(){
 
-        buf = Unpooled.buffer();
+        setBuf(Unpooled.buffer());
         setSize(1000);
 
         TcpServer<ByteBuf, ByteBuf> server =
@@ -51,5 +51,9 @@ public class NseServerRunner {
     public synchronized void setSize(Integer size) {
 
         buf.setInt(32, size);
+    }
+
+    private synchronized void setBuf(ByteBuf buf){
+        this.buf = buf;
     }
 }

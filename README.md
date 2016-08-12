@@ -5,8 +5,8 @@ From command line use:
 
 # TASKS
 
-- implement PushSender
-- validate() in Sampler
+- Implement PushSender
+- Set thread for periodical ping of Samplers 
 - Set the file read (FileParser) in RPS
 
 

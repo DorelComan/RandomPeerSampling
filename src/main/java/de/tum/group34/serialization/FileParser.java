@@ -6,6 +6,10 @@ import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import org.apache.commons.configuration2.INIConfiguration;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 
@@ -22,12 +26,12 @@ public class FileParser {
     }
   }
 
-  public byte[] getHostkey() {
+  public byte[] getHostkey() throws IOException {
 
-    String path = ini.getString("HOSTKEY");
-    byte[] hostkey = null;
+    String pathStr = ini.getString("HOSTKEY");
+    Path path = Paths.get(pathStr);
 
-    return hostkey;
+    return Files.readAllBytes(path);
   }
 
   public int getGossipPort() throws URISyntaxException {

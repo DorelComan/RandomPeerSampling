@@ -220,7 +220,7 @@ public class Brahms {
   /**
    * It invokes the NSE module to recover the network size estimation
    */
-  public synchronized void setSizeEstimation() {
+  public void setSizeEstimation() {
 
     sizeEst = nseClient.getNetworkSize().toBlocking().first().doubleValue();
     Double temp = Math.cbrt(sizeEst);
@@ -229,10 +229,10 @@ public class Brahms {
     this.viewSize = temp.intValue();
   }
 
-  private synchronized Double getSizeEstim() {
+ /* private Double getSizeEstim() {
 
     return sizeEst;
-  }
+  } */
 
   public Observable<Peer> getRandomPeerObservable() {
 
