@@ -3,6 +3,7 @@ package de.tum.group34.serialization;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -34,16 +35,29 @@ public class FileParser {
     return Files.readAllBytes(path);
   }
 
-  public int getGossipPort() throws URISyntaxException {
+  public InetSocketAddress getGossipAddress() throws URISyntaxException {
 
     URI uri = new URI(ini.getSection("GOSSIP").getString("api_address"));
+
+    return new InetSocketAddress(uri.getHost(), uri.getPort());
+  }
+
+  public InetSocketAddress getNseAddress() throws URISyntaxException {
+
+    URI uri = new URI(ini.getSection("NSE").getString("api_address"));
+
+    return new InetSocketAddress(uri.getHost(), uri.getPort());
+  }
+
+  public int getQueryServerPort() throws URISyntaxException {
+
+    URI uri = new URI(ini.getSection("RPS").getString("query_server_address"));
 
     return uri.getPort();
   }
 
-  public int getNSEPort() throws URISyntaxException {
-
-    URI uri = new URI(ini.getSection("NSE").getString("api_address"));
+  public int getPullServerPort() throws URISyntaxException {
+    URI uri = new URI(ini.getSection("RPS").getString("pull_server_address"));
 
     return uri.getPort();
   }

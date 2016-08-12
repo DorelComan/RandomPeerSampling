@@ -15,6 +15,7 @@ import org.apache.commons.configuration2.ex.ConfigurationException;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
@@ -26,7 +27,7 @@ public class Rps {
 
   private static final Logger log = Logger.getLogger(Rps.class.getName());
 
-  public static void main(final String[] args) throws InterruptedException, IOException, ConfigurationException {
+  public static void main(final String[] args) throws InterruptedException, IOException, ConfigurationException, URISyntaxException {
 
 
     FileParser fileParser =  new FileParser("Insert file path");
@@ -39,11 +40,11 @@ public class Rps {
     PushReceiver pushReceiver = initPushReceiver();
 
     NseClient nseClient =
-        new NseClient(new RxTcpClientFactory("NseClient"), new InetSocketAddress("127.0.0.1", 9899),
+        new NseClient(new RxTcpClientFactory("NseClient"), fileParser.getNseAddress(),
             30, TimeUnit.SECONDS);
 
     GossipSender gossipSender =
-        new GossipSender(ownIdentity, TcpClient.newClient("127.0.0.1", 11007));
+        new GossipSender(ownIdentity, TcpClient.newClient(fileParser.getGossipAddress()));
     gossipSender.sendOwnPeerPeriodically(30, TimeUnit.MINUTES, 20).subscribe();
 
     List<Peer> initialList = pushReceiver.gossipSocket().toBlocking().first();
@@ -61,8 +62,8 @@ public class Rps {
       }
     }).start();
 
-    QueryServer queryServer = new QueryServer(TcpServer.newServer((11001)), brahms);
-    PullServer pullServer = new PullServer(brahms, TcpServer.newServer(11002));
+    QueryServer queryServer = new QueryServer(TcpServer.newServer(fileParser.getQueryServerPort()), brahms);
+    PullServer pullServer = new PullServer(brahms, TcpServer.newServer(fileParser.getPullServerPort()));
 
     queryServer.awaitShutdown();
     pullServer.awaitShutdown();
