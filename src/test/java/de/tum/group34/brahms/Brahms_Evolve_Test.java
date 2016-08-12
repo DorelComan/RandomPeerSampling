@@ -9,10 +9,13 @@ import de.tum.group34.pull.PullClient;
 import de.tum.group34.push.PushReceiver;
 import de.tum.group34.push.PushSender;
 import de.tum.group34.realsockets.NseServerRunner;
+import io.netty.buffer.ByteBuf;
+import io.reactivex.netty.protocol.tcp.client.TcpClient;
 import org.junit.Test;
 import org.mockito.Mockito;
 import rx.Observable;
 
+import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
@@ -31,8 +34,8 @@ public class Brahms_Evolve_Test {
         NseServerRunner server = new NseServerRunner();
         new Thread(server::start).start();
 
-        NseClient nseClient = new de.tum.group34.nse.NseClient(new TcpClientFactory("127.0.0.1",
-                                                            NseServerRunner.PORT, "NseClient"), 1, TimeUnit.SECONDS);
+        NseClient nseClient = new de.tum.group34.nse.NseClient(address -> null, //Todo Modify
+                new InetSocketAddress("127.0.0.1", NseServerRunner.PORT),1, TimeUnit.SECONDS);
 
         PushSender pushSender = Mockito.mock(PushSender.class);
 

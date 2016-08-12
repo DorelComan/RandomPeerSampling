@@ -8,8 +8,12 @@ import de.tum.group34.pull.PullServer;
 import de.tum.group34.push.PushReceiver;
 import de.tum.group34.push.PushSender;
 import de.tum.group34.query.QueryServer;
+import de.tum.group34.serialization.FileParser;
 import io.reactivex.netty.protocol.tcp.client.TcpClient;
 import io.reactivex.netty.protocol.tcp.server.TcpServer;
+import org.apache.commons.configuration2.ex.ConfigurationException;
+
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -22,12 +26,13 @@ public class Rps {
 
   private static final Logger log = Logger.getLogger(Rps.class.getName());
 
-  public static void main(final String[] args) throws InterruptedException {
+  public static void main(final String[] args) throws InterruptedException, IOException, ConfigurationException {
 
-    // TODO read config
-    //FileParser fileParser =  new FileParser("Insert file path");
 
-    Peer ownIdentity = new Peer(); // TODO do this properly
+    FileParser fileParser =  new FileParser("Insert file path");
+
+    Peer ownIdentity = new Peer();
+    ownIdentity.setHostkey(fileParser.getHostkey());
 
     PullClient pullClient = new PullClient();
     PushSender pushSender = new PushSender();
@@ -43,12 +48,18 @@ public class Rps {
 
     List<Peer> initialList = pushReceiver.gossipSocket().toBlocking().first();
 
-    // TODO: add peer list from file?
+    // TODO: add peer list from file? I guess Nein
     Brahms brahms =
         new Brahms(initialList, nseClient, pullClient, pushReceiver,
             pushSender, new RxTcpClientFactory("Brahms"));
 
-    brahms.start(); //TODO: Decide when to start it
+    new Thread(()->{
+      try {
+        brahms.start();
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+    }).start();
 
     QueryServer queryServer = new QueryServer(TcpServer.newServer((11001)), brahms);
     PullServer pullServer = new PullServer(brahms, TcpServer.newServer(11002));
