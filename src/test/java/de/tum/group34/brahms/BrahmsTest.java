@@ -8,6 +8,7 @@ import de.tum.group34.pull.PullClient;
 import de.tum.group34.push.PushReceiver;
 import de.tum.group34.push.PushSender;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.mockito.internal.configuration.injection.MockInjection;
 import rx.Observable;
@@ -19,15 +20,19 @@ public class BrahmsTest {
     @Test
     public void test() throws InterruptedException {
 
-        MockPeers.getPeerList(20).forEach(peer -> System.out.println(peer.getIpAddress().toString()));
+        //MockPeers.getPeerList(20).forEach(peer -> System.out.println(peer.getIpAddress().toString()));
 
         PullClient pullClient = Mockito.mock(PullClient.class);
-        Mockito.when(pullClient.makePullRequests(MockPeers.getPeerList(20))).thenReturn(Observable.just(MockPeers.getPeerList(10)));
+
+        // Class clazz = List.class;
+        // ArgumentCaptor<List<Peer>> argumentCaptor = ArgumentCaptor.forClass(clazz);
+        Mockito.when(pullClient.makePullRequests(Mockito.any()))
+                .thenReturn(Observable.just(MockPeers.getPeerList(5)));
 
         PushSender pushSender = Mockito.mock(PushSender.class);
 
         PushReceiver pushReceiver = Mockito.mock(PushReceiver.class);
-        Mockito.when(pushReceiver.getPushList()).thenReturn(Observable.just(MockPeers.getPeerList(20)));
+        Mockito.when(pushReceiver.getPushList()).thenReturn(Observable.just(MockPeers.getPeerList(5)));
 
         NseClient nseClient = Mockito.mock(NseClient.class);
         Mockito.when(nseClient.getNetworkSize()).thenReturn(Observable.just(1000));
