@@ -12,17 +12,19 @@ import java.net.InetSocketAddress;
  */
 public class TcpClientFactory {
   private String loggingTag;
-  private String address;
-  private int port;
 
-  public TcpClientFactory(String address, int port, String loggingTag) {
-    this.port = port;
-    this.address = address;
+  public TcpClientFactory(String loggingTag) {
     this.loggingTag = loggingTag;
   }
 
-  public TcpClient<ByteBuf, ByteBuf> newClient() {
-    return TcpClient.newClient(new InetSocketAddress("localhost", port))
+  /**
+   * Creates a new TcpClient
+   *
+   * @param address The address
+   * @return a new TcpClient instance
+   */
+  public TcpClient<ByteBuf, ByteBuf> newClient(InetSocketAddress address) {
+    return TcpClient.newClient(address)
         .enableWireLogging(loggingTag, LogLevel.DEBUG);
   }
 }

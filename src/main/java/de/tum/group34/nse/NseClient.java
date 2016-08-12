@@ -4,6 +4,7 @@ import de.tum.group34.TcpClientFactory;
 import de.tum.group34.pull.PullServer;
 import de.tum.group34.serialization.MessageParser;
 import io.netty.buffer.ByteBuf;
+import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import rx.Observable;
@@ -25,16 +26,17 @@ public class NseClient {
    * Creates a new instance
    *
    * @param clientFactory The Factory to create TcpClients on the fly
+   * @param address The address to connect to
    * @param interval The time interval when to query the network size
    * @param timeUnit The intervals time unit
    */
   public NseClient(
-      TcpClientFactory clientFactory, long interval, TimeUnit timeUnit) {
+      TcpClientFactory clientFactory, InetSocketAddress address, long interval, TimeUnit timeUnit) {
 
     networkSize = BehaviorSubject.create();
 
     Observable.interval(0, interval, timeUnit)
-        .flatMap(aLong -> clientFactory.newClient().createConnectionRequest())
+        .flatMap(aLong -> clientFactory.newClient(address).createConnectionRequest())
         .onBackpressureLatest()
         .flatMap(connection -> connection.writeBytes(
             Observable.just(MessageParser.getNseQuery().array()))
