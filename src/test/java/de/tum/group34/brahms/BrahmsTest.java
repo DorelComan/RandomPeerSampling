@@ -17,7 +17,7 @@ import java.util.List;
 
 public class BrahmsTest {
 
-    @Test
+   // @Test
     public void test() throws InterruptedException {
 
         //MockPeers.getPeerList(20).forEach(peer -> System.out.println(peer.getIpAddress().toString()));
