@@ -10,21 +10,24 @@ public class MockPeers {
     public static Peer getPeer(){
 
         Peer peer = new Peer();
-        peer.setIpAddress(new InetSocketAddress("127.0.0.33",2555));
+        Double val1, val2;
+        val1 = Math.random()* 255;
+        val2 = Math.random()* 255;
+        peer.setIpAddress(new InetSocketAddress("127.0."+ val1.intValue()+ "." +val2.intValue(), 2555+val1.intValue()));
 
         return peer;
     }
 
-    public static ArrayList<Peer> getPeerList(){
+    public static ArrayList<Peer> getPeerList(Integer n){
         ArrayList<Peer> peers = new ArrayList<>();
-        Integer val1, val2;
+        Double val1, val2;
         Peer peer;
 
-        for (int i=0; i < 20; i++){
-            val1 = (int)(Math.random()%255);
-            val2 = (int)(Math.random()%255);
+        for (int i=0; i < n; i++){
+            val1 = Math.random()* 255;
+            val2 = Math.random()* 255;
             peer = new Peer();
-            peer.setIpAddress(new InetSocketAddress("127.0." + val1 + "." + val2, val1 + 5000));
+            peer.setIpAddress(new InetSocketAddress("127.0." + val1.intValue() + "." + val2.intValue(), val1.intValue() + 5000));
             peers.add(peer);
         }
 
