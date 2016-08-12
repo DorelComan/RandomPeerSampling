@@ -25,7 +25,7 @@ public class PullServerTest {
     int port = 7726;
 
     Brahms brahms = Mockito.mock(Brahms.class);
-    List<Peer> peerList = MockPeers.getPeerList(17);
+    List<Peer> peerList = MockPeers.getPeerList(16);
     Mockito.when(brahms.getLocalView()).thenReturn(peerList);
 
     PullServer pullServer = new PullServer(brahms, TcpServer.newServer(port));
@@ -57,6 +57,6 @@ public class PullServerTest {
 
     pullServer.awaitShutdown();
 
-    Assert.assertEquals(resultHolder.result, peerList);
+    Assert.assertEquals(peerList, resultHolder.result);
   }
 }

@@ -2,8 +2,8 @@ package de.tum.group34.serialization;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
+import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectInputStream;
@@ -24,7 +24,8 @@ public class SerializationUtils {
    * @return Byte array of the object to
    */
   public static byte[] toBytes(Object object) {
-    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+    ByteBufOutputStream bos = new ByteBufOutputStream(Unpooled.buffer());
     ObjectOutputStream outputStream = null;
     try {
       outputStream = new ObjectOutputStream(bos);
@@ -42,7 +43,7 @@ public class SerializationUtils {
         }
       }
     }
-    return bos.toByteArray();
+    return bos.buffer().array();
   }
 
   /**

@@ -1,6 +1,7 @@
 package de.tum.group34.serialization;
 
 import de.tum.group34.model.Peer;
+import de.tum.group34.pull.MockPeers;
 import io.netty.buffer.ByteBuf;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -15,7 +16,7 @@ import org.junit.*;
 public class SerializationTest {
 
   @Test
-  public void deserializeSerializeInetSocketAddress() {
+  public void socketAddress() {
 
     InetSocketAddress address = new InetSocketAddress("127.0.0.1", 4242);
 
@@ -25,7 +26,7 @@ public class SerializationTest {
   }
 
   @Test
-  public void deserializeSerializePeer() {
+  public void peer() {
     InetSocketAddress address = new InetSocketAddress("127.0.0.1", 4242);
     Peer peer = new Peer(address);
     ByteBuf buf = SerializationUtils.toByteBuf(peer);
@@ -35,7 +36,7 @@ public class SerializationTest {
   }
 
   @Test
-  public void deserializeSerializePeerList() {
+  public void peerList() {
     InetSocketAddress address = InetSocketAddress.createUnresolved("127.0.0.1", 4242);
     List<Peer> peers = new ArrayList<>();
     peers.add(new Peer(address));
@@ -45,6 +46,17 @@ public class SerializationTest {
     List<Peer> peers2 = SerializationUtils.fromByteBuf(buf);
 
     Assert.assertEquals(2, peers2.size());
+    Assert.assertEquals(peers, peers2);
+  }
+
+  @Test
+  public void xxlPeerList() {
+    int elements = 20;
+    List<Peer> peers = MockPeers.getPeerList(elements);
+    ByteBuf buf = SerializationUtils.toByteBuf(peers);
+    List<Peer> peers2 = SerializationUtils.fromByteBuf(buf);
+
+    Assert.assertEquals(elements, peers2.size());
     Assert.assertEquals(peers, peers2);
   }
 }
