@@ -58,7 +58,7 @@ public class NotifyMessage extends ApiMessage {
         int datatype;
 
         try {
-        buf.position(buf.position() + 2);//skip over the reserved part
+        buf.position(buf.position() + 6);//skip over the reserved part TODO: Modified from 2 to 6, cause we get in input the whole buf
         datatype = Message.unsignedIntFromShort(buf.getShort());
             message = new NotifyMessage(datatype);
         } catch (BufferUnderflowException | IllegalArgumentException exp) {

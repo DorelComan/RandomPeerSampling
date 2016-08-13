@@ -10,6 +10,8 @@ public class MessageParser {
 
   public static void isRpsQuery(ByteBuf buf) throws MessageException, UnknownMessage {
 
+    //TODO: repair it
+
     int buf_size = buf.readableBytes();
 
     if (buf_size > Message.MAX_LENGTH) {
@@ -31,6 +33,7 @@ public class MessageParser {
   }
 
   public static ByteBuf buildRpsRespone(Peer peer) {
+    //TODO: repair it
 
     ByteBuf buf = Unpooled.buffer();
     int size = 64; // Counting the size, 64 bit is the header
@@ -59,11 +62,11 @@ public class MessageParser {
   public static ByteBuf buildGossipPushValidationResponse(int messageId, boolean valid) {
 
     ByteBuf buf = Unpooled.buffer();
-    int size = 64; // Overall Message is 64 bit
+    int size = 8; // Overall Message is 64 bit
 
-    buf.setShort(16, (short) Message.GOSSIP_VALIDATION); // Setting type
-    buf.setShort(32, (short) messageId);
-    buf.setBoolean(63, valid);
+    buf.setShort(2, (short) Message.GOSSIP_VALIDATION); // Setting type
+    buf.setShort(4, (short) messageId);
+    buf.setShort(6, (short) (valid ? 1 : 0));
     buf.setShort(0, (short) size);
 
     return buf;
@@ -77,38 +80,44 @@ public class MessageParser {
     }
 
     int size = unsignedIntFromShort(buf.getShort(0)); // Reading size of the header
-    if (size != buf_size)    // verifying the declared size and the received one
-    {
+    if (size != buf_size){    // verifying the declared size and the received one
       throw new MessageException();
     }
 
-    int messageID = unsignedIntFromShort(buf.getShort(32));
-    int type = unsignedIntFromShort(buf.getShort(48));
+    int messageID = unsignedIntFromShort(buf.getShort(4));
+    int type = unsignedIntFromShort(buf.getShort(6));
 
     if (type != Message.GOSSIP_PUSH) {
       throw new MessageException();
     }
 
-    ByteBuf dst = Unpooled.buffer();
-    buf.getBytes(64, dst);
+    ByteBuf dst = Unpooled.buffer(512); //512 size of Peer
+    buf.getBytes(8, dst);
 
     Peer peer = SerializationUtils.fromByteBuf(dst);
     return new PeerSharingMessage(messageID, peer);
   }
 
+  /**
+   * Announce Message to be sent to Gossip to push the Peer trough the network
+   *
+   * @param peer
+   * @param ttl
+   * @return
+     */
   public static ByteBuf buildGossipPush(Peer peer, int ttl) {
 
-    int size = 64;
-    ByteBuf byteBuf = Unpooled.buffer();
-
-    byteBuf.setShort(16, (short) Message.GOSSIP_ANNUNCE); // setting type of announce
-    byteBuf.setShort(48, (short) Message.GOSSIP_PUSH);
-    byteBuf.setByte(32, (byte) (ttl & 0xFF));
-    byteBuf.setByte(33, (byte) ((ttl >> 8) & 0xFF));
-
-    size += SerializationUtils.toByteBuf(peer).readableBytes();
+    int size = 520; // Size of message if IPv4
+    ByteBuf byteBuf = Unpooled.buffer(size);
 
     byteBuf.setShort(0, (short) size);
+    byteBuf.setShort(2, (short) Message.GOSSIP_ANNUNCE); // setting type of announce
+    byteBuf.setShort(6, (short) Message.GOSSIP_PUSH);
+    byteBuf.setByte(4, (byte) (ttl & 0xFF));
+    byteBuf.setByte(5, (byte) ((ttl >> 8) & 0xFF));
+
+    byte[] peerBuf = SerializationUtils.toBytes(peer);
+    byteBuf.setBytes(8, peerBuf);
 
     return byteBuf;
   }
@@ -122,9 +131,9 @@ public class MessageParser {
 
     ByteBuf byteBuf = Unpooled.buffer();
 
-    byteBuf.setShort(0, (short) 64); // Setting size of GOSSIP NOTIFY
-    byteBuf.setShort(16, (short) Message.GOSSIP_NOTIFY);
-    byteBuf.setShort(48, (short) Message.GOSSIP_PUSH);
+    byteBuf.setShort(0, (short) 8); // Setting size of GOSSIP NOTIFY
+    byteBuf.setShort(2, (short) Message.GOSSIP_NOTIFY);
+    byteBuf.setShort(6, (short) Message.GOSSIP_PUSH);
 
     return byteBuf;
   }
@@ -141,14 +150,14 @@ public class MessageParser {
 
     //TODO: take a better look if short is correct
     ByteBuf buf = Unpooled.buffer();
-    buf.setShort(0, 32);
-    buf.setShort(16, 520);
+    buf.setShort(0, 4);
+    buf.setShort(2,(short) 520);
 
     return buf;
   }
 
   public static int getSizeFromNseMessage(ByteBuf byteBuf) {
-    return (int) byteBuf.getUnsignedInt(32);
+    return (int) byteBuf.getUnsignedInt(4);
   }
 
   /**
@@ -157,8 +166,18 @@ public class MessageParser {
   public static ByteBuf getPullLocalView() {
 
     ByteBuf buf = Unpooled.buffer();
-    buf.setShort(16, 550);
+    buf.setShort(0, 4);
+    buf.setShort(2,(short) 550);
 
     return buf;
+  }
+
+  public static byte[] getRpsQuery(){
+
+    ByteBuf buf = Unpooled.buffer();
+    buf.setShort(0, 4);
+    buf.setShort(2,(short) 520);
+
+    return buf.array();
   }
 }

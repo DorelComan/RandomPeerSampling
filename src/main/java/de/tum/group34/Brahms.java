@@ -88,7 +88,7 @@ public class Brahms {
       for (int i = 0; i < nmbPushes; i++) {
         List<Peer> peer;
         peer = rand(getLocalView(), 1);
-        //System.out.println("PUSH: " + peer.get(0).getIpAddress().toString()); //todo
+        System.out.println("PUSH: " + peer.get(0).getIpAddress().toString()); //todo
         pushSender.sendMyIdTo(peer.get(0));
       }
 
@@ -123,12 +123,15 @@ public class Brahms {
       pushList.addAll(pullList); // pushList + pullList to be added at sample
       updateSample(pushList);
 
-      List<Peer> peersThatAreAlive = getPeersThatAreAlive(getLocalView()).toBlocking().first();
-      setLocalView(peersThatAreAlive);
+      //List<Peer> peersThatAreAlive = getPeersThatAreAlive(getLocalView()).toBlocking().first(); TODO: uncomment
+      //setLocalView(peersThatAreAlive);
 
       // TODO
       // System.out.println("\nNew Sample");
       // samplList.forEach(sampler -> System.out.println(sampler.sample().getIpAddress().toString()));
+
+       //System.out.println("\nNew Local");
+       //getLocalView().forEach(peer -> System.out.println(peer.getIpAddress().toString()));
 
       Thread.sleep(SLEEP_TIME);
     }

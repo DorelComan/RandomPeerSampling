@@ -27,15 +27,12 @@ From command line use:
     
     + Brahms - OK
     - GossipSender [Autonomous]
+
     - QueryServer [connected to Brahms localView]
+    
     + NseClient - OK
     
     - Rps
     
-# Steps in Brahms testing
-
-    
-    
-    Brahms connect to : NseClient - PushSender - Push Receiver
 
  
