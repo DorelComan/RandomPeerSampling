@@ -3,6 +3,7 @@ package de.tum.group34.model;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 /**
@@ -15,12 +16,12 @@ public class Peer implements Serializable, Cloneable {
   private int messageId;
 
   public Peer() {
-    hostkey = ("").getBytes();
+    hostkey = ("").getBytes(StandardCharsets.UTF_8);
   }
 
   public Peer(InetSocketAddress inetSocketAddress) {
 
-    hostkey = ("").getBytes();
+    hostkey = ("").getBytes(StandardCharsets.UTF_8);
     this.ipAddress = inetSocketAddress;
   }
 
