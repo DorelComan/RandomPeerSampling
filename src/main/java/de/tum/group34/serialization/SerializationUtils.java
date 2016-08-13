@@ -4,10 +4,14 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.List;
 
 /**
  * @author Hannes Dorfmann
@@ -24,26 +28,15 @@ public class SerializationUtils {
    * @return Byte array of the object to
    */
   public static byte[] toBytes(Object object) {
-
-    ByteBufOutputStream bos = new ByteBufOutputStream(Unpooled.buffer());
-    ObjectOutputStream outputStream = null;
-    try {
-      outputStream = new ObjectOutputStream(bos);
-      outputStream.writeObject(object);
-      outputStream.flush();
+    try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
+      try (ObjectOutputStream outputStream = new ObjectOutputStream(byteArrayOutputStream)) {
+        outputStream.writeObject(object);
+        outputStream.flush();
+        return byteArrayOutputStream.toByteArray();
+      }
     } catch (IOException e) {
       throw new RuntimeException(e);
-    } finally {
-      if (outputStream != null) {
-        try {
-          outputStream.close();
-          bos.close();
-        } catch (IOException e) {
-          throw new RuntimeException(e);
-        }
-      }
     }
-    return bos.buffer().array();
   }
 
   /**
@@ -52,35 +45,40 @@ public class SerializationUtils {
    * @param object The object to serialize
    * @return The ByteBuf representation of the passed object.
    */
+
   public static ByteBuf toByteBuf(Object object) {
-    return Unpooled.wrappedBuffer(toBytes(object));
+    byte[] bytes = toBytes(object);
+
+    try (ByteBufOutputStream out = new ByteBufOutputStream(
+        Unpooled.buffer(bytes.length))) {
+      out.write(bytes);
+      return out.buffer();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public static <T> T fromBytes(ByteBuf bytes) {
+    try (ByteBufInputStream bis = new ByteBufInputStream(bytes)) {
+      return fromBytes(bis);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /**
    * Converts a byte array into an object
    *
-   * @param bytes The bytes representation of an object
+   * @param inputStream The inputstream to read the bytes from
    * @param <T> The generic type (will automatically cast the object to the desired Type)
    * @return The object
    */
-  public static <T> T fromBytes(ByteBuf bytes) {
-    ByteBufInputStream bis = new ByteBufInputStream(bytes);
-    ObjectInput in = null;
-    try {
-      in = new ObjectInputStream(bis);
+  private static <T> T fromBytes(InputStream inputStream) {
+    try (ObjectInput in = new ObjectInputStream(inputStream)) {
       T object = (T) in.readObject();
       return object;
     } catch (Exception e) {
       throw new RuntimeException(e);
-    } finally {
-      try {
-        bis.close();
-        if (in != null) {
-          in.close();
-        }
-      } catch (IOException ex) {
-        throw new RuntimeException((ex));
-      }
     }
   }
 
@@ -93,5 +91,19 @@ public class SerializationUtils {
    */
   public static <T> T fromByteBuf(ByteBuf buf) {
     return fromBytes(buf);
+  }
+
+  public static <T> T fromByteBufs(List<ByteBuf> bufs) {
+
+    try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+      for (ByteBuf buf : bufs) {
+        bos.write(buf.nioBuffer().array());
+      }
+      try (ByteArrayInputStream in = new ByteArrayInputStream(bos.toByteArray())) {
+        return fromBytes(in);
+      }
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

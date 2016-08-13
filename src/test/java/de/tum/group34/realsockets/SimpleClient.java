@@ -22,7 +22,6 @@ public class SimpleClient {
                 .cast(ByteBuf.class)
                 .concatWith(connection.getInput())
         )
-        .take(1)
         .map(bb -> bb.toString(Charset.defaultCharset()))
         .toBlocking()
         .forEach(System.out::println);

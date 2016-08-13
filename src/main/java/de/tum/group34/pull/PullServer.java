@@ -6,6 +6,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.handler.logging.LogLevel;
 import io.reactivex.netty.protocol.tcp.server.TcpServer;
 import java.util.logging.Logger;
+import rx.Observable;
 
 /**
  * Responsible to listen for incoming PULL REQUESTS and to answer them with the local view from
@@ -24,11 +25,15 @@ public class PullServer {
     this.server = server.enableWireLogging(LOG_TAG, LogLevel.DEBUG)
         .start(
             connection ->
-                connection.writeBytesAndFlushOnEach(connection.getInput()
-                    .doOnNext(byteBuf -> log.info(LOG_TAG + " Query request received"))
-                    .map((byteBuf -> SerializationUtils.toBytes(brahms.getLocalView())))
-                    .doOnNext(bytes -> log.info(LOG_TAG + " sending query response"))
+                connection.writeBytesAndFlushOnEach(
+                    Observable.just(SerializationUtils.toBytes(brahms.getLocalView()))
+                        .doOnNext(bytes -> log.info(
+                            LOG_TAG + " sending query response with " + bytes.length + " bytes"))
                 )
+                    .doOnError(t -> {
+                      log.info("Error");
+                      t.printStackTrace();
+                    })
         );
   }
 
@@ -42,7 +47,7 @@ public class PullServer {
   /**
    * Shuts the server down
    */
-  public void shutDown() {
+  public void shutdown() {
     server.shutdown();
   }
 }

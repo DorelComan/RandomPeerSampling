@@ -10,19 +10,18 @@ import de.tum.group34.pull.PullClient;
 import de.tum.group34.push.PushReceiver;
 import de.tum.group34.push.PushSender;
 import de.tum.group34.realsockets.NseServerRunner;
-import io.netty.buffer.ByteBuf;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.reactivex.netty.protocol.tcp.server.TcpServer;
-import org.mockito.Mockito;
-import rx.Observable;
-
-import java.io.PrintStream;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
+import org.mockito.Mockito;
+import rx.Observable;
 
 public class QueryServerTest {
 
+    @SuppressFBWarnings("DM_DEFAULT_ENCODING")
     public static void main(String[] args) throws InterruptedException {
 
         //MockPeers.getPeerList(20).forEach(peer -> System.out.println(peer.getIpAddress().toString()));

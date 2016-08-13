@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.handler.logging.LogLevel;
 import io.reactivex.netty.protocol.tcp.server.TcpServer;
 import java.nio.charset.Charset;
+import rx.Observable;
 
 /**
  * @author Hannes Dorfmann
@@ -22,7 +23,7 @@ public class SimpleServer {
         .start(connection -> connection.getInput()
             .map(bb -> bb.toString(Charset.defaultCharset()))
             .doOnNext(System.out::println)
-            .map(s -> null)
+            .flatMap(s -> connection.writeString(Observable.just("echo " + s)))
         );
 
     server.awaitShutdown();

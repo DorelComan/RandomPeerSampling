@@ -8,7 +8,6 @@ import de.tum.group34.protocol.gossip.NotificationMessage;
 import de.tum.group34.protocol.gossip.NotifyMessage;
 import de.tum.group34.protocol.gossip.ValidationMessage;
 import de.tum.group34.pull.MockPeers;
-import de.tum.group34.serialization.MessageParser;
 import de.tum.group34.serialization.SerializationUtils;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBuf;
@@ -30,7 +29,6 @@ import rx.functions.Func1;
 public class PushReceiverTest {
 
   @Test
-  // TODO fix that unit text: Problem is that Message Push is not the expected one
   @SuppressFBWarnings("DLS_DEAD_LOCAL_STORE")
   public void registerToGossipAndDeliverNotification() {
     int port = 7728;
@@ -40,7 +38,7 @@ public class PushReceiverTest {
     List<Peer> receivedGossipPeers = new ArrayList<>();
 
     Peer pushingPeer = MockPeers.getPeer();
-      //System.out.println("Peer sent: " + pushingPeer.getIpAddress().toString());
+    //System.out.println("Peer sent: " + pushingPeer.getIpAddress().toString());
 
     int msgId = 123;
     NotificationMessage notificationMessage = new NotificationMessage(msgId,
@@ -49,16 +47,16 @@ public class PushReceiverTest {
     notificationMessage.send(notificationMessageBuffer);
     byte[] notificationMessageBytes = notificationMessageBuffer.array();
 
-      //byte[] notificationMessageBytes = MessageParser.buildGossipPush(pushingPeer, 500).array();
+    //byte[] notificationMessageBytes = MessageParser.buildGossipPush(pushingPeer, 500).array();
 
     TcpServer<ByteBuf, ByteBuf> server = TcpServer.newServer(port)
         .enableWireLogging("PushReceiverTest", LogLevel.DEBUG)
         .start(connection -> connection.getInput()
             .map(byteBuf -> {
 
-               // System.out.println("\nServer rcv dataType: " + MessageParser.unsignedIntFromShort(byteBuf.getShort(6)));
-                //System.out.println("\nServer rcv msgId: " + MessageParser.unsignedIntFromShort(byteBuf.getShort(4)));
-               // System.out.println("Server rcv messageType: " + MessageParser.unsignedIntFromShort(byteBuf.getShort(2)));
+              // System.out.println("\nServer rcv dataType: " + MessageParser.unsignedIntFromShort(byteBuf.getShort(6)));
+              //System.out.println("\nServer rcv msgId: " + MessageParser.unsignedIntFromShort(byteBuf.getShort(4)));
+              // System.out.println("Server rcv messageType: " + MessageParser.unsignedIntFromShort(byteBuf.getShort(2)));
 
               if (serverReceivedMessages.isEmpty()) {
                 return NotifyMessage.parse(byteBuf.nioBuffer());
@@ -115,13 +113,12 @@ public class PushReceiverTest {
     Assert.assertEquals(2, serverReceivedMessages.size());
     NotifyMessage registerForNotificationsMessage = (NotifyMessage) serverReceivedMessages.get(0);
     ValidationMessage validationMessage = (ValidationMessage) serverReceivedMessages.get(1);
-      Assert.assertEquals(de.tum.group34.serialization.Message.GOSSIP_PUSH,
-              registerForNotificationsMessage.getDatatype());
+    Assert.assertEquals(de.tum.group34.serialization.Message.GOSSIP_PUSH,
+        registerForNotificationsMessage.getDatatype());
     Assert.assertTrue(validationMessage.isValid());
   }
 
   @Test
-
   @SuppressFBWarnings("DLS_DEAD_LOCAL_STORE")
   public void registerToGossipButGossipDeliversInvalidMessages() {
     int port = 7729;
@@ -189,7 +186,6 @@ public class PushReceiverTest {
     ValidationMessage validationMessage = (ValidationMessage) serverReceivedMessages.get(1);
 
     Assert.assertFalse(validationMessage.isValid());
-    // TODO fix this
     Assert.assertEquals(de.tum.group34.serialization.Message.GOSSIP_PUSH,
         registerForNotificationsMessage.getDatatype());
   }
