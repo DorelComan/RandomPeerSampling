@@ -35,16 +35,19 @@ public class NseClient {
 
     networkSize = BehaviorSubject.create();
 
+    // TODO exponentioal Backoff
     Observable.interval(0, interval, timeUnit)
+        .onBackpressureLatest()
         .flatMap(aLong -> clientFactory.newClient(address).createConnectionRequest())
         .onBackpressureLatest()
         .flatMap(connection -> connection.writeBytes(
             Observable.just(MessageParser.getNseQuery().array()))
             .cast(ByteBuf.class)
             .concatWith(connection.getInput())
+            .map(byteBuf -> MessageParser.getSizeFromNseMessage(byteBuf))
+            .doOnNext(size -> log.info("NSE: network size: " + size))
             .take(1)
         )
-        .map(byteBuf -> MessageParser.getSizeFromNseMessage(byteBuf))
         .subscribe(networkSize);
   }
 

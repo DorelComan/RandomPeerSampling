@@ -1,6 +1,7 @@
 package de.tum.group34.serialization;
 
 import de.tum.group34.model.Peer;
+import de.tum.group34.model.PeerSharingMessage;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.net.InetAddress;
@@ -55,7 +56,20 @@ public class MessageParser {
     return buf;
   }
 
-  public static Peer buildPeerFromGossipPush(ByteBuf buf) throws MessageException {
+  public static ByteBuf buildGossipPushValidationResponse(int messageId, boolean valid) {
+
+    ByteBuf buf = Unpooled.buffer();
+    int size = 64; // Overall Message is 64 bit
+
+    buf.setShort(16, (short) Message.GOSSIP_VALIDATION); // Setting type
+    buf.setShort(32, (short) messageId);
+    buf.setBoolean(63, valid);
+    buf.setShort(0, (short) size);
+
+    return buf;
+  }
+
+  public static PeerSharingMessage buildPeerFromGossipPush(ByteBuf buf) throws MessageException {
 
     int buf_size = buf.readableBytes();
     if (buf_size > Message.MAX_LENGTH) {
@@ -78,9 +92,8 @@ public class MessageParser {
     ByteBuf dst = Unpooled.buffer();
     buf.getBytes(64, dst);
 
-    Peer peer = SerializationUtils.fromByteBuf(dst);peer.setMessageID(messageID);
-
-    return peer;
+    Peer peer = SerializationUtils.fromByteBuf(dst);
+    return new PeerSharingMessage(messageID, peer);
   }
 
   public static ByteBuf buildGossipPush(Peer peer, int ttl) {
@@ -100,7 +113,12 @@ public class MessageParser {
     return byteBuf;
   }
 
-  public static ByteBuf getGossipNotifyForPush() {
+  /**
+   * Creates a message that is responsible to be register himself at gossip module
+   *
+   * @return bytebuf representing this message
+   */
+  public static ByteBuf buildRegisterForNotificationsMessages() {
 
     ByteBuf byteBuf = Unpooled.buffer();
 
@@ -130,7 +148,6 @@ public class MessageParser {
   }
 
   public static int getSizeFromNseMessage(ByteBuf byteBuf) {
-
     return (int) byteBuf.getUnsignedInt(32);
   }
 

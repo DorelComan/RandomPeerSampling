@@ -11,13 +11,12 @@ import de.tum.group34.query.QueryServer;
 import de.tum.group34.serialization.FileParser;
 import io.reactivex.netty.protocol.tcp.client.TcpClient;
 import io.reactivex.netty.protocol.tcp.server.TcpServer;
-import org.apache.commons.configuration2.ex.ConfigurationException;
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 
 /**
  * @author Hannes Dorfmann
@@ -26,10 +25,10 @@ public class Rps {
 
   private static final Logger log = Logger.getLogger(Rps.class.getName());
 
-  public static void main(final String[] args) throws InterruptedException, IOException, ConfigurationException {
+  public static void main(final String[] args)
+      throws InterruptedException, IOException, ConfigurationException {
 
-
-    FileParser fileParser =  new FileParser("Insert file path");
+    FileParser fileParser = new FileParser("Insert file path");
 
     Peer ownIdentity = new Peer();
     ownIdentity.setHostkey(fileParser.getHostkey());
@@ -37,6 +36,15 @@ public class Rps {
     PullClient pullClient = new PullClient();
     PushSender pushSender = new PushSender();
     PushReceiver pushReceiver = initPushReceiver();
+    pushReceiver.registerToGossip(InetSocketAddress.createUnresolved("127.0.0.1", 11003))
+        .subscribe(aVoid -> {
+            },
+            throwable -> {
+              throwable.printStackTrace();
+              System.out.println(
+                  "Shutting down RPS Module because no connection to Gossip Module is available");
+              System.exit(1);
+            });
 
     NseClient nseClient =
         new NseClient(new RxTcpClientFactory("NseClient"), new InetSocketAddress("127.0.0.1", 9899),
@@ -53,7 +61,7 @@ public class Rps {
         new Brahms(initialList, nseClient, pullClient, pushReceiver,
             pushSender, new RxTcpClientFactory("Brahms"));
 
-    new Thread(()->{
+    new Thread(() -> {
       try {
         brahms.start();
       } catch (InterruptedException e) {
@@ -70,9 +78,6 @@ public class Rps {
   }
 
   private static PushReceiver initPushReceiver() {
-    return new PushReceiver(
-        InetSocketAddress.createUnresolved("127.0.0.1", 11003),
-        TcpServer.newServer(11004),
-        TcpServer.newServer(11005));
+    return new PushReceiver(TcpServer.newServer(11005), 10, TimeUnit.SECONDS);
   }
 }

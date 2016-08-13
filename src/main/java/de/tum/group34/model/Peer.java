@@ -11,7 +11,6 @@ import java.util.Arrays;
 public class Peer implements Serializable, Cloneable {
 
   private InetSocketAddress ipAddress; // SocketAddress (includes port)
-  private Integer msgID;
   private byte[] hostkey;
 
   public Peer() {
@@ -28,16 +27,6 @@ public class Peer implements Serializable, Cloneable {
 
   public void setIpAddress(InetSocketAddress ipAddress) {
     this.ipAddress = ipAddress;
-  }
-
-  public void setMessageID(int id) {
-
-    this.msgID = id;
-  }
-
-  public Integer getMessageID() {
-
-    return msgID;
   }
 
   @SuppressFBWarnings("EI_EXPOSE_REP")
@@ -59,13 +48,11 @@ public class Peer implements Serializable, Cloneable {
     if (ipAddress != null ? !ipAddress.equals(peer.ipAddress) : peer.ipAddress != null) {
       return false;
     }
-    if (msgID != null ? !msgID.equals(peer.msgID) : peer.msgID != null) return false;
     return Arrays.equals(hostkey, peer.hostkey);
   }
 
   @Override public int hashCode() {
     int result = ipAddress != null ? ipAddress.hashCode() : 0;
-    result = 31 * result + (msgID != null ? msgID.hashCode() : 0);
     result = 31 * result + Arrays.hashCode(hostkey);
     return result;
   }
@@ -81,8 +68,6 @@ public class Peer implements Serializable, Cloneable {
   public Peer clone() {
     Peer peer = new Peer(this.ipAddress);
     peer.hostkey = this.hostkey;
-    peer.msgID = this.msgID;
-
     return peer;
   }
 }

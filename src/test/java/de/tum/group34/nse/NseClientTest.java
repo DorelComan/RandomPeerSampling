@@ -1,15 +1,21 @@
 package de.tum.group34.nse;
 
-import de.tum.group34.mock.MockTcpClient;
-import de.tum.group34.mock.MockTcpClientFactory;
+import de.tum.group34.RxTcpClientFactory;
+import de.tum.group34.protocol.Message;
+import de.tum.group34.protocol.nse.EstimateMessage;
+import de.tum.group34.protocol.nse.QueryMessage;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
+import io.netty.handler.logging.LogLevel;
+import io.reactivex.netty.protocol.tcp.server.TcpServer;
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.junit.*;
+import rx.Observable;
+import rx.functions.Func1;
 
 /**
  * @author Hannes Dorfmann
@@ -17,27 +23,59 @@ import org.junit.*;
 public class NseClientTest {
 
   @Test
+  @Ignore
   public void queryPeriodically() throws InterruptedException {
 
-    ByteBuf answer1 = Unpooled.buffer();
-    answer1.setShort(0, 23);
+    int port = 8883;
+    List<Message> serverReceivedMessages = new ArrayList<>();
 
-    ByteBuf answer2 = Unpooled.buffer();
-    answer2.setShort(1, 42);
+    EstimateMessage firstResponse = new EstimateMessage(20, 30);
+    ByteBuffer firstByteBuffer = ByteBuffer.allocate(firstResponse.getSize());
+    firstResponse.send(firstByteBuffer);
+    EstimateMessage secondResponse = new EstimateMessage(80, 100);
+    ByteBuffer secondResponseBuffer = ByteBuffer.allocate(firstResponse.getSize());
+    secondResponse.send(secondResponseBuffer);
 
-    MockTcpClient tcpClient1 = MockTcpClient.create();
-    MockTcpClient tcpClient2 = MockTcpClient.create();
+    TcpServer<ByteBuf, ByteBuf> server = TcpServer.newServer(port)
+        .enableWireLogging("NseServer", LogLevel.DEBUG)
+        .start(connection -> connection.getInput()
+            .map(byteBuf -> QueryMessage.parse(byteBuf.nioBuffer()))
+            .doOnNext(System.out::println)
+            .doOnNext(serverReceivedMessages::add)
+            .flatMap(new Func1<Message, Observable<Void>>() {
+              @Override public Observable<Void> call(Message msg) {
 
-    tcpClient1.deliverIncomingMessage(answer1);
-    tcpClient2.deliverIncomingMessage(answer1);
+                if (serverReceivedMessages.size() == 0) {
+                  return connection.writeBytes(
+                      Observable.just(firstByteBuffer.array()));
+                }
 
-    NseClient nseClient = new NseClient(MockTcpClientFactory.withClients(tcpClient1, tcpClient2),
-        new InetSocketAddress("192.168.0.20", 4123), 100, TimeUnit.MILLISECONDS);
+                if (serverReceivedMessages.size() == 1) {
+                  return connection.writeBytes(
+                      Observable.just(secondResponseBuffer.array()));
+                }
+                return Observable.error(new RuntimeException("Oops, unexpected message"));
+              }
+            })
+        );
+
+    NseClient nseClient = new NseClient(new RxTcpClientFactory("NseClientTest"),
+        new InetSocketAddress("127.0.0.1", port), 500, TimeUnit.MILLISECONDS);
 
     List<Integer> networkSizes = new ArrayList<>();
-    nseClient.getNetworkSize().take(2).toBlocking().forEach(networkSizes::add);
+    nseClient.getNetworkSize().subscribe(size -> {
+          networkSizes.add(size);
+          server.shutdown();
+        },
+        t -> {
+          t.printStackTrace();
+          Assert.fail("Unexpected exception has been thrown");
+          server.shutdown();
+        });
+
+    server.awaitShutdown();
 
     Assert.assertEquals(2, networkSizes.size());
-    Assert.assertEquals(Arrays.asList(23, 42), networkSizes);
+    Assert.assertEquals(Arrays.asList(20, 80), networkSizes);
   }
 }
