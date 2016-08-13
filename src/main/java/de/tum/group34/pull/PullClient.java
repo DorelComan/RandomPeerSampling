@@ -1,5 +1,6 @@
 package de.tum.group34.pull;
 
+import de.tum.group34.ByteBufAggregatorOperator;
 import de.tum.group34.model.Peer;
 import de.tum.group34.serialization.MessageParser;
 import de.tum.group34.serialization.SerializationUtils;
@@ -49,7 +50,7 @@ public class PullClient {
                     .cast(ByteBuf.class)
                     .concatWith(connection.getInput())
         )
-        .toList()
-        .map(SerializationUtils::fromByteBufs);
+        .lift(ByteBufAggregatorOperator.create())
+        .map(SerializationUtils::fromByteArrays);
   }
 }

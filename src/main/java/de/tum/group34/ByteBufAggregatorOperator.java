@@ -14,19 +14,11 @@ import rx.internal.producers.SingleDelayedProducer;
  * @author Hannes Dorfmann
  */
 public final class ByteBufAggregatorOperator
-    implements Observable.Operator<List<ByteBuf>, ByteBuf> {
-  /** Lazy initialization via inner-class holder. */
-  static final class Holder {
-    /** A singleton instance. */
-    static final ByteBufAggregatorOperator INSTANCE = new ByteBufAggregatorOperator();
-  }
+    implements Observable.Operator<List<byte[]>, ByteBuf> {
 
-  /**
-   * @return a singleton instance of this stateless operator.
-   */
   @SuppressWarnings({"unchecked"})
-  public static ByteBufAggregatorOperator instance() {
-    return Holder.INSTANCE;
+  public static ByteBufAggregatorOperator create() {
+    return new ByteBufAggregatorOperator();
   }
 
   ByteBufAggregatorOperator() {
@@ -34,13 +26,13 @@ public final class ByteBufAggregatorOperator
   }
 
   @Override
-  public Subscriber<? super ByteBuf> call(final Subscriber<? super List<ByteBuf>> o) {
-    final SingleDelayedProducer<List<ByteBuf>> producer =
-        new SingleDelayedProducer<List<ByteBuf>>(o);
+  public Subscriber<? super ByteBuf> call(final Subscriber<? super List<byte[]>> o) {
+    final SingleDelayedProducer<List<byte[]>> producer =
+        new SingleDelayedProducer<List<byte[]>>(o);
     Subscriber<ByteBuf> result = new Subscriber<ByteBuf>() {
 
       boolean completed;
-      List<ByteBuf> list = new LinkedList<ByteBuf>();
+      List<byte[]> list = new LinkedList<>();
 
       @Override
       public void onStart() {
@@ -51,7 +43,7 @@ public final class ByteBufAggregatorOperator
       public void onCompleted() {
         if (!completed) {
           completed = true;
-          List<ByteBuf> result;
+          List<byte[]> result;
           try {
                         /*
                          * Ideally this should just return Collections.unmodifiableList(list) and not copy it,
@@ -68,7 +60,7 @@ public final class ByteBufAggregatorOperator
                          *     at rx.internal.operators.OperatorMap$1.onNext(OperatorMap.java:56)
                          *     ... 419 more
                          */
-            result = new ArrayList<ByteBuf>(list);
+            result = new ArrayList<byte[]>(list);
           } catch (Throwable t) {
             Exceptions.throwOrReport(t, this);
             return;
@@ -90,7 +82,7 @@ public final class ByteBufAggregatorOperator
           byte[] bytes = SerializationUtils.byteBufToByteArray(value);
           int last = bytes.length - 1;
           char lastByte = (char) bytes[last];
-          list.add(SerializationUtils.byteArrayToByteBuf(bytes));
+          list.add(bytes);
 
           if (lastByte == SerializationUtils.END_DELIMITER) {
             onCompleted();

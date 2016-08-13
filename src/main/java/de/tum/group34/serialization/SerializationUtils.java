@@ -100,12 +100,11 @@ public class SerializationUtils {
     return fromBytes(buf);
   }
 
-  public static <T> T fromByteBufs(List<ByteBuf> bufs) {
+  public static <T> T fromByteArrays(List<byte[]> array) {
 
     try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-      for (ByteBuf buf : bufs) {
-        byte[] bs = byteBufToByteArray(buf);
-        bos.write(bs);
+      for (byte[] a : array) {
+        bos.write(a);
       }
 
       byte[] bytes = bos.toByteArray();

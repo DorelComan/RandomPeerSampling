@@ -41,9 +41,9 @@ public class PullServerTest {
             Observable.just(MessageParser.getPullLocalView().array()))
             .cast(ByteBuf.class)
             .concatWith(connection.getInput())
-            .lift(ByteBufAggregatorOperator.instance())
+            .lift(ByteBufAggregatorOperator.create())
             .map(byteBufs -> {
-              List<Peer> peers = SerializationUtils.fromByteBufs(byteBufs);
+              List<Peer> peers = SerializationUtils.fromByteArrays(byteBufs);
               return peers;
             }))
         .subscribe(o -> {
