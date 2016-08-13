@@ -49,7 +49,7 @@ public class PullClient {
                     .cast(ByteBuf.class)
                     .concatWith(connection.getInput())
         )
-        .take(1)
-        .map(SerializationUtils::fromByteBuf);
+        .toList()
+        .map(SerializationUtils::fromByteBufs);
   }
 }
