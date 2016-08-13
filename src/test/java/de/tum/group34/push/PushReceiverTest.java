@@ -30,7 +30,7 @@ import rx.functions.Func1;
 public class PushReceiverTest {
 
   @Test
-  @Ignore // TODO fix that unit text: Problem is that Message Push is not the expected one
+  // TODO fix that unit text: Problem is that Message Push is not the expected one
   @SuppressFBWarnings("DLS_DEAD_LOCAL_STORE")
   public void registerToGossipAndDeliverNotification() {
     int port = 7728;
@@ -121,7 +121,7 @@ public class PushReceiverTest {
   }
 
   @Test
-  @Ignore
+
   @SuppressFBWarnings("DLS_DEAD_LOCAL_STORE")
   public void registerToGossipButGossipDeliversInvalidMessages() {
     int port = 7729;

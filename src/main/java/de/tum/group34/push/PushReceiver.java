@@ -94,9 +94,9 @@ public class PushReceiver {
                 .flatMap(new Func1<ByteBuf, Observable<PeerSharingMessage>>() {
                   @Override public Observable<PeerSharingMessage> call(ByteBuf byteBuf) {
 
-                      System.out.println("\nClient rcv MessageType : " + MessageParser.unsignedIntFromShort(byteBuf.getShort(2)));
-                      System.out.println("Client rcv DataType received: " + MessageParser.unsignedIntFromShort(byteBuf.getShort(6)));
-
+                      //todo
+                      //System.out.println("\nClient rcv MessageType : " + MessageParser.unsignedIntFromShort(byteBuf.getShort(2)));
+                      //System.out.println("Client rcv DataType received: " + MessageParser.unsignedIntFromShort(byteBuf.getShort(6)));
                       //System.out.println("Client rcv Peer received: " +
                         //      MessageParser.buildPeerFromGossipPush(byteBuf).getPeer().getIpAddress().toString());
 
