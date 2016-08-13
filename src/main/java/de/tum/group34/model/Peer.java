@@ -13,7 +13,6 @@ public class Peer implements Serializable, Cloneable {
 
   private InetSocketAddress ipAddress; // SocketAddress (includes port)
   private byte[] hostkey;
-  private int messageId;
 
   public Peer() {
     hostkey = ("").getBytes(StandardCharsets.UTF_8);
