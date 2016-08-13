@@ -8,7 +8,7 @@ public class Message {
   public static final int LOCAL_VIEW_QUERY = 542;
   public static final int LOCAL_VIEW_RESPONSE = 543;
   public static final int GOSSIP_PUSH = 544;
-  public static final int GOSSIP_ANNUNCE = 500;
+  public static final int GOSSIP_ANNOUNCE = 500;
   public static final int GOSSIP_NOTIFY = 501;
   public static final int GOSSIP_NOTIFICATION = 502;
   public static final int GOSSIP_VALIDATION = 503;

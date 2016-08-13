@@ -55,10 +55,4 @@ public class FileParser {
 
     return uri.getPort();
   }
-
-  public int getPullServerPort() throws URISyntaxException {
-    URI uri = new URI(ini.getSection("RPS").getString("pull_server_address"));
-
-    return uri.getPort();
-  }
 }

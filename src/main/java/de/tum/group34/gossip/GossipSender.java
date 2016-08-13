@@ -35,8 +35,8 @@ public class GossipSender {
         .flatMap(connection ->
             Observable.interval(0, time, unit)
                 .doOnNext(messageId -> log.info("Broadcasting my own identity"))
-                .flatMap(interval -> connection.writeAndFlushOnEach(
-                    Observable.just(MessageParser.buildGossipPush(ownIdentity, ttl))))
+                .flatMap(interval -> connection.writeBytes(
+                    Observable.just(MessageParser.buildGossipPush(ownIdentity, ttl).array())))
         );
   }
 }

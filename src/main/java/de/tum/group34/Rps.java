@@ -25,11 +25,18 @@ import org.apache.commons.configuration2.ex.ConfigurationException;
 public class Rps {
 
   private static final Logger log = Logger.getLogger(Rps.class.getName());
+  private static final int PULL_SERVER_PORT = 5222;
+  private static final int PUSH_SERVER_PORT = 5223;
 
   public static void main(final String[] args)
       throws InterruptedException, IOException, ConfigurationException, URISyntaxException {
 
-    FileParser fileParser = new FileParser("Insert file path");
+    if(args.length != 1){
+      System.out.println("Usage of Rps: 'java Rps [path of config_file.conf]'");
+      return;
+    }
+
+    FileParser fileParser = new FileParser(args[0]);
 
     Peer ownIdentity = new Peer();
     ownIdentity.setHostkey(fileParser.getHostkey());
@@ -37,7 +44,7 @@ public class Rps {
     PullClient pullClient = new PullClient();
     PushSender pushSender = new PushSender();
     PushReceiver pushReceiver = initPushReceiver();
-    pushReceiver.registerToGossip(InetSocketAddress.createUnresolved("127.0.0.1", 11003))
+    pushReceiver.registerToGossip(InetSocketAddress.createUnresolved("127.0.0.1", fileParser.getGossipAddress().getPort())) //TODO: UNRESOLVED?
         .subscribe(aVoid -> {
             },
             throwable -> {
@@ -48,18 +55,17 @@ public class Rps {
             });
 
     NseClient nseClient =
-        new NseClient(new RxTcpClientFactory("NseClient"), fileParser.getNseAddress(),
+            new NseClient(new RxTcpClientFactory("NseClient"), fileParser.getNseAddress(),
             30, TimeUnit.SECONDS);
 
     GossipSender gossipSender =
-        new GossipSender(ownIdentity, TcpClient.newClient(fileParser.getGossipAddress()));
+            new GossipSender(ownIdentity, TcpClient.newClient(fileParser.getGossipAddress()));
     gossipSender.sendOwnPeerPeriodically(30, TimeUnit.MINUTES, 20).subscribe();
 
     List<Peer> initialList = pushReceiver.gossipSocket().toBlocking().first();
 
-    // TODO: add peer list from file? I guess Nein
     Brahms brahms =
-        new Brahms(initialList, nseClient, pullClient, pushReceiver,
+            new Brahms(initialList, nseClient, pullClient, pushReceiver,
             pushSender, new RxTcpClientFactory("Brahms"));
 
     new Thread(() -> {
@@ -71,9 +77,9 @@ public class Rps {
     }).start();
 
     QueryServer queryServer =
-        new QueryServer(TcpServer.newServer(fileParser.getQueryServerPort()), brahms);
+            new QueryServer(TcpServer.newServer(fileParser.getQueryServerPort()), brahms);
     PullServer pullServer =
-        new PullServer(brahms, TcpServer.newServer(fileParser.getPullServerPort()));
+            new PullServer(brahms, TcpServer.newServer(PULL_SERVER_PORT));
 
     queryServer.awaitShutdown();
     pullServer.awaitShutdown();

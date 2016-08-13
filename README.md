@@ -6,11 +6,11 @@ From command line use:
 # TASKS
 
 - Implement PushSender
-
-- Set thread for periodical ping of Samplers
-- Solve the Messages size problem
- 
+- Set thread for periodical ping of Samplers 
 - Set the file read (FileParser) in RPS
+
+- Test gossipPush
+- Tes pull send-receive
 
 
 # MessageParser  - methods - 
@@ -37,5 +37,7 @@ From command line use:
     
     - Rps
     
+#GOSSIP
 
- 
+    - GossipSend
+    - GossipNotification to receive 

@@ -112,17 +112,18 @@ public class MessageParser {
    */
   public static ByteBuf buildGossipPush(Peer peer, int ttl) {
 
-    int size = 520; // Size of message if IPv4
+    byte[] peerBuf = SerializationUtils.toBytes(peer);
+    int size = 8 + peerBuf.length; // Size of message if IPv4
     ByteBuf byteBuf = Unpooled.buffer(size);
 
     byteBuf.setShort(0, (short) size);
-    byteBuf.setShort(2, (short) Message.GOSSIP_ANNUNCE); // setting type of announce
+    byteBuf.setShort(2, (short) Message.GOSSIP_ANNOUNCE); // setting type of announce
     byteBuf.setShort(6, (short) Message.GOSSIP_PUSH);
     byteBuf.setByte(4, (byte) (ttl & 0xFF));
     byteBuf.setByte(5, (byte) ((ttl >> 8) & 0xFF));
-
-    byte[] peerBuf = SerializationUtils.toBytes(peer);
     byteBuf.setBytes(8, peerBuf);
+
+    System.out.println("size: " + byteBuf.capacity());
 
     return byteBuf;
   }
@@ -175,6 +176,12 @@ public class MessageParser {
     buf.setShort(2, (short) Message.PULL_LOCAL_VIEW);
 
     return buf;
+  }
+
+  public static boolean isPullLocalView(ByteBuf buf) {
+
+    return MessageParser.unsignedIntFromShort(buf.getShort(2)) == Message.PULL_LOCAL_VIEW
+            && !(buf.capacity() != 4 && MessageParser.unsignedIntFromShort(buf.getShort(0)) != 4);
   }
 
   public static byte[] getRpsQuery() {

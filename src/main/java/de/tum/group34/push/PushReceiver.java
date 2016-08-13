@@ -97,7 +97,7 @@ public class PushReceiver {
                     //System.out.println("\nClient rcv MessageType : " + MessageParser.unsignedIntFromShort(byteBuf.getShort(2)));
                     //System.out.println("Client rcv DataType received: " + MessageParser.unsignedIntFromShort(byteBuf.getShort(6)));
                     //System.out.println("Client rcv Peer received: " +
-                    //      MessageParser.buildPeerFromGossipPush(byteBuf).getPeer().getIpAddress().toString());
+                         //MessageParser.buildPeerFromGossipPush(byteBuf).getPeer().getIpAddress().toString());
 
                     return Observable.fromCallable(
                         () -> MessageParser.buildPeerFromGossipPush(byteBuf))
