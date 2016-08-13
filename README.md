@@ -6,7 +6,10 @@ From command line use:
 # TASKS
 
 - Implement PushSender
-- Set thread for periodical ping of Samplers 
+
+- Set thread for periodical ping of Samplers
+- Solve the Messages size problem
+ 
 - Set the file read (FileParser) in RPS
 
 
@@ -28,7 +31,7 @@ From command line use:
     + Brahms - OK
     - GossipSender [Autonomous]
 
-    - QueryServer [connected to Brahms localView]
+    + QueryServer [connected to Brahms localView]
     
     + NseClient - OK
     

@@ -15,7 +15,7 @@ import rx.subjects.BehaviorSubject;
 
 public class Brahms {
 
-  private static final long SLEEP_TIME = 2000;
+  private static final long SLEEP_TIME = 5000;
 
   private BehaviorSubject<List<Peer>> viewListSubject = BehaviorSubject.create();
   private SecureRandom secureRandom = new SecureRandom();
@@ -88,7 +88,7 @@ public class Brahms {
       for (int i = 0; i < nmbPushes; i++) {
         List<Peer> peer;
         peer = rand(getLocalView(), 1);
-        System.out.println("PUSH: " + peer.get(0).getIpAddress().toString()); //todo
+        //System.out.println("PUSH: " + peer.get(0).getIpAddress().toString()); //todo
         pushSender.sendMyIdTo(peer.get(0));
       }
 
@@ -242,6 +242,8 @@ public class Brahms {
     return viewListSubject
         .flatMap(viewList -> {
           Integer i = secureRandom.nextInt(viewList.size());
+
+          //System.out.println("Getting Peer\n");
           return Observable.just(viewList.get(i));
         });
   }

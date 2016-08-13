@@ -12,12 +12,15 @@ public class Peer implements Serializable, Cloneable {
 
   private InetSocketAddress ipAddress; // SocketAddress (includes port)
   private byte[] hostkey;
+  private int messageId;
 
   public Peer() {
+    hostkey = ("").getBytes();
   }
 
   public Peer(InetSocketAddress inetSocketAddress) {
 
+    hostkey = ("").getBytes();
     this.ipAddress = inetSocketAddress;
   }
 

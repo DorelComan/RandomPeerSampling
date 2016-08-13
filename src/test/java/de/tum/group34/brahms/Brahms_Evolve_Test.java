@@ -65,8 +65,6 @@ public class Brahms_Evolve_Test {
 
         Brahms brahms = new Brahms(initialList, nseClient, pullClient, pushReceiver, pushSender, new RxTcpClientFactory("Brahms"));
         brahms.start();
-
-
     }
 }
 

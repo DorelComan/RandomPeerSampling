@@ -1,6 +1,8 @@
 package de.tum.group34.query;
 
 import de.tum.group34.Brahms;
+import de.tum.group34.model.Peer;
+import de.tum.group34.serialization.Message;
 import de.tum.group34.serialization.MessageParser;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.logging.LogLevel;
@@ -20,15 +22,17 @@ public class QueryServer {
 
   public QueryServer(TcpServer<ByteBuf, ByteBuf> server, Brahms brahms) {
 
-    this.server = server.enableWireLogging(LogLevel.DEBUG)
-        .start(
-            connection ->
-                connection.writeBytesAndFlushOnEach(connection.getInput()
+    this.server = server
+            .enableWireLogging("QueryServer module", LogLevel.DEBUG)
+            .start(connection -> connection.writeBytesAndFlushOnEach(
+                connection.getInput()
                     .doOnNext(byteBuf -> log.info("QUERY REQUEST received"))
-                    .doOnNext(byteBuf -> MessageParser.isRpsQuery(byteBuf))
-                    .flatMap(toBeIgnored -> brahms.getRandomPeerObservable())
-                    .map(peer -> MessageParser.buildRpsRespone(peer).array())
-
+                        .map(byteBuf -> {
+                            MessageParser.isRpsQuery(byteBuf);
+                            Peer peer = brahms.getRandomPeerObservable().toBlocking().first();
+                            //System.out.println(peer.getIpAddress());
+                            return MessageParser.buildRpsRespone(peer).array();
+                        })
                 )
         );
   }

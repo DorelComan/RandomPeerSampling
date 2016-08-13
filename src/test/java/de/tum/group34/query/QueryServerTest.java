@@ -51,7 +51,7 @@ public class QueryServerTest {
             }
         }).start();
 
-        QueryServer queryServer = new QueryServer(TcpServer.newServer(3555), brahms);
+        QueryServer queryServer = new QueryServer(TcpServer.newServer(3558), brahms);
         new Thread(queryServer::awaitShutdown).start();
 
         while (true){

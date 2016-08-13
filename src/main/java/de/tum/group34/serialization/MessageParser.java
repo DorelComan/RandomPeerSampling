@@ -10,8 +10,6 @@ public class MessageParser {
 
   public static void isRpsQuery(ByteBuf buf) throws MessageException, UnknownMessage {
 
-    //TODO: repair it
-
     int buf_size = buf.readableBytes();
 
     if (buf_size > Message.MAX_LENGTH) {
@@ -20,12 +18,11 @@ public class MessageParser {
 
     int size = unsignedIntFromShort(buf.getShort(0));// Reading size of the header
 
-    if (size != buf_size)        // verifying the declared size and the received one
-    {
+    if (size != buf_size){        // verifying the declared size and the received one
       throw new MessageException();
     }
 
-    int type = unsignedIntFromShort(buf.getShort(16)); // type of message
+    int type = unsignedIntFromShort(buf.getShort(2)); // type of message
 
     if (type != Message.TYPE_RPS_QUERY) {
       throw new MessageException();
@@ -33,27 +30,24 @@ public class MessageParser {
   }
 
   public static ByteBuf buildRpsRespone(Peer peer) {
-    //TODO: repair it
 
-    ByteBuf buf = Unpooled.buffer();
-    int size = 64; // Counting the size, 64 bit is the header
-
-    buf.setShort(16, (short) Message.TYPE_RPS_PEER); // Setting type
-    buf.setShort(32, (short) peer.getIpAddress().getPort()); // Setting port
-
+    int size = 8; // Counting the size, 64 bit is the header
+    size += peer.getHostkey().length;
     InetAddress inetAddress = peer.getIpAddress().getAddress();
-
     byte[] address = inetAddress.getAddress();
-    if (address.length == 4) {
-      size += 32;
-    } else {
-      size += 128;
-    }
 
-    buf.setBytes(64, address);
+    size += address.length;
+
+    System.out.println("Add: " + address.length);
+
+    ByteBuf buf = Unpooled.buffer(size);
+
+    buf.setShort(2, (short) Message.TYPE_RPS_PEER); // Setting type
+    buf.setShort(4, (short) peer.getIpAddress().getPort()); // Setting port
+
+    buf.setBytes(8, address);
 
     buf.setBytes(size, peer.getHostkey());
-    size += peer.getHostkey().length * 8;
     buf.setShort(0, (short) size);
 
     return buf;
@@ -61,7 +55,7 @@ public class MessageParser {
 
   public static ByteBuf buildGossipPushValidationResponse(int messageId, boolean valid) {
 
-    ByteBuf buf = Unpooled.buffer();
+    ByteBuf buf = Unpooled.buffer(8);
     int size = 8; // Overall Message is 64 bit
 
     buf.setShort(2, (short) Message.GOSSIP_VALIDATION); // Setting type
@@ -129,7 +123,7 @@ public class MessageParser {
    */
   public static ByteBuf buildRegisterForNotificationsMessages() {
 
-    ByteBuf byteBuf = Unpooled.buffer();
+    ByteBuf byteBuf = Unpooled.buffer(8);
 
     byteBuf.setShort(0, (short) 8); // Setting size of GOSSIP NOTIFY
     byteBuf.setShort(2, (short) Message.GOSSIP_NOTIFY);
@@ -149,9 +143,9 @@ public class MessageParser {
   public static ByteBuf getNseQuery() {
 
     //TODO: take a better look if short is correct
-    ByteBuf buf = Unpooled.buffer();
+    ByteBuf buf = Unpooled.buffer(4);
     buf.setShort(0, 4);
-    buf.setShort(2,(short) 520);
+    buf.setShort(2,(short) Message.NSE_QUERY);
 
     return buf;
   }
@@ -165,18 +159,18 @@ public class MessageParser {
    */
   public static ByteBuf getPullLocalView() {
 
-    ByteBuf buf = Unpooled.buffer();
+    ByteBuf buf = Unpooled.buffer(4);
     buf.setShort(0, 4);
-    buf.setShort(2,(short) 550);
+    buf.setShort(2,(short) Message.PULL_LOCAL_VIEW);
 
     return buf;
   }
 
   public static byte[] getRpsQuery(){
 
-    ByteBuf buf = Unpooled.buffer();
+    ByteBuf buf = Unpooled.buffer(4);
     buf.setShort(0, 4);
-    buf.setShort(2,(short) 520);
+    buf.setShort(2,(short) Message.TYPE_RPS_QUERY);
 
     return buf.array();
   }

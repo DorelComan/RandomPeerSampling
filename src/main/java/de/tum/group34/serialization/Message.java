@@ -12,4 +12,7 @@ public class Message {
   public static final int GOSSIP_NOTIFY = 501;
   public static final int GOSSIP_NOTIFICATION = 502;
   public static final int GOSSIP_VALIDATION = 503;
+  public static final int NSE_QUERY = 520;
+  public static final int NSE_ESTIMATE = 521;
+  public static final int PULL_LOCAL_VIEW = 550;
 }

@@ -33,8 +33,7 @@ public class NseServerRunner {
                 TcpServer.newServer(PORT).enableWireLogging("Mock NSE Module", LogLevel.DEBUG)
                         .start(connection -> connection.writeBytesAndFlushOnEach(
                                 connection.getInput()
-                                        .doOnNext(
-                                                byteBuf -> System.out.println(
+                                        .doOnNext(byteBuf -> System.out.println(
                                                         "NSE: Incoming Query " + byteBuf.toString(Charset.defaultCharset())))
                                         .map(byteBuf -> getBuf().array())
                                 )
@@ -50,7 +49,7 @@ public class NseServerRunner {
 
     public synchronized void setSize(Integer size) {
 
-        buf.setInt(32, size);
+        buf.setInt(4, size);
     }
 
     private synchronized void setBuf(ByteBuf buf){
