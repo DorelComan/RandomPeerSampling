@@ -42,15 +42,13 @@ public class PushReceiver {
     pushReceivingSocket =
         pushReceivingSocketBridge.buffer(timeInterval, timeUnit).onBackpressureDrop();
 
-    this.pushReceivingServerSocket = pushReceivingServerSocket;
-
-    pushReceivingServerSocket.
+    this.pushReceivingServerSocket = pushReceivingServerSocket.
         enableWireLogging(LOG_TAG, LogLevel.DEBUG)
         .start(
             connection ->
                 connection.writeBytesAndFlushOnEach(connection.getInput()
                     .doOnNext(byteBuf -> log.info("Push Responding Socket received a Message"))
-                    .map(byteBuf -> SerializationUtils.<Peer>fromBytes(byteBuf))
+                    .map(SerializationUtils::<Peer>fromBytes)
                     .doOnNext(pushReceivingSocketBridge::onNext)
                     .map(peer -> new byte[0]) // TODO what should the answer be?
                 )
@@ -88,17 +86,18 @@ public class PushReceiver {
         .enableWireLogging(LOG_TAG, LogLevel.DEBUG)
         .createConnectionRequest()
         .flatMap(connection ->
-            connection.writeBytes(Observable.just(MessageParser.buildRegisterForNotificationsMessages().array()))
+            connection.writeBytes(
+                Observable.just(MessageParser.buildRegisterForNotificationsMessages().array()))
                 .cast(ByteBuf.class)
                 .concatWith(connection.getInput())
                 .flatMap(new Func1<ByteBuf, Observable<PeerSharingMessage>>() {
                   @Override public Observable<PeerSharingMessage> call(ByteBuf byteBuf) {
 
-                      //todo
-                      //System.out.println("\nClient rcv MessageType : " + MessageParser.unsignedIntFromShort(byteBuf.getShort(2)));
-                      //System.out.println("Client rcv DataType received: " + MessageParser.unsignedIntFromShort(byteBuf.getShort(6)));
-                      //System.out.println("Client rcv Peer received: " +
-                        //      MessageParser.buildPeerFromGossipPush(byteBuf).getPeer().getIpAddress().toString());
+                    //todo
+                    //System.out.println("\nClient rcv MessageType : " + MessageParser.unsignedIntFromShort(byteBuf.getShort(2)));
+                    //System.out.println("Client rcv DataType received: " + MessageParser.unsignedIntFromShort(byteBuf.getShort(6)));
+                    //System.out.println("Client rcv Peer received: " +
+                    //      MessageParser.buildPeerFromGossipPush(byteBuf).getPeer().getIpAddress().toString());
 
                     return Observable.fromCallable(
                         () -> MessageParser.buildPeerFromGossipPush(byteBuf))
@@ -127,7 +126,7 @@ public class PushReceiver {
     pushReceivingServerSocket.awaitShutdown();
   }
 
-  public void shutdown(){
+  public void shutdown() {
     pushReceivingServerSocket.shutdown();
   }
 }
