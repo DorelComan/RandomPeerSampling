@@ -1,7 +1,6 @@
 package de.tum.group34.serialization;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
@@ -17,6 +16,8 @@ import java.util.List;
 import org.apache.commons.io.IOUtils;
 
 /**
+ * Some helper / util methods for serialization / deserialization
+ *
  * @author Hannes Dorfmann
  */
 public class SerializationUtils {
@@ -142,15 +143,16 @@ public class SerializationUtils {
    *
    * @param bytes the byte array
    * @return Byte Buffer
-   */
+
   public static ByteBuf byteArrayToByteBuf(byte[] bytes) {
 
-    try (ByteBufOutputStream out = new ByteBufOutputStream(
-        ByteBufAllocator.DEFAULT.buffer(bytes.length))) {
-      out.write(bytes);
-      return out.buffer();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+  try (ByteBufOutputStream out = new ByteBufOutputStream(
+  ByteBufAllocator.DEFAULT.buffer(bytes.length))) {
+  out.write(bytes);
+  return out.buffer();
+  } catch (IOException e) {
+  throw new RuntimeException(e);
   }
+  }
+   */
 }

@@ -77,25 +77,24 @@ public class Brahms {
       setSizeEstimation();
       System.out.println("\nSampl: " + samplSize + " sizeEst " + sizeEst);
 
-      Integer nmbPushes = ((int) Math.round(alfa * viewSize));
-      Integer nmbPulls = (int) Math.round(beta * viewSize);
-      Integer nmbSamples = (int) Math.round(gamma * viewSize);
+      int nmbPushes = ((int) Math.round(alfa * viewSize));
+      int nmbPulls = (int) Math.round(beta * viewSize);
+      int nmbSamples = (int) Math.round(gamma * viewSize);
 
       System.out.println("nmbPushes: " + nmbPushes + " nmbSamples " + nmbSamples);//todo
 
       // Push to Peers from local View - TODO: problem if have a small list and what about re-sending to the same
 
-      for (int i = 0; i < nmbPushes; i++) {
-        List<Peer> peer;
-        peer = rand(getLocalView(), 1);
-        //System.out.println("PUSH: " + peer.get(0).getIpAddress().toString()); //todo
-        pushSender.sendMyIdTo(peer.get(0));
-      }
+      List<Peer> peersToPushMyId = rand(getLocalView(), nmbPushes);
+      pushSender.sendMyId(peersToPushMyId)
+          .toBlocking()
+          .first();  // TODO should we remove failed peers?
 
       // Send pull requests and save incoming lists in pullList
       ArrayList<Peer> pullList = new ArrayList<>();
       pullList.addAll(pullClient.makePullRequests(rand(getLocalView(), nmbPulls))
-          .toBlocking().first());
+          .toBlocking()
+          .first());
 
       // System.out.println("\nPulled peers: " + pullList.size());//todo
       // pullList.forEach(peer -> System.out.println(peer.getIpAddress().toString()));//todo
@@ -130,8 +129,8 @@ public class Brahms {
       // System.out.println("\nNew Sample");
       // samplList.forEach(sampler -> System.out.println(sampler.sample().getIpAddress().toString()));
 
-       //System.out.println("\nNew Local");
-       //getLocalView().forEach(peer -> System.out.println(peer.getIpAddress().toString()));
+      //System.out.println("\nNew Local");
+      //getLocalView().forEach(peer -> System.out.println(peer.getIpAddress().toString()));
 
       Thread.sleep(SLEEP_TIME);
     }
@@ -194,7 +193,7 @@ public class Brahms {
    * @param n number of elements to be returned
    * @return shuffled list
    */
-  public static List<Peer> rand(List<Peer> list, Integer n) {
+  public static List<Peer> rand(List<Peer> list, int n) {
 
     Collections.shuffle(list);
 
@@ -205,7 +204,7 @@ public class Brahms {
     }
   }
 
-  public static List<Peer> randSamples(List<Sampler> list, Integer n) {
+  public static List<Peer> randSamples(List<Sampler> list, int n) {
 
     Collections.shuffle(list);
     List<Peer> randList = new ArrayList<>();
