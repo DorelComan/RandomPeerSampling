@@ -35,6 +35,7 @@ dependencies {
   compile "io.reactivex:rxnetty-common:$rxNetty"
   compile "io.reactivex:rxnetty-tcp:$rxNetty"
   compile 'com.jakewharton.rxrelay:rxrelay:1.1.0'
+  compile "commons-io:commons-io:2.5"
 
   // compile fileTree(include: ['*.jar'], dir: 'libs')
   compile "org.mockito:mockito-core:1.+"

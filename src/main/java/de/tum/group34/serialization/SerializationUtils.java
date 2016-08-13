@@ -1,6 +1,7 @@
 package de.tum.group34.serialization;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
@@ -11,12 +12,16 @@ import java.io.InputStream;
 import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Arrays;
 import java.util.List;
+import org.apache.commons.io.IOUtils;
 
 /**
  * @author Hannes Dorfmann
  */
 public class SerializationUtils {
+
+  public static final char END_DELIMITER = '|';
 
   private SerializationUtils() {
   }
@@ -32,7 +37,9 @@ public class SerializationUtils {
       try (ObjectOutputStream outputStream = new ObjectOutputStream(byteArrayOutputStream)) {
         outputStream.writeObject(object);
         outputStream.flush();
-        return byteArrayOutputStream.toByteArray();
+        byteArrayOutputStream.write(END_DELIMITER);
+        byte[] bytes = byteArrayOutputStream.toByteArray();
+        return bytes;
       }
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -97,11 +104,52 @@ public class SerializationUtils {
 
     try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
       for (ByteBuf buf : bufs) {
-        bos.write(buf.nioBuffer().array());
+        byte[] bs = byteBufToByteArray(buf);
+        bos.write(bs);
       }
-      try (ByteArrayInputStream in = new ByteArrayInputStream(bos.toByteArray())) {
+
+      byte[] bytes = bos.toByteArray();
+
+      if (bytes[bytes.length - 1] != END_DELIMITER) {
+        throw new MessageException(
+            "END DELIMITER wasn't set. END DELIMITER should be: " + END_DELIMITER);
+      }
+
+      try (ByteArrayInputStream in = new ByteArrayInputStream(
+          Arrays.copyOfRange(bytes, 0, bytes.length - 1))) {
         return fromBytes(in);
       }
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  /**
+   * Consumes a ByteBuf and convertes its content to byte array
+   *
+   * @param buf ByteBuf
+   * @return byte array
+   */
+  public static byte[] byteBufToByteArray(ByteBuf buf) {
+    try (ByteBufInputStream in = new ByteBufInputStream(buf)) {
+      return IOUtils.toByteArray(in);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  /**
+   * Converts a ByteArray to a ByteBuffer
+   *
+   * @param bytes the byte array
+   * @return Byte Buffer
+   */
+  public static ByteBuf byteArrayToByteBuf(byte[] bytes) {
+
+    try (ByteBufOutputStream out = new ByteBufOutputStream(
+        ByteBufAllocator.DEFAULT.buffer(bytes.length))) {
+      out.write(bytes);
+      return out.buffer();
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

@@ -1,6 +1,7 @@
 package de.tum.group34.pull;
 
 import de.tum.group34.Brahms;
+import de.tum.group34.serialization.MessageParser;
 import de.tum.group34.serialization.SerializationUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.logging.LogLevel;
@@ -25,15 +26,19 @@ public class PullServer {
     this.server = server.enableWireLogging(LOG_TAG, LogLevel.DEBUG)
         .start(
             connection ->
-                connection.writeBytesAndFlushOnEach(
-                    Observable.just(SerializationUtils.toBytes(brahms.getLocalView()))
-                        .doOnNext(bytes -> log.info(
-                            LOG_TAG + " sending query response with " + bytes.length + " bytes"))
-                )
-                    .doOnError(t -> {
+                connection.getInput().doOnNext(MessageParser::isPullLocalViewMessage).flatMap(
+                    byteBuf -> connection.writeBytesAndFlushOnEach(
+                        Observable.just(SerializationUtils.toBytes(brahms.getLocalView()))
+                            .doOnNext(bytes -> log.info(
+                                LOG_TAG
+                                    + " sending query response with "
+                                    + bytes.length
+                                    + " bytes"))
+                    ).doOnError(t -> {
                       log.info("Error");
                       t.printStackTrace();
                     })
+                )
         );
   }
 

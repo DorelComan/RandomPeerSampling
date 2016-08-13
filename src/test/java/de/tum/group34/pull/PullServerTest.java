@@ -1,7 +1,9 @@
 package de.tum.group34.pull;
 
 import de.tum.group34.Brahms;
+import de.tum.group34.ByteBufAggregatorOperator;
 import de.tum.group34.model.Peer;
+import de.tum.group34.serialization.MessageParser;
 import de.tum.group34.serialization.SerializationUtils;
 import io.netty.buffer.ByteBuf;
 import io.reactivex.netty.protocol.tcp.client.TcpClient;
@@ -35,17 +37,15 @@ public class PullServerTest {
 
     TcpClient.newClient(new InetSocketAddress("127.0.0.1", port))
         .createConnectionRequest()
-        .flatMap(connection -> connection.writeString(Observable.just("Hello"))
+        .flatMap(connection -> connection.writeBytes(
+            Observable.just(MessageParser.getPullLocalView().array()))
             .cast(ByteBuf.class)
             .concatWith(connection.getInput())
-            .doOnNext(byteBuf -> System.out.println("Tcp Client received an answer "))
-            .toList()
-            .doOnNext(peers -> System.out.println("before"))
+            .lift(ByteBufAggregatorOperator.instance())
             .map(byteBufs -> {
               List<Peer> peers = SerializationUtils.fromByteBufs(byteBufs);
               return peers;
             }))
-        .doOnNext(peers -> System.out.println("Here"))
         .subscribe(o -> {
               resultHolder.result = o;
               pullServer.shutdown();

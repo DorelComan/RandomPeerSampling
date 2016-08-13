@@ -8,7 +8,13 @@ import java.net.InetAddress;
 
 public class MessageParser {
 
-  public static void isRpsQuery(ByteBuf buf) throws MessageException, UnknownMessage {
+  /**
+   * Checks if the incomming message is a RPS QUERY
+   *
+   * @param buf ByteBuffer The incomming message
+   * @throws MessageException If message is not as expected
+   */
+  public static void isRpsQuery(ByteBuf buf) throws MessageException {
 
     int buf_size = buf.readableBytes();
 
@@ -18,7 +24,7 @@ public class MessageParser {
 
     int size = unsignedIntFromShort(buf.getShort(0));// Reading size of the header
 
-    if (size != buf_size){        // verifying the declared size and the received one
+    if (size != buf_size) {        // verifying the declared size and the received one
       throw new MessageException();
     }
 
@@ -27,6 +33,15 @@ public class MessageParser {
     if (type != Message.TYPE_RPS_QUERY) {
       throw new MessageException();
     }
+  }
+
+  /**
+   * Checks if the incoming message is a PullLocalView
+   *
+   * @throws MessageException
+   */
+  public static void isPullLocalViewMessage(ByteBuf byteBuf) throws MessageException {
+    // TODO implement
   }
 
   public static ByteBuf buildRpsRespone(Peer peer) {
@@ -74,7 +89,7 @@ public class MessageParser {
     }
 
     int size = unsignedIntFromShort(buf.getShort(0)); // Reading size of the header
-    if (size != buf_size){    // verifying the declared size and the received one
+    if (size != buf_size) {    // verifying the declared size and the received one
       throw new MessageException();
     }
 
@@ -94,11 +109,7 @@ public class MessageParser {
 
   /**
    * Announce Message to be sent to Gossip to push the Peer trough the network
-   *
-   * @param peer
-   * @param ttl
-   * @return
-     */
+   */
   public static ByteBuf buildGossipPush(Peer peer, int ttl) {
 
     int size = 520; // Size of message if IPv4
@@ -145,7 +156,7 @@ public class MessageParser {
     //TODO: take a better look if short is correct
     ByteBuf buf = Unpooled.buffer(4);
     buf.setShort(0, 4);
-    buf.setShort(2,(short) Message.NSE_QUERY);
+    buf.setShort(2, (short) Message.NSE_QUERY);
 
     return buf;
   }
@@ -161,16 +172,16 @@ public class MessageParser {
 
     ByteBuf buf = Unpooled.buffer(4);
     buf.setShort(0, 4);
-    buf.setShort(2,(short) Message.PULL_LOCAL_VIEW);
+    buf.setShort(2, (short) Message.PULL_LOCAL_VIEW);
 
     return buf;
   }
 
-  public static byte[] getRpsQuery(){
+  public static byte[] getRpsQuery() {
 
     ByteBuf buf = Unpooled.buffer(4);
     buf.setShort(0, 4);
-    buf.setShort(2,(short) Message.TYPE_RPS_QUERY);
+    buf.setShort(2, (short) Message.TYPE_RPS_QUERY);
 
     return buf.array();
   }
