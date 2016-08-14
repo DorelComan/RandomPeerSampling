@@ -56,7 +56,7 @@ public class Rps {
 
    /* PushSender pushSender =
         new PushSender(ownIdentity, new RxTcpClientFactory(PushSender.class.getName()),
-            pushServerPort); */ //todo: commented for the tests
+            PUSH_SERVER_PORT); */ //todo: commented for the tests
 
     PushSender pushSender = Mockito.mock(PushSender.class);
     Mockito.when(pushSender.sendMyId(Mockito.any())).thenReturn(rx.Observable.just(RandomData.getPeerList(5)));

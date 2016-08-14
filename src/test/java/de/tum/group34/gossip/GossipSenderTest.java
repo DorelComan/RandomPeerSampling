@@ -69,11 +69,9 @@ public class GossipSenderTest {
     Assert.assertEquals(3, serverReceivedMessages.size());
 
     for (AnnounceMessage msg : serverReceivedMessages) {
-      // TODO fix ttl in message
       Assert.assertEquals(ttl, msg.getTtl());
       Assert.assertEquals(Message.GOSSIP_ANNOUNCE, msg.getType().getNumVal());
         Assert.assertEquals(Message.GOSSIP_PUSH, msg.getDatatype());
-      // TODO fix that
       Assert.assertEquals(ownIdentity,
           SerializationUtils.fromByteArrays(Arrays.asList(msg.getData())));
     }

@@ -56,4 +56,18 @@ public class FileParser {
 
     return uri.getPort();
   }
+
+  public int getPullServerPort() throws URISyntaxException {
+
+    URI uri = new URI("http://" + ini.getSection("rps").getString("pull_listen_address"));
+
+    return uri.getPort();
+  }
+
+  public int getPushServerPort() throws URISyntaxException {
+
+    URI uri = new URI("http://" + ini.getSection("rps").getString("push_listen_address"));
+
+    return uri.getPort();
+  }
 }
