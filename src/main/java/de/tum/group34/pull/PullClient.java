@@ -21,15 +21,17 @@ public class PullClient {
   public Observable<ArrayList<Peer>> makePullRequests(List<Peer> peers) {
 
     //TODO: row used to Mock the other Peers, creating them dinamically
-    peers.forEach(MockPullServer::new);
+    //peers.forEach(MockPullServer::new);
 
-    System.out.println("Pulling" + peers);
+   // System.out.println("Pulling " + peers);
 
     List<Observable<List<Peer>>> requestObservables =
         peers.stream().map((peer -> executePullRequest(peer))).collect(Collectors.toList());
 
+   // System.out.println("Aftergame");
     return Observable.combineLatest(requestObservables, responses -> {
 
+    //  System.out.println("wait");
       ArrayList<Peer> result = new ArrayList<Peer>();
       for (Object resp : responses) {
         List<Peer> response = (List<Peer>) resp;

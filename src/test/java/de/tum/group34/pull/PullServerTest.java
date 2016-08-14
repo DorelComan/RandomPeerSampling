@@ -55,7 +55,6 @@ public class PullServerTest {
             });
 
     pullServer.awaitShutdown();
-
     Assert.assertEquals(peerList, resultHolder.result);
   }
 }
