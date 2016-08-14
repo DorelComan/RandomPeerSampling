@@ -41,7 +41,7 @@ public class PullClient {
    */
   private Observable<List<Peer>> executePullRequest(Peer peer) {
 
-    return TcpClient.newClient(peer.getPullServerPort())
+    return TcpClient.newClient(peer.getPullServerAdress())
         .enableWireLogging("PullClient", LogLevel.DEBUG)
         .createConnectionRequest()
         .flatMap(

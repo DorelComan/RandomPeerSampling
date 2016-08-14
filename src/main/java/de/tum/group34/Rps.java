@@ -49,18 +49,17 @@ public class Rps {
     ownIdentity.setPushServerPort(fileParser.getPushServerPort());
     ownIdentity.setHostkey(fileParser.getHostkey());
 
-    // PullClient pullClient = new PullClient(); // todo: commented for the tests
-    PullClient pullClient =
+    PullClient pullClient = new PullClient();
+   /* PullClient pullClient =
         new MockPullClient(); //TODO: to be taken down along with next row after test
-    ((MockPullClient) pullClient).setSize(10);
+    ((MockPullClient) pullClient).setSize(10); */
 
-   /* PushSender pushSender =
-        new PushSender(ownIdentity, new RxTcpClientFactory(PushSender.class.getName()),
-            PUSH_SERVER_PORT); */ //todo: commented for the tests
+    PushSender pushSender =
+        new PushSender(ownIdentity, new RxTcpClientFactory(PushSender.class.getName()));
 
-    PushSender pushSender = Mockito.mock(PushSender.class);
+    /* PushSender pushSender = Mockito.mock(PushSender.class); //todo: take out at end
     Mockito.when(pushSender.sendMyId(Mockito.any()))
-        .thenReturn(rx.Observable.just(RandomData.getPeerList(5)));
+        .thenReturn(rx.Observable.just(RandomData.getPeerList(5))); */
 
     PushReceiver pushReceiver =
         new PushReceiver(TcpServer.newServer(fileParser.getPushServerPort()), 10, TimeUnit.SECONDS);
@@ -84,8 +83,8 @@ public class Rps {
     gossipSender.sendOwnPeerPeriodically(DELAY_GOSSIP_SENDER, UNIT_TIME_GOSSIP_SENDER,
         TTL_GOSSIP_SENDER).subscribe();
 
-    //List<Peer> initialList = pushReceiver.gossipSocket().toBlocking().first(); TODO: commented for the tests
-    List<Peer> initialList = RandomData.getPeerList(1);
+    List<Peer> initialList = pushReceiver.gossipSocket().toBlocking().first();
+    //List<Peer> initialList = RandomData.getPeerList(1); //todo:take out
 
     Brahms brahms =
         new Brahms(initialList, nseClient, pullClient, pushReceiver,
@@ -96,7 +95,7 @@ public class Rps {
     QueryServer queryServer =
         new QueryServer(TcpServer.newServer(fileParser.getQueryServerPort()), brahms);
     PullServer pullServer =
-        new PullServer(brahms, TcpServer.newServer(ownIdentity.getPullServerPort()));
+        new PullServer(brahms, TcpServer.newServer(fileParser.getPullServerPort()));
 
     queryServer.awaitShutdown();
     pullServer.awaitShutdown();
