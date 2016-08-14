@@ -26,6 +26,12 @@ public class Peer implements Serializable, Cloneable {
     this.ipAddress = inetSocketAddress;
   }
 
+  public Peer(InetSocketAddress inetSocketAddress, int pushServerPort, int pullServerPort){
+    this.ipAddress = inetSocketAddress;
+    this.pullServerPort = pullServerPort;
+    this.pushServerPort = pushServerPort;
+  }
+
   public InetSocketAddress getIpAddress() {
     return ipAddress;
   }
