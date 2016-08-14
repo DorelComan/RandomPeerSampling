@@ -65,6 +65,7 @@ public class GossipSenderTest {
             server::shutdown);
 
     server.awaitShutdown();
+    Thread.sleep(1000);
 
     Assert.assertEquals(3, serverReceivedMessages.size());
 

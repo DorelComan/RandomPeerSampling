@@ -1,11 +1,12 @@
 package de.tum.group34.push;
 
+import de.tum.group34.ExponentialBackoff;
 import de.tum.group34.TcpClientFactory;
 import de.tum.group34.model.Peer;
 import de.tum.group34.serialization.SerializationUtils;
-import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import rx.Observable;
 
@@ -18,12 +19,10 @@ public class PushSender {
 
   private Peer ownPeer;
   private TcpClientFactory clientFactory;
-  private int pushServerPort;
 
-  public PushSender(Peer ownPeer, TcpClientFactory clientFactory, int pushServerPort) {
+  public PushSender(Peer ownPeer, TcpClientFactory clientFactory) {
     this.ownPeer = ownPeer;
     this.clientFactory = clientFactory;
-    this.pushServerPort = pushServerPort;
   }
 
   /**
@@ -52,13 +51,10 @@ public class PushSender {
    * @return Observable of {@link PushResult}
    */
   Observable<PushResult> sendMyIdTo(Peer to) {
-    // TODO exponential retry?
-
-    System.out.println("Sending " + to.getIpAddress());
-
-    return clientFactory.newClient(
-        new InetSocketAddress(to.getIpAddress().getAddress(), pushServerPort))
+    System.out.println("Sending " + to.getPushServerAddress());
+    return clientFactory.newClient(to.getPushServerAddress())
         .createConnectionRequest()
+        .retryWhen(ExponentialBackoff.create(3, 1, TimeUnit.SECONDS))
         .flatMap(
             connection -> connection.writeBytes(
                 Observable.just(SerializationUtils.toBytes(ownPeer)))

@@ -205,7 +205,8 @@ public class PushReceiverTest {
     ownPeer.setHostkey(RandomData.getHostKey());
 
     Peer receivingPeer = new Peer(new InetSocketAddress("127.0.0.1", port));
-    PushSender sender = new PushSender(ownPeer, new RxTcpClientFactory("Push-Sender-Test"), port);
+    receivingPeer.setPushServerPort(port);
+    PushSender sender = new PushSender(ownPeer, new RxTcpClientFactory("Push-Sender-Test"));
 
     PushReceiver receiver = new PushReceiver(TcpServer.newServer(port), 1, TimeUnit.SECONDS);
 

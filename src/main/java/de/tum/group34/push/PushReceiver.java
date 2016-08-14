@@ -1,6 +1,7 @@
 package de.tum.group34.push;
 
 import de.tum.group34.Brahms;
+import de.tum.group34.ExponentialBackoff;
 import de.tum.group34.model.Peer;
 import de.tum.group34.model.PeerSharingMessage;
 import de.tum.group34.serialization.MessageParser;
@@ -84,6 +85,7 @@ public class PushReceiver {
     return TcpClient.newClient(gossipSocketAddress)
         .enableWireLogging(LOG_TAG, LogLevel.DEBUG)
         .createConnectionRequest()
+        .retryWhen(ExponentialBackoff.create(10, 2, TimeUnit.SECONDS))
         .flatMap(connection ->
             connection.writeBytes(
                 Observable.just(MessageParser.buildRegisterForNotificationsMessages().array()))
@@ -93,9 +95,13 @@ public class PushReceiver {
                   @Override public Observable<PeerSharingMessage> call(ByteBuf byteBuf) {
 
                     //todo
-                    System.out.println("\nClient rcv MessageType : " + MessageParser.unsignedIntFromShort(byteBuf.getShort(2)));
-                    System.out.println("Client rcv DataType received: " + MessageParser.unsignedIntFromShort(byteBuf.getShort(6)));
-                   // System.out.println("Client rcv Peer received: " +
+                    System.out.println(
+                        "\nClient rcv MessageType : " + MessageParser.unsignedIntFromShort(
+                            byteBuf.getShort(2)));
+                    System.out.println(
+                        "Client rcv DataType received: " + MessageParser.unsignedIntFromShort(
+                            byteBuf.getShort(6)));
+                    // System.out.println("Client rcv Peer received: " +
                     //MessageParser.buildPeerFromGossipPush(byteBuf).getPeer().getIpAddress().toString());
 
                     return Observable.fromCallable(

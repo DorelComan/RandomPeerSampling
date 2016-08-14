@@ -31,7 +31,6 @@ public class Rps {
   private static final Logger log = Logger.getLogger(Rps.class.getName());
 
   private static final int PULL_SERVER_PORT = 5222;
-  private static final int PUSH_SERVER_PORT = 33234;
 
   // Variables for the Gossip
   private static final int DELAY_GOSSIP_SENDER = 40;
@@ -50,19 +49,21 @@ public class Rps {
     Peer ownIdentity = new Peer();
     ownIdentity.setHostkey(fileParser.getHostkey());
 
-   // PullClient pullClient = new PullClient(); // todo: commented for the tests
-      PullClient pullClient = new MockPullClient(); //TODO: to be taken down along with next row after test
-      ((MockPullClient)pullClient).setSize(10);
+    // PullClient pullClient = new PullClient(); // todo: commented for the tests
+    PullClient pullClient =
+        new MockPullClient(); //TODO: to be taken down along with next row after test
+    ((MockPullClient) pullClient).setSize(10);
 
    /* PushSender pushSender =
         new PushSender(ownIdentity, new RxTcpClientFactory(PushSender.class.getName()),
             PUSH_SERVER_PORT); */ //todo: commented for the tests
 
     PushSender pushSender = Mockito.mock(PushSender.class);
-    Mockito.when(pushSender.sendMyId(Mockito.any())).thenReturn(rx.Observable.just(RandomData.getPeerList(5)));
+    Mockito.when(pushSender.sendMyId(Mockito.any()))
+        .thenReturn(rx.Observable.just(RandomData.getPeerList(5)));
 
     PushReceiver pushReceiver =
-        new PushReceiver(TcpServer.newServer(PUSH_SERVER_PORT), 10, TimeUnit.SECONDS);
+        new PushReceiver(TcpServer.newServer(fileParser.getPushServerPort()), 10, TimeUnit.SECONDS);
 
     pushReceiver.registerToGossip(fileParser.getGossipAddress())
         .subscribe(aVoid -> {
@@ -80,7 +81,8 @@ public class Rps {
 
     GossipSender gossipSender =
         new GossipSender(ownIdentity, TcpClient.newClient(fileParser.getGossipAddress()));
-    gossipSender.sendOwnPeerPeriodically(DELAY_GOSSIP_SENDER, UNIT_TIME_GOSSIP_SENDER, TTL_GOSSIP_SENDER).subscribe();
+    gossipSender.sendOwnPeerPeriodically(DELAY_GOSSIP_SENDER, UNIT_TIME_GOSSIP_SENDER,
+        TTL_GOSSIP_SENDER).subscribe();
 
     //List<Peer> initialList = pushReceiver.gossipSocket().toBlocking().first(); TODO: commented for the tests
     List<Peer> initialList = RandomData.getPeerList(1);
