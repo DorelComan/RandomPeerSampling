@@ -11,6 +11,7 @@ import java.util.Arrays;
  */
 public class Peer implements Serializable, Cloneable {
 
+  // TODO: how to determine own IP Address
   private InetSocketAddress ipAddress; // SocketAddress (includes port)
   private byte[] hostkey;
 

@@ -7,7 +7,7 @@ import de.tum.group34.protocol.gossip.ApiMessage;
 import de.tum.group34.protocol.gossip.NotificationMessage;
 import de.tum.group34.protocol.gossip.NotifyMessage;
 import de.tum.group34.protocol.gossip.ValidationMessage;
-import de.tum.group34.pull.MockPeers;
+import de.tum.group34.pull.RandomData;
 import de.tum.group34.serialization.SerializationUtils;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBuf;
@@ -37,7 +37,7 @@ public class PushReceiverTest {
     List<Message> serverReceivedMessages = new ArrayList<>();
     List<Peer> receivedGossipPeers = new ArrayList<>();
 
-    Peer pushingPeer = MockPeers.getPeer();
+    Peer pushingPeer = RandomData.getPeer();
     //System.out.println("Peer sent: " + pushingPeer.getIpAddress().toString());
 
     int msgId = 123;
@@ -111,6 +111,7 @@ public class PushReceiverTest {
     Assert.assertEquals(Arrays.asList(pushingPeer), receivedGossipPeers);
 
     Assert.assertEquals(2, serverReceivedMessages.size());
+
     NotifyMessage registerForNotificationsMessage = (NotifyMessage) serverReceivedMessages.get(0);
     ValidationMessage validationMessage = (ValidationMessage) serverReceivedMessages.get(1);
     Assert.assertEquals(de.tum.group34.serialization.Message.GOSSIP_PUSH,

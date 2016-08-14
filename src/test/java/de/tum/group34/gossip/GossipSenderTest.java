@@ -3,12 +3,15 @@ package de.tum.group34.gossip;
 import de.tum.group34.RxTcpClientFactory;
 import de.tum.group34.model.Peer;
 import de.tum.group34.protocol.gossip.AnnounceMessage;
+import de.tum.group34.pull.RandomData;
 import de.tum.group34.serialization.Message;
+import de.tum.group34.serialization.SerializationUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.logging.LogLevel;
 import io.reactivex.netty.protocol.tcp.server.TcpServer;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.junit.*;
@@ -45,6 +48,7 @@ public class GossipSenderTest {
 
     int ttl = 20;
     Peer ownIdentity = new Peer();
+    ownIdentity.setHostkey(RandomData.getHostKey());
 
     GossipSender sender = new GossipSender(ownIdentity,
         new RxTcpClientFactory("GossipSender").newClient(new InetSocketAddress("127.0.0.1", port)));
@@ -66,10 +70,11 @@ public class GossipSenderTest {
 
     for (AnnounceMessage msg : serverReceivedMessages) {
       // TODO fix ttl in message
-      // Assert.assertEquals(ttl, msg.getTtl());
+      Assert.assertEquals(ttl, msg.getTtl());
       Assert.assertEquals(Message.GOSSIP_ANNOUNCE, msg.getDatatype());
       // TODO fix that
-      //Assert.assertEquals(ownIdentity, SerializationUtils.fromByteArrays(Arrays.asList(msg.getData())));
+      Assert.assertEquals(ownIdentity,
+          SerializationUtils.fromByteArrays(Arrays.asList(msg.getData())));
     }
   }
 }

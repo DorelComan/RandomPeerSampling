@@ -98,14 +98,15 @@ public class SerializationUtils {
       }
 
       byte[] bytes = bos.toByteArray();
-
-      if (bytes[bytes.length - 1] != END_DELIMITER) {
+      byte last = bytes[bytes.length - 1];
+      if (last != END_DELIMITER) {
         throw new MessageException(
             "END DELIMITER wasn't set. END DELIMITER should be: " + END_DELIMITER);
       }
 
-      try (ByteArrayInputStream in = new ByteArrayInputStream(
-          Arrays.copyOfRange(bytes, 0, bytes.length - 1))) {
+      byte[] bytesWithoutDelimiter = Arrays.copyOfRange(bytes, 0, bytes.length - 1);
+
+      try (ByteArrayInputStream in = new ByteArrayInputStream(bytesWithoutDelimiter)) {
         return fromInputStream(in);
       }
     } catch (IOException e) {

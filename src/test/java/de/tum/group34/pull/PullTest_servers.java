@@ -14,7 +14,7 @@ public class PullTest_servers {
     public void test(){
 
         Brahms brahms = Mockito.mock(Brahms.class);
-        Mockito.when(brahms.getLocalView()).thenReturn(MockPeers.getPeerList(20));
+        Mockito.when(brahms.getLocalView()).thenReturn(RandomData.getPeerList(20));
 
         List<Peer> serverList = new ArrayList<>();
         List<Peer> tempList;

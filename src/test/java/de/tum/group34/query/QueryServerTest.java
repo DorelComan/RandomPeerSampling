@@ -5,7 +5,7 @@ import de.tum.group34.RxTcpClientFactory;
 import de.tum.group34.brahms.MockPullClient;
 import de.tum.group34.model.Peer;
 import de.tum.group34.nse.NseClient;
-import de.tum.group34.pull.MockPeers;
+import de.tum.group34.pull.RandomData;
 import de.tum.group34.pull.PullClient;
 import de.tum.group34.push.PushReceiver;
 import de.tum.group34.push.PushSender;
@@ -38,9 +38,9 @@ public class QueryServerTest {
         PushSender pushSender = Mockito.mock(PushSender.class);
 
         PushReceiver pushReceiver = Mockito.mock(PushReceiver.class);
-        Mockito.when(pushReceiver.getPushList()).thenReturn(Observable.just(MockPeers.getPeerList(5)));
+        Mockito.when(pushReceiver.getPushList()).thenReturn(Observable.just(RandomData.getPeerList(5)));
 
-        List<Peer> initialList = MockPeers.getPeerList(1);
+        List<Peer> initialList = RandomData.getPeerList(1);
 
         Brahms brahms = new Brahms(initialList, nseClient, pullClient, pushReceiver, pushSender, new RxTcpClientFactory("Brahms"));
         new Thread(() -> {
@@ -67,7 +67,7 @@ public class QueryServerTest {
 
             temp = temp * 0.45;
 
-            Mockito.when(pushReceiver.getPushList()).thenReturn(Observable.just(MockPeers.getPeerList(temp.intValue())));
+            Mockito.when(pushReceiver.getPushList()).thenReturn(Observable.just(RandomData.getPeerList(temp.intValue())));
             System.out.println("NEW SIZE: " + size);
         }
     }
