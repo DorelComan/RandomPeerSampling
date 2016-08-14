@@ -1,7 +1,13 @@
 # Compile project
 
 From command line use:
+
+- To compile and run tests:
 `./gradlew clean build`
+
+- To run the app:
+`./gradlew run -Dexec.args=absolte/path/to/config`
+
 
 Execute Rps.java with
 'config\1.conf'
