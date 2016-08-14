@@ -3,6 +3,11 @@
 From command line use:
 `./gradlew clean build`
 
+Execute Rps.java with
+
+config\1.conf
+
+
 # TASKS
 
 - Implement PushSender
