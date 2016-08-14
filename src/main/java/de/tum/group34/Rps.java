@@ -9,24 +9,34 @@ import de.tum.group34.push.PushReceiver;
 import de.tum.group34.push.PushSender;
 import de.tum.group34.query.QueryServer;
 import de.tum.group34.serialization.FileParser;
+import de.tum.group34.test.MockPullClient;
+import de.tum.group34.test.RandomData;
 import io.reactivex.netty.protocol.tcp.client.TcpClient;
 import io.reactivex.netty.protocol.tcp.server.TcpServer;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import org.apache.commons.configuration2.ex.ConfigurationException;
+import org.mockito.Mockito;
 
 /**
+ * Execute the main with first argument the path of the configutation file
+ *
  * @author Hannes Dorfmann
  */
 public class Rps {
 
   private static final Logger log = Logger.getLogger(Rps.class.getName());
+
   private static final int PULL_SERVER_PORT = 5222;
-  private static final int PUSH_SERVER_PORT = 5223;
+  private static final int PUSH_SERVER_PORT = 33234;
+
+  // Variables for the Gossip
+  private static final int DELAY_GOSSIP_SENDER = 40;
+  private static final TimeUnit UNIT_TIME_GOSSIP_SENDER = TimeUnit.SECONDS;
+  private static final int TTL_GOSSIP_SENDER = 20;
 
   public static void main(final String[] args)
       throws InterruptedException, IOException, ConfigurationException, URISyntaxException {
@@ -36,25 +46,25 @@ public class Rps {
       return;
     }
 
-    //
-    // Config
-    //
-    int pushServerPort = 33234;
-
     FileParser fileParser = new FileParser(args[0]);
     Peer ownIdentity = new Peer();
     ownIdentity.setHostkey(fileParser.getHostkey());
 
-    PullClient pullClient = new PullClient();
-    PushSender pushSender =
+   // PullClient pullClient = new PullClient(); // todo: commented for the tests
+      PullClient pullClient = new MockPullClient(); //TODO: to be taken down along with next row after test
+      ((MockPullClient)pullClient).setSize(10);
+
+   /* PushSender pushSender =
         new PushSender(ownIdentity, new RxTcpClientFactory(PushSender.class.getName()),
-            pushServerPort);
+            pushServerPort); */ //todo: commented for the tests
+
+    PushSender pushSender = Mockito.mock(PushSender.class);
+    Mockito.when(pushSender.sendMyId(Mockito.any())).thenReturn(rx.Observable.just(RandomData.getPeerList(5)));
 
     PushReceiver pushReceiver =
-        new PushReceiver(TcpServer.newServer(pushServerPort), 10, TimeUnit.SECONDS);
+        new PushReceiver(TcpServer.newServer(PUSH_SERVER_PORT), 10, TimeUnit.SECONDS);
 
-    pushReceiver.registerToGossip(InetSocketAddress.createUnresolved("127.0.0.1",
-        fileParser.getGossipAddress().getPort())) //TODO: UNRESOLVED?
+    pushReceiver.registerToGossip(fileParser.getGossipAddress())
         .subscribe(aVoid -> {
             },
             throwable -> {
@@ -63,28 +73,23 @@ public class Rps {
                   "Shutting down RPS Module because no connection to Gossip Module is available");
               System.exit(1);
             });
-    /*
+
     NseClient nseClient =
         new NseClient(new RxTcpClientFactory("NseClient"), fileParser.getNseAddress(),
             30, TimeUnit.SECONDS);
 
     GossipSender gossipSender =
         new GossipSender(ownIdentity, TcpClient.newClient(fileParser.getGossipAddress()));
-    gossipSender.sendOwnPeerPeriodically(30, TimeUnit.MINUTES, 20).subscribe();
+    gossipSender.sendOwnPeerPeriodically(DELAY_GOSSIP_SENDER, UNIT_TIME_GOSSIP_SENDER, TTL_GOSSIP_SENDER).subscribe();
 
-    List<Peer> initialList = pushReceiver.gossipSocket().toBlocking().first();
+    //List<Peer> initialList = pushReceiver.gossipSocket().toBlocking().first(); TODO: commented for the tests
+    List<Peer> initialList = RandomData.getPeerList(1);
 
     Brahms brahms =
         new Brahms(initialList, nseClient, pullClient, pushReceiver,
             pushSender, new RxTcpClientFactory("Brahms"));
 
-    new Thread(() -> {
-      try {
-        brahms.start();
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
-    }).start();
+    new Thread(brahms::start).start();
 
     QueryServer queryServer =
         new QueryServer(TcpServer.newServer(fileParser.getQueryServerPort()), brahms);
@@ -92,8 +97,7 @@ public class Rps {
         new PullServer(brahms, TcpServer.newServer(PULL_SERVER_PORT));
 
     queryServer.awaitShutdown();
-    pullServer.awaitShutdown(); */
+    pullServer.awaitShutdown();
     pushReceiver.awaitShutdown();
-
   }
 }

@@ -79,6 +79,7 @@ public class AnnounceMessage extends ApiMessage {
     byte[] data;
     AnnounceMessage message;
 
+    buf.getInt();
     ttl = Message.unsignedShortFromByte(buf.get());
     buf.position(buf.position() + 1); // reserved byte field
     datatype = Message.unsignedIntFromShort(buf.getShort());

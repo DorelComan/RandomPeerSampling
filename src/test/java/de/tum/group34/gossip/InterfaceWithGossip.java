@@ -8,6 +8,10 @@ import io.reactivex.netty.protocol.tcp.server.TcpServer;
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Testing the PushReceiver alone with the Gossip
+ */
+
 public class InterfaceWithGossip {
 
     public static void main(String[] args) {

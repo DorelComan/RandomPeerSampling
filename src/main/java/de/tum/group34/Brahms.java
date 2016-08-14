@@ -64,7 +64,7 @@ public class Brahms {
     updateSample(list);
   }
 
-  public void start() throws InterruptedException {
+  public void start() {
 
     List<Peer> tempList;
 
@@ -96,15 +96,15 @@ public class Brahms {
           .toBlocking()
           .first());
 
-      // System.out.println("\nPulled peers: " + pullList.size());//todo
+       System.out.println("\nPulled peers: " + pullList.size());//todo
       // pullList.forEach(peer -> System.out.println(peer.getIpAddress().toString()));//todo
 
       // Save all push receive in pushList
       ArrayList<Peer> pushList = new ArrayList<>();
       pushList.addAll(pushReceiver.getPushList().toBlocking().first());
 
-      // System.out.println("\nPushReceived: " + pushList.size());//todo
-      // pushList.forEach(peer -> System.out.println(peer.getIpAddress().toString()));//todo
+       System.out.println("\nPushReceived: " + pushList.size());//todo
+       pushList.forEach(peer -> System.out.println(peer.getIpAddress().toString()));//todo
 
       if (pushList.size() <= nmbPushes &&
           pushList.size() != 0 &&
@@ -129,10 +129,15 @@ public class Brahms {
       // System.out.println("\nNew Sample");
       // samplList.forEach(sampler -> System.out.println(sampler.sample().getIpAddress().toString()));
 
-      //System.out.println("\nNew Local");
-      //getLocalView().forEach(peer -> System.out.println(peer.getIpAddress().toString()));
+      System.out.println("\nNew Local");
+      getLocalView().forEach(peer -> System.out.println(peer.getIpAddress().toString()));
 
-      Thread.sleep(SLEEP_TIME);
+      try {
+        Thread.sleep(SLEEP_TIME);
+      } catch (InterruptedException e) {
+        System.out.println("\nInterruption in the Thread.sleep() of Brahms!\n");
+        e.printStackTrace();
+      }
     }
   }
 
