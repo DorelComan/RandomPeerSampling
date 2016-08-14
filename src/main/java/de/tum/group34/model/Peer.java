@@ -26,7 +26,9 @@ public class Peer implements Serializable, Cloneable {
     this.ipAddress = inetSocketAddress;
   }
 
-  public Peer(InetSocketAddress inetSocketAddress, int pushServerPort, int pullServerPort, byte[] hostkey){
+  @SuppressFBWarnings("EI_EXPOSE_REP2")
+  public Peer(InetSocketAddress inetSocketAddress, int pushServerPort, int pullServerPort,
+      byte[] hostkey) {
     this.ipAddress = inetSocketAddress;
     this.pullServerPort = pullServerPort;
     this.pushServerPort = pushServerPort;
@@ -99,7 +101,7 @@ public class Peer implements Serializable, Cloneable {
     this.pullServerPort = pullServerPort;
   }
 
-  public int getPushServerPort(){
+  public int getPushServerPort() {
 
     return this.pullServerPort;
   }
