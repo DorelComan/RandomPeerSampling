@@ -14,6 +14,9 @@ public class Peer implements Serializable, Cloneable {
   // TODO: how to determine own IP Address
   private InetSocketAddress ipAddress; // SocketAddress (includes port)
   private byte[] hostkey;
+  private int msgId; // todo We should put the message here
+  private int pushServerPort;
+  private int pullServerPort;
 
   public Peer() {
     hostkey = ("").getBytes(StandardCharsets.UTF_8);
@@ -73,5 +76,21 @@ public class Peer implements Serializable, Cloneable {
     Peer peer = new Peer(this.ipAddress);
     peer.hostkey = this.hostkey;
     return peer;
+  }
+
+  public InetSocketAddress getPushServerAddress() {
+    return new InetSocketAddress(ipAddress.getAddress(), pushServerPort);
+  }
+
+  public void setPushServerPort(int pushServerPort) {
+    this.pushServerPort = pushServerPort;
+  }
+
+  public InetSocketAddress getPullServerPort() {
+    return new InetSocketAddress(ipAddress.getAddress(), pullServerPort);
+  }
+
+  public void setPullServerPort(int pullServerPort) {
+    this.pullServerPort = pullServerPort;
   }
 }
