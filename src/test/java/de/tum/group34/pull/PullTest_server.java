@@ -14,14 +14,14 @@ import java.util.ArrayList;
 
 public class PullTest_server {
 
-    private static final int PULL_SERVER_PORT = 8889;
+    private static final int PULL_SERVER_PORT = 55555;
 
     public static void main(String[] args) {
 
         Brahms brahms = Mockito.mock(Brahms.class);
         Mockito.when(brahms.getLocalView()).thenReturn(RandomData.getPeerList(2));
 
-        PullServer server = new PullServer(brahms, TcpServer.newServer(new InetSocketAddress("127.0.0.1", 8889)));
+        PullServer server = new PullServer(brahms, TcpServer.newServer(new InetSocketAddress("127.0.0.1", PULL_SERVER_PORT)));
         new Thread(server::awaitShutdown).start();
 
         //peer of server to be pull by client
