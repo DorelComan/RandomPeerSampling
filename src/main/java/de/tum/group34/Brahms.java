@@ -92,8 +92,8 @@ public class Brahms {
       System.out.println(peersToPushMyId.size());//todo
       pushSender.sendMyId(peersToPushMyId)
           .toBlocking()
-          .first();  // TODO should we remove failed peers?
-
+          .firstOrDefault(Collections.emptyList());
+      
       System.out.println("After push");
       // Send pull requests and save incoming lists in pullList
       ArrayList<Peer> pullList = new ArrayList<>();
@@ -101,15 +101,15 @@ public class Brahms {
           .toBlocking()
           .first());
 
-       System.out.println("\nPulled peers: " + pullList.size());//todo
+      System.out.println("\nPulled peers: " + pullList.size());//todo
       // pullList.forEach(peer -> System.out.println(peer.getIpAddress().toString()));//todo
 
       // Save all push receive in pushList
       ArrayList<Peer> pushList = new ArrayList<>();
       pushList.addAll(pushReceiver.getPushList().toBlocking().first());
 
-       System.out.println("\nPushReceived: " + pushList.size());//todo
-       pushList.forEach(peer -> System.out.println(peer.getIpAddress().toString()));//todo
+      System.out.println("\nPushReceived: " + pushList.size());//todo
+      pushList.forEach(peer -> System.out.println(peer.getIpAddress().toString()));//todo
 
       if (pushList.size() <= nmbPushes &&
           pushList.size() != 0 &&
@@ -216,7 +216,7 @@ public class Brahms {
 
   /**
    * Method similar with the one above, but gets and returns a list of samplers instead of peers.
-     */
+   */
 
   public static List<Peer> randSamples(List<Sampler> list, int n) {
 
@@ -247,7 +247,7 @@ public class Brahms {
 
   /**
    * Method which returns a random Peer used by the QueryServer to answer the requests
-     */
+   */
 
   public Observable<Peer> getRandomPeerObservable() {
 
