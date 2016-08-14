@@ -4,15 +4,12 @@ From command line use:
 `./gradlew clean build`
 
 Execute Rps.java with
-
-config\1.conf
+'config\1.conf'
 
 
 # TASKS
 
-- Implement PushSender
 - Set thread for periodical ping of Samplers 
-- Set the file read (FileParser) in RPS
 
 - Test gossipPush
 - Tes pull send-receive
@@ -20,15 +17,6 @@ config\1.conf
 - Work on error of NseCLient if NSE Server is closed
 
 - Brahms with one element in localview didn't work, probably rand() has problems;
-
-
-# MessageParser  - methods - 
- - isRPSQuery               ByteBuf -> Boolean [read RPS_Query]
- - buildRpsResponde         Peer -> ByteBuf    [generate RPS_Peer]
- - buildPeerFromGossipPush  ByteBuf -> Peer    [read GossipPush]
- - buildGossipPush          Peer -> ByteBuf    [generate GossipPush]
- - getGossipNotifyForPush       -> ByteBuf     [generate GossipNotify]
- 
  
 # Modules 
     - PushSender [Controlled by Brahms]
