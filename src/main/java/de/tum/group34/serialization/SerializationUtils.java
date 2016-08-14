@@ -66,9 +66,9 @@ public class SerializationUtils {
     }
   }
 
-  public static <T> T fromBytes(ByteBuf bytes) {
+  public static <T> T fromByteBuf(ByteBuf bytes) {
     try (ByteBufInputStream bis = new ByteBufInputStream(bytes)) {
-      return fromBytes(bis);
+      return fromInputStream(bis);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -81,24 +81,13 @@ public class SerializationUtils {
    * @param <T> The generic type (will automatically cast the object to the desired Type)
    * @return The object
    */
-  private static <T> T fromBytes(InputStream inputStream) {
+  private static <T> T fromInputStream(InputStream inputStream) {
     try (ObjectInput in = new ObjectInputStream(inputStream)) {
       T object = (T) in.readObject();
       return object;
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
-  }
-
-  /**
-   * Reads a serializeable object from a {@link ByteBuf}
-   *
-   * @param buf The input
-   * @param <T> The generic type of the object
-   * @return The deserialized object
-   */
-  public static <T> T fromByteBuf(ByteBuf buf) {
-    return fromBytes(buf);
   }
 
   public static <T> T fromByteArrays(List<byte[]> array) {
@@ -117,7 +106,7 @@ public class SerializationUtils {
 
       try (ByteArrayInputStream in = new ByteArrayInputStream(
           Arrays.copyOfRange(bytes, 0, bytes.length - 1))) {
-        return fromBytes(in);
+        return fromInputStream(in);
       }
     } catch (IOException e) {
       throw new RuntimeException(e);

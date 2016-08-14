@@ -69,7 +69,7 @@ public class PushSender {
    * not. If there was an error, {@link PushResult#error} will contain the error cause. In case that
    * it was successful, {@link PushResult#error} will be null
    */
-  private class PushResult {
+  private static class PushResult {
     Peer peer;
     Throwable error;
 

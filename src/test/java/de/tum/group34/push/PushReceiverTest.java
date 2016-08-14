@@ -47,7 +47,7 @@ public class PushReceiverTest {
     notificationMessage.send(notificationMessageBuffer);
     byte[] notificationMessageBytes = notificationMessageBuffer.array();
 
-    //byte[] notificationMessageBytes = MessageParser.buildGossipPush(pushingPeer, 500).array();
+    //byte[] notificationMessageBytes = MessageParser.buildGossipAnnouncePush(pushingPeer, 500).array();
 
     TcpServer<ByteBuf, ByteBuf> server = TcpServer.newServer(port)
         .enableWireLogging("PushReceiverTest", LogLevel.DEBUG)

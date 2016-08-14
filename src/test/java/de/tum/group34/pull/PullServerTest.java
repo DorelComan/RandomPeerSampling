@@ -22,7 +22,6 @@ public class PullServerTest {
   }
 
   @Test
-  @Ignore
   public void respondWitLocalView() throws IOException {
 
     int port = 7726;

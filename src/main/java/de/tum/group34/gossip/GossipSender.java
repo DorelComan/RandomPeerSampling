@@ -1,12 +1,11 @@
 package de.tum.group34.gossip;
 
+import de.tum.group34.model.Peer;
 import de.tum.group34.serialization.MessageParser;
 import io.netty.buffer.ByteBuf;
-import io.reactivex.netty.client.ConnectionRequest;
 import io.reactivex.netty.protocol.tcp.client.TcpClient;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
-import de.tum.group34.model.Peer;
 import rx.Observable;
 
 /**
@@ -20,7 +19,6 @@ public class GossipSender {
 
   private TcpClient<ByteBuf, ByteBuf> client;
   private Peer ownIdentity;
-  private ConnectionRequest<ByteBuf, ByteBuf> connectionRequest;
 
   public GossipSender(Peer ownIdentity, TcpClient<ByteBuf, ByteBuf> client) {
     this.ownIdentity = ownIdentity;
@@ -34,9 +32,15 @@ public class GossipSender {
     return this.client.createConnectionRequest()
         .flatMap(connection ->
             Observable.interval(0, time, unit)
-                .doOnNext(messageId -> log.info("Broadcasting my own identity"))
+                .onBackpressureDrop()
+                .doOnNext(messageId -> log.info("Staring broadcasting my own identity"))
                 .flatMap(interval -> connection.writeBytes(
-                    Observable.just(MessageParser.buildGossipPush(ownIdentity, ttl).array())))
+                    Observable.just(MessageParser.buildGossipAnnouncePush(ownIdentity, ttl).array()))
+                    .doOnNext(aVoid -> log.info("Broadcastet successfully my own identity")
+                    )
+                    .onBackpressureDrop()
+
+                )
         );
   }
 }

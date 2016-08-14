@@ -46,12 +46,11 @@ public class PushReceiver {
         enableWireLogging(LOG_TAG, LogLevel.DEBUG)
         .start(
             connection ->
-                connection.writeBytesAndFlushOnEach(connection.getInput()
+                connection.getInput()
                     .doOnNext(byteBuf -> log.info("Push Responding Socket received a Message"))
-                    .map(SerializationUtils::<Peer>fromBytes)
+                    .map(SerializationUtils::<Peer>fromByteBuf)
                     .doOnNext(pushReceivingSocketBridge::onNext)
-                    .map(peer -> new byte[0]) // TODO what should the answer be?
-                )
+                    .map(peer -> null)
         );
   }
 
@@ -97,7 +96,7 @@ public class PushReceiver {
                     //System.out.println("\nClient rcv MessageType : " + MessageParser.unsignedIntFromShort(byteBuf.getShort(2)));
                     //System.out.println("Client rcv DataType received: " + MessageParser.unsignedIntFromShort(byteBuf.getShort(6)));
                     //System.out.println("Client rcv Peer received: " +
-                         //MessageParser.buildPeerFromGossipPush(byteBuf).getPeer().getIpAddress().toString());
+                    //MessageParser.buildPeerFromGossipPush(byteBuf).getPeer().getIpAddress().toString());
 
                     return Observable.fromCallable(
                         () -> MessageParser.buildPeerFromGossipPush(byteBuf))
