@@ -4,6 +4,7 @@ import de.tum.group34.Brahms;
 import de.tum.group34.model.Peer;
 import io.reactivex.netty.protocol.tcp.server.TcpServer;
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import org.mockito.Mockito;
 
@@ -26,7 +27,7 @@ public class PullTest_server {
     //peer of server to be pull by client
     Peer peer =
         new Peer(new InetSocketAddress("127.0.0.1", PULL_SERVER_PORT), 1212, PULL_SERVER_PORT,
-            ("").getBytes());
+            ("").getBytes(StandardCharsets.UTF_8));
 
     ArrayList<Peer> peers = new ArrayList<>();
     peers.add(peer);
