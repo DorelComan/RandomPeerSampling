@@ -14,6 +14,7 @@ import io.reactivex.netty.protocol.tcp.server.TcpServer;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
@@ -37,14 +38,13 @@ public class Rps {
     }
 
     FileParser fileParser = new FileParser(args[0]);
-
     Peer ownIdentity = new Peer();
     ownIdentity.setHostkey(fileParser.getHostkey());
 
     PullClient pullClient = new PullClient();
     PushSender pushSender = new PushSender();
     PushReceiver pushReceiver = initPushReceiver();
-    pushReceiver.registerToGossip(InetSocketAddress.createUnresolved("127.0.0.1", fileParser.getGossipAddress().getPort())) //TODO: UNRESOLVED?
+    pushReceiver.registerToGossip(fileParser.getGossipAddress())
         .subscribe(aVoid -> {
             },
             throwable -> {
@@ -53,7 +53,7 @@ public class Rps {
                   "Shutting down RPS Module because no connection to Gossip Module is available");
               System.exit(1);
             });
-
+    /*
     NseClient nseClient =
             new NseClient(new RxTcpClientFactory("NseClient"), fileParser.getNseAddress(),
             30, TimeUnit.SECONDS);
@@ -82,8 +82,9 @@ public class Rps {
             new PullServer(brahms, TcpServer.newServer(PULL_SERVER_PORT));
 
     queryServer.awaitShutdown();
-    pullServer.awaitShutdown();
+    pullServer.awaitShutdown(); */
     pushReceiver.awaitShutdown();
+
   }
 
   private static PushReceiver initPushReceiver() {

@@ -29,7 +29,7 @@ From command line use:
     - PullClient [Brahms]
     
     + Brahms - OK
-    - GossipSender [Autonomous]
+    + GossipSender [Autonomous]
 
     + QueryServer [connected to Brahms localView]
     

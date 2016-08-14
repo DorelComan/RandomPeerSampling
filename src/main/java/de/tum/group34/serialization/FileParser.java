@@ -37,21 +37,21 @@ public class FileParser {
 
   public InetSocketAddress getGossipAddress() throws URISyntaxException {
 
-    URI uri = new URI(ini.getSection("GOSSIP").getString("api_address"));
+    URI uri = new URI("http://" + ini.getSection("gossip").getString("api_address"));
 
     return new InetSocketAddress(uri.getHost(), uri.getPort());
   }
 
   public InetSocketAddress getNseAddress() throws URISyntaxException {
 
-    URI uri = new URI(ini.getSection("NSE").getString("api_address"));
+    URI uri = new URI("http://" + ini.getSection("nse").getString("api_address"));
 
     return new InetSocketAddress(uri.getHost(), uri.getPort());
   }
 
   public int getQueryServerPort() throws URISyntaxException {
 
-    URI uri = new URI(ini.getSection("RPS").getString("query_server_address"));
+    URI uri = new URI("http://" + ini.getSection("rps").getString("api_address"));
 
     return uri.getPort();
   }
