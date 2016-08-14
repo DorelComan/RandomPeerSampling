@@ -89,10 +89,12 @@ public class Brahms {
       // Push to Peers from local View - TODO: problem if have a small list and what about re-sending to the same
 
       List<Peer> peersToPushMyId = rand(getLocalView(), nmbPushes);
+      System.out.println(peersToPushMyId.size());//todo
       pushSender.sendMyId(peersToPushMyId)
           .toBlocking()
           .first();  // TODO should we remove failed peers?
 
+      System.out.println("After push");
       // Send pull requests and save incoming lists in pullList
       ArrayList<Peer> pullList = new ArrayList<>();
       pullList.addAll(pullClient.makePullRequests(rand(getLocalView(), nmbPulls))

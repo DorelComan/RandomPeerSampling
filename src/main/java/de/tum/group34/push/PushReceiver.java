@@ -94,7 +94,7 @@ public class PushReceiver {
                 .flatMap(new Func1<ByteBuf, Observable<PeerSharingMessage>>() {
                   @Override public Observable<PeerSharingMessage> call(ByteBuf byteBuf) {
 
-                    //todo
+                    //todo: take out
                     System.out.println(
                         "\nClient rcv MessageType : " + MessageParser.unsignedIntFromShort(
                             byteBuf.getShort(2)));

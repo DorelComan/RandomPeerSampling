@@ -15,12 +15,12 @@ public class MockPullServer {
     public MockPullServer(Peer peer){
 
         Brahms brahms = Mockito.mock(Brahms.class);
-        Mockito.when(brahms.getLocalView()).thenReturn(RandomData.getPeerList(13));
+        Mockito.when(brahms.getLocalView()).thenReturn(RandomData.getPeerListBound(12));
 
         new Thread(() -> {
             PullServer pullServer =
-                    new PullServer(brahms, TcpServer.newServer(5555));
-
+                    new PullServer(brahms, TcpServer.newServer(peer.getPullServerAdress()));
+            System.out.println("IM ON");
             pullServer.awaitShutdown();
         }).start();
     }

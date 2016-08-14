@@ -12,6 +12,10 @@ Execute Rps.java with
 - Set thread for periodical ping of Samplers 
 - Test pull send-receive
 - Work on error of NseCLient if NSE Server is closed
+
+  - MOCKS are in - 
+PushSender.sendMyId()
+PullClient.makePullRequest()
  
 # Modules 
     - PushSender [Controlled by Brahms]
@@ -33,3 +37,5 @@ Execute Rps.java with
 
     - GossipSend
     - GossipNotification to receive 
+    
+    

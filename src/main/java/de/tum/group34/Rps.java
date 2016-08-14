@@ -9,6 +9,7 @@ import de.tum.group34.push.PushReceiver;
 import de.tum.group34.push.PushSender;
 import de.tum.group34.query.QueryServer;
 import de.tum.group34.serialization.FileParser;
+import de.tum.group34.test.RandomData;
 import io.reactivex.netty.protocol.tcp.client.TcpClient;
 import io.reactivex.netty.protocol.tcp.server.TcpServer;
 import java.io.IOException;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import org.apache.commons.configuration2.ex.ConfigurationException;
+import org.mockito.Mockito;
 
 /**
  * Execute the main with first argument the path of the configutation file
@@ -51,12 +53,12 @@ public class Rps {
         new MockPullClient(); //TODO: to be taken down along with next row after test
     ((MockPullClient) pullClient).setSize(10); */
 
-    PushSender pushSender =
+     PushSender pushSender =
         new PushSender(ownIdentity, new RxTcpClientFactory(PushSender.class.getName()));
 
     /* PushSender pushSender = Mockito.mock(PushSender.class); //todo: take out at end
     Mockito.when(pushSender.sendMyId(Mockito.any()))
-        .thenReturn(rx.Observable.just(RandomData.getPeerList(5))); */
+        .thenReturn(rx.Observable.just(RandomData.getPeerListBound(4))); */
 
     PushReceiver pushReceiver =
         new PushReceiver(TcpServer.newServer(fileParser.getPushServerPort()), 10, TimeUnit.SECONDS);
@@ -80,11 +82,12 @@ public class Rps {
     gossipSender.sendOwnPeerPeriodically(DELAY_GOSSIP_SENDER, UNIT_TIME_GOSSIP_SENDER,
         TTL_GOSSIP_SENDER).subscribe();
 
-    List<Peer> initialList = pushReceiver.gossipSocket()
+   /* List<Peer> initialList = pushReceiver.gossipSocket()
         .filter(peers -> !peers.isEmpty())
         .toBlocking()
-        .first();
-    //List<Peer> initialList = RandomData.getPeerList(1); //todo:take out
+        .first(); */
+    List<Peer> initialList = RandomData.getPeerListBound(1); //todo:take out
+      System.out.println("size: " + initialList.size());
 
     Brahms brahms =
         new Brahms(initialList, nseClient, pullClient, pushReceiver,
