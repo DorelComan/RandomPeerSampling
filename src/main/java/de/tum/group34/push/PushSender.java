@@ -4,12 +4,11 @@ import de.tum.group34.ExponentialBackoff;
 import de.tum.group34.TcpClientFactory;
 import de.tum.group34.model.Peer;
 import de.tum.group34.serialization.SerializationUtils;
+import de.tum.group34.test.MockPushReceiver;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
-import de.tum.group34.test.MockPushReceiver;
 import rx.Observable;
 
 /**
@@ -38,20 +37,16 @@ public class PushSender {
     //TODO: mocking the peers we are sending push, creating them dinamycally
     receivers.forEach(MockPushReceiver::new);
 
-    System.out.println("Receivers "+receivers);
     List<Observable<PushResult>> sendToPeersObservables =
-            receivers.stream().map(this::sendMyIdTo).collect(
-                    Collectors.toList());
-    System.out.println("observables " + sendToPeersObservables);
+        receivers.stream().map(this::sendMyIdTo).collect(
+            Collectors.toList());
 
-    return Observable.combineLatest(sendToPeersObservables, pushResults -> {
-              System.out.println("Res: "+pushResults);
-              return Arrays.stream((PushResult[]) pushResults)
-                      .filter(PushResult::hasFailed)
-                      .map(result -> result.peer)
-                      .collect(Collectors.toList());
-            }
-    ).doOnNext(peers -> System.out.println("Returning " + peers));
+    return Observable.combineLatest(sendToPeersObservables,
+        pushResults -> Arrays.stream((PushResult[]) pushResults)
+            .filter(PushResult::hasFailed)
+            .map(result -> result.peer)
+            .collect(Collectors.toList())
+    );
   }
 
   /**
@@ -61,9 +56,6 @@ public class PushSender {
    * @return Observable of {@link PushResult}
    */
   Observable<PushResult> sendMyIdTo(Peer to) {
-
-    System.out.println("Sending " + to.getPushServerAddress());
-
     return clientFactory.newClient(to.getPushServerAddress())
         .createConnectionRequest()
         .retryWhen(ExponentialBackoff.create(3, 1, TimeUnit.SECONDS))
