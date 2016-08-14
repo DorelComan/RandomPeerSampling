@@ -41,7 +41,10 @@ public class MessageParser {
    * @throws MessageException
    */
   public static void isPullLocalViewMessage(ByteBuf byteBuf) throws MessageException {
-    // TODO implement
+
+    if(!(MessageParser.unsignedIntFromShort(byteBuf.getShort(2)) == Message.PULL_LOCAL_VIEW
+            && !(byteBuf.capacity() != 4 && MessageParser.unsignedIntFromShort(byteBuf.getShort(0)) != 4)))
+      throw new MessageException();
   }
 
   public static ByteBuf buildRpsRespone(Peer peer) {

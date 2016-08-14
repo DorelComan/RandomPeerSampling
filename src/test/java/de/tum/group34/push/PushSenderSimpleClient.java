@@ -12,12 +12,12 @@ public class PushSenderSimpleClient {
 
   public static void main(String[] args) {
 
-    Peer peer = new Peer(new InetSocketAddress("127.0.0.1", 1234), 56555, 56556,("").getBytes()); // ME CLIENT
+    Peer peer = new Peer(new InetSocketAddress("127.0.0.1", 1235), 54555, 54556,("").getBytes()); // ME CLIENT
 
     PushSender pushSender = new PushSender(peer, new RxTcpClientFactory("SIMPLE PUSH CLIENT"));
 
     ArrayList<Peer> peers = new ArrayList<>();
-    peers.add(new Peer(new InetSocketAddress("127.0.0.1", 33234))); //Push to the Rps
+    peers.add(new Peer(new InetSocketAddress("127.0.0.1", 33234),55554,55553, ("").getBytes())); //Push to the Rps
     pushSender.sendMyId(peers).toBlocking().first();
   }
 }

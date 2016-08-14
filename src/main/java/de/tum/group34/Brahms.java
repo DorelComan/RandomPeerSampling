@@ -15,7 +15,7 @@ import rx.subjects.BehaviorSubject;
 
 public class Brahms {
 
-  private static final long SLEEP_TIME = 5000;
+  private static final long SLEEP_TIME = 5000; //Time between iterations of the algorithm
 
   private BehaviorSubject<List<Peer>> viewListSubject = BehaviorSubject.create();
   private SecureRandom secureRandom = new SecureRandom();
@@ -84,20 +84,16 @@ public class Brahms {
       int nmbPulls = (int) Math.round(beta * viewSize);
       int nmbSamples = (int) Math.round(gamma * viewSize);
 
-      System.out.println("nmbPushes: " + nmbPushes + " nmbSamples " + nmbSamples);//todo
-
-      // Push to Peers from local View - TODO: problem if have a small list and what about re-sending to the same
-
+      // Push to Peers from local View -
       List<Peer> peersToPushMyId = rand(getLocalView(), nmbPushes);
-      System.out.println(peersToPushMyId.size());//todo
       pushSender.sendMyId(peersToPushMyId)
           .toBlocking()
           .firstOrDefault(Collections.emptyList());
-
-      System.out.println("After push");
+      
       // Send pull requests and save incoming lists in pullList
       ArrayList<Peer> pullList = new ArrayList<>();
-      pullList.addAll(pullClient.makePullRequests(rand(getLocalView(), nmbPulls))
+      List<Peer> randomList = rand(getLocalView(), nmbPulls);
+      pullList.addAll(pullClient.makePullRequests(randomList)
           .toBlocking()
           .first());
 
@@ -111,9 +107,8 @@ public class Brahms {
       System.out.println("\nPushReceived: " + pushList.size());//todo
       pushList.forEach(peer -> System.out.println(peer.getIpAddress().toString()));//todo
 
-      if (pushList.size() <= nmbPushes &&
-          pushList.size() != 0 &&
-          pullList.size() != 0) {
+      if ((pushList.size() <= nmbPushes && pushList.size() != 0 && pullList.size() != 0)
+              || (pushList.size() == 0 && getLocalView().size() == 1 && pullList.size() != 0) ) {
 
         System.out.println("Modifing stuff");//todo
         tempList = new ArrayList<>();
@@ -127,6 +122,8 @@ public class Brahms {
       pushList.addAll(pullList); // pushList + pullList to be added at sample
       updateSample(pushList);
 
+
+
       //List<Peer> peersThatAreAlive = getPeersThatAreAlive(getLocalView()).toBlocking().first(); TODO: uncomment
       //setLocalView(peersThatAreAlive);
 
@@ -134,15 +131,9 @@ public class Brahms {
       // System.out.println("\nNew Sample");
       // samplList.forEach(sampler -> System.out.println(sampler.sample().getIpAddress().toString()));
 
-      System.out.println("\nNew Local");
+      System.out.println("\nNew Local"); //TODO: take down
       getLocalView().forEach(peer -> System.out.println(peer.getIpAddress().toString()));
-
-      try {
-        Thread.sleep(SLEEP_TIME);
-      } catch (InterruptedException e) {
-        System.out.println("\nInterruption in the Thread.sleep() of Brahms!\n");
-        e.printStackTrace();
-      }
+      
     }
   }
 

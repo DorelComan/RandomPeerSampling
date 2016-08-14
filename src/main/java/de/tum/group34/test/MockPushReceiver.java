@@ -28,7 +28,7 @@ public class MockPushReceiver {
 
     public MockPushReceiver(Peer peerT){
 
-        System.out.println("created pushReceiver: " + peerT.getPushServerAddress());
+        System.out.println("created pushReceiver: " + peerT.getPushServerAddress()+"\n");
 
         TcpServer<ByteBuf, ByteBuf> pushReceivingServerSocket = TcpServer.newServer(peerT.getPushServerAddress());
 
@@ -36,15 +36,13 @@ public class MockPushReceiver {
             pushReceivingSocket =
                     pushReceivingSocketBridge.buffer(10, TimeUnit.SECONDS).onBackpressureDrop();
 
-            pushReceivingServerSocket = pushReceivingServerSocket.
+            pushReceivingServerSocket.
                     enableWireLogging(LOG_TAG, LogLevel.DEBUG)
                     .start(
                             connection ->
                                     connection.getInput()
                                             .doOnNext(byteBuf -> log.info("\nMOCK: Push Responding Socket received a Message\n"))
                                             .map(SerializationUtils::<Peer>fromByteBuf)
-                                            .doOnNext(pushReceivingSocketBridge::onNext)
-                                            .doOnNext(peer -> System.out.println("PUSH FROM "))
                                             .map(peer -> null)
                     );
 

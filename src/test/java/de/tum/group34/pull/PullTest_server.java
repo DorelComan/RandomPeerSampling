@@ -18,7 +18,7 @@ public class PullTest_server {
   public static void main(String[] args) {
 
     Brahms brahms = Mockito.mock(Brahms.class);
-    Mockito.when(brahms.getLocalView()).thenReturn(RandomData.getPeerList(2));
+    Mockito.when(brahms.getLocalView()).thenReturn(RandomData.getPeerList(12));
 
     PullServer server = new PullServer(brahms,
         TcpServer.newServer(new InetSocketAddress("127.0.0.1", PULL_SERVER_PORT)));

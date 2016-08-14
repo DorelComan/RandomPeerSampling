@@ -9,7 +9,6 @@ import de.tum.group34.push.PushReceiver;
 import de.tum.group34.push.PushSender;
 import de.tum.group34.query.QueryServer;
 import de.tum.group34.serialization.FileParser;
-import de.tum.group34.test.RandomData;
 import io.reactivex.netty.protocol.tcp.client.TcpClient;
 import io.reactivex.netty.protocol.tcp.server.TcpServer;
 import java.io.IOException;
@@ -18,7 +17,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import org.apache.commons.configuration2.ex.ConfigurationException;
-import org.mockito.Mockito;
 
 /**
  * Execute the main with first argument the path of the configutation file
@@ -30,9 +28,17 @@ public class Rps {
   private static final Logger log = Logger.getLogger(Rps.class.getName());
 
   // Variables for the Gossip
-  private static final int DELAY_GOSSIP_SENDER = 40;
-  private static final TimeUnit UNIT_TIME_GOSSIP_SENDER = TimeUnit.SECONDS;
+  private static final long DELAY_GOSSIP_SENDER = 40;
+  private static final TimeUnit TIME_UNIT_GOSSIP_SENDER = TimeUnit.SECONDS;
   private static final int TTL_GOSSIP_SENDER = 20;
+
+  // Variables for NseClient
+  private static final long DELAY_NSE_QUERY = 30;
+  private static final TimeUnit TIME_UNIT_NSE_DELAY = TimeUnit.SECONDS;
+
+  // Variables for PushReceiver
+  private static final long DELAY_PUSH_RECEIVER = 10;
+  private static final TimeUnit TIME_UNIT_DELAY_PUSH = TimeUnit.SECONDS;
 
   public static void main(final String[] args)
       throws InterruptedException, IOException, ConfigurationException, URISyntaxException {
@@ -43,25 +49,16 @@ public class Rps {
     }
 
     FileParser fileParser = new FileParser(args[0]);
-    Peer ownIdentity = new Peer(); // TODO: should set our address
-    ownIdentity.setPullServerPort(fileParser.getPullServerPort());
-    ownIdentity.setPushServerPort(fileParser.getPushServerPort());
-    ownIdentity.setHostkey(fileParser.getHostkey());
+    Peer ownIdentity = new Peer(fileParser.getOnionAddress(), fileParser.getPushServerPort(),
+            fileParser.getPullServerPort(),fileParser.getHostkey()); // TODO: should set our address
 
     PullClient pullClient = new PullClient();
-   /* PullClient pullClient =
-        new MockPullClient(); //TODO: to be taken down along with next row after test
-    ((MockPullClient) pullClient).setSize(10); */
 
      PushSender pushSender =
         new PushSender(ownIdentity, new RxTcpClientFactory(PushSender.class.getName()));
 
-    /* PushSender pushSender = Mockito.mock(PushSender.class); //todo: take out at end
-    Mockito.when(pushSender.sendMyId(Mockito.any()))
-        .thenReturn(rx.Observable.just(RandomData.getPeerListBound(4))); */
-
     PushReceiver pushReceiver =
-        new PushReceiver(TcpServer.newServer(fileParser.getPushServerPort()), 10, TimeUnit.SECONDS);
+        new PushReceiver(TcpServer.newServer(fileParser.getPushServerPort()), DELAY_PUSH_RECEIVER, TIME_UNIT_DELAY_PUSH);
 
     pushReceiver.registerToGossip(fileParser.getGossipAddress())
         .subscribe(aVoid -> {
@@ -75,19 +72,17 @@ public class Rps {
 
     NseClient nseClient =
         new NseClient(new RxTcpClientFactory("NseClient"), fileParser.getNseAddress(),
-            30, TimeUnit.SECONDS);
+            DELAY_NSE_QUERY, TIME_UNIT_NSE_DELAY);
 
     GossipSender gossipSender =
         new GossipSender(ownIdentity, TcpClient.newClient(fileParser.getGossipAddress()));
-    gossipSender.sendOwnPeerPeriodically(DELAY_GOSSIP_SENDER, UNIT_TIME_GOSSIP_SENDER,
+    gossipSender.sendOwnPeerPeriodically(DELAY_GOSSIP_SENDER, TIME_UNIT_GOSSIP_SENDER,
         TTL_GOSSIP_SENDER).subscribe();
 
-   /* List<Peer> initialList = pushReceiver.gossipSocket()
+    List<Peer> initialList = pushReceiver.gossipSocket()
         .filter(peers -> !peers.isEmpty())
         .toBlocking()
-        .first(); */
-    List<Peer> initialList = RandomData.getPeerListBound(1); //todo:take out
-      System.out.println("size: " + initialList.size());
+        .first();
 
     Brahms brahms =
         new Brahms(initialList, nseClient, pullClient, pushReceiver,

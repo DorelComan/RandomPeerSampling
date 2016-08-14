@@ -4,11 +4,14 @@ import de.tum.group34.ExponentialBackoff;
 import de.tum.group34.TcpClientFactory;
 import de.tum.group34.model.Peer;
 import de.tum.group34.serialization.SerializationUtils;
+import de.tum.group34.test.MockPullServer;
 import de.tum.group34.test.MockPushReceiver;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import de.tum.group34.test.MockPushReceiver;
 import rx.Observable;
 
 /**
@@ -35,7 +38,7 @@ public class PushSender {
   public Observable<List<Peer>> sendMyId(List<Peer> receivers) {
 
     //TODO: mocking the peers we are sending push, creating them dinamycally
-    receivers.forEach(MockPushReceiver::new);
+    //receivers.forEach(MockPushReceiver::new);
 
     List<Observable<PushResult>> sendToPeersObservables =
         receivers.stream().map(this::sendMyIdTo).collect(
@@ -56,6 +59,7 @@ public class PushSender {
    * @return Observable of {@link PushResult}
    */
   Observable<PushResult> sendMyIdTo(Peer to) {
+
     return clientFactory.newClient(to.getPushServerAddress())
         .createConnectionRequest()
         .retryWhen(ExponentialBackoff.create(3, 1, TimeUnit.SECONDS))

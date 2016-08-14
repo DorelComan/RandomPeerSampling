@@ -4,6 +4,7 @@ import de.tum.group34.ByteBufAggregatorOperator;
 import de.tum.group34.model.Peer;
 import de.tum.group34.serialization.MessageParser;
 import de.tum.group34.serialization.SerializationUtils;
+import de.tum.group34.test.MockPullServer;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.logging.LogLevel;
 import io.reactivex.netty.protocol.tcp.client.TcpClient;
@@ -22,15 +23,11 @@ public class PullClient {
     //TODO: row used to Mock the other Peers, creating them dinamically
     //peers.forEach(MockPullServer::new);
 
-   // System.out.println("Pulling " + peers);
-
     List<Observable<List<Peer>>> requestObservables =
         peers.stream().map((peer -> executePullRequest(peer))).collect(Collectors.toList());
 
-   // System.out.println("Aftergame");
     return Observable.combineLatest(requestObservables, responses -> {
 
-    //  System.out.println("wait");
       ArrayList<Peer> result = new ArrayList<Peer>();
       for (Object resp : responses) {
         List<Peer> response = (List<Peer>) resp;
@@ -47,8 +44,6 @@ public class PullClient {
    * @return the local view of the contacted peer
    */
   private Observable<List<Peer>> executePullRequest(Peer peer) {
-
-    //System.out.println("Pulling " + peer.);
 
     return TcpClient.newClient(peer.getPullServerAdress())
         .enableWireLogging("PullClient", LogLevel.DEBUG)

@@ -70,4 +70,10 @@ public class FileParser {
 
     return uri.getPort();
   }
+
+  public InetSocketAddress getOnionAddress() throws URISyntaxException {
+    URI uri = new URI("http://" + ini.getSection("onion").getString("listen_address"));
+
+    return new InetSocketAddress(uri.getHost(), uri.getPort());
+  }
 }
