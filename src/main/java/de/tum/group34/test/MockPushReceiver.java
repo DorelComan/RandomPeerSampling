@@ -15,9 +15,6 @@ import java.util.logging.Logger;
 
 public class MockPushReceiver {
 
-    long timeInterval;
-    TimeUnit timeUnit;
-
     private static final String LOG_TAG = PushReceiver.class.getName();
     private static final Logger log = Logger.getLogger(LOG_TAG);
 
