@@ -37,6 +37,8 @@ dependencies {
   compile 'com.jakewharton.rxrelay:rxrelay:1.1.0'
   compile "commons-io:commons-io:2.5"
 
+  compile "net.java.dev.jets3t:jets3t:0.7.2"
+
   compile "org.mockito:mockito-core:1.+"
   compile 'com.google.code.findbugs:annotations:3.0.0'
   compile 'org.apache.commons:commons-configuration2:2.0'
