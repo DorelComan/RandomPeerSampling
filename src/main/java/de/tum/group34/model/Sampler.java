@@ -17,7 +17,7 @@ public class Sampler {
     try {
       randomPRF = MessageDigest.getInstance("SHA-1");
     } catch (NoSuchAlgorithmException e) {
-      e.printStackTrace(); // TODO: how do we catch this, what to do in case?
+     throw new RuntimeException(e);
     }
 
     randNumber = Math.random();
