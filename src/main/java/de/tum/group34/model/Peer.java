@@ -98,6 +98,11 @@ public class Peer implements Serializable, Cloneable {
     this.pullServerPort = pullServerPort;
   }
 
+  public int getPushServerPort(){
+
+    return this.pullServerPort;
+  }
+
   @Override public String toString() {
     return "Peer{" +
         "ipAddress=" + ipAddress +

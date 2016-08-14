@@ -64,6 +64,9 @@ public class Brahms {
     updateSample(list);
   }
 
+  /**
+   * Method which start the Brahms algorithm, it do infinte iterations updating the localView
+   */
   public void start() {
 
     List<Peer> tempList;
@@ -209,6 +212,10 @@ public class Brahms {
     }
   }
 
+  /**
+   * Method similar with the one above, but gets and returns a list of samplers instead of peers.
+     */
+
   public static List<Peer> randSamples(List<Sampler> list, int n) {
 
     Collections.shuffle(list);
@@ -227,7 +234,7 @@ public class Brahms {
   /**
    * It invokes the NSE module to recover the network size estimation
    */
-  public void setSizeEstimation() {
+  private void setSizeEstimation() {
 
     sizeEst = nseClient.getNetworkSize().toBlocking().first().doubleValue();
     Double temp = Math.cbrt(sizeEst);
@@ -236,10 +243,9 @@ public class Brahms {
     this.viewSize = temp.intValue();
   }
 
- /* private Double getSizeEstim() {
-
-    return sizeEst;
-  } */
+  /**
+   * Method which returns a random Peer used by the QueryServer to answer the requests
+     */
 
   public Observable<Peer> getRandomPeerObservable() {
 

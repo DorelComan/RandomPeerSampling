@@ -30,8 +30,6 @@ public class Rps {
 
   private static final Logger log = Logger.getLogger(Rps.class.getName());
 
-  private static final int PULL_SERVER_PORT = 5222;
-
   // Variables for the Gossip
   private static final int DELAY_GOSSIP_SENDER = 40;
   private static final TimeUnit UNIT_TIME_GOSSIP_SENDER = TimeUnit.SECONDS;
@@ -47,7 +45,7 @@ public class Rps {
 
     FileParser fileParser = new FileParser(args[0]);
     Peer ownIdentity = new Peer(); // TODO: should set our address
-    ownIdentity.setPullServerPort(PULL_SERVER_PORT);
+    ownIdentity.setPullServerPort(fileParser.getPullServerPort());
     ownIdentity.setPushServerPort(fileParser.getPushServerPort());
     ownIdentity.setHostkey(fileParser.getHostkey());
 
@@ -98,7 +96,7 @@ public class Rps {
     QueryServer queryServer =
         new QueryServer(TcpServer.newServer(fileParser.getQueryServerPort()), brahms);
     PullServer pullServer =
-        new PullServer(brahms, TcpServer.newServer(PULL_SERVER_PORT));
+        new PullServer(brahms, TcpServer.newServer(ownIdentity.getPullServerPort()));
 
     queryServer.awaitShutdown();
     pullServer.awaitShutdown();
