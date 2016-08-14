@@ -241,7 +241,6 @@ public class Brahms {
     return viewListSubject
         .flatMap(viewList -> {
           Integer i = secureRandom.nextInt(viewList.size());
-
           //System.out.println("Getting Peer\n");
           return Observable.just(viewList.get(i));
         });

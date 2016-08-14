@@ -39,4 +39,8 @@ public class QueryServer {
   public void awaitShutdown() {
     server.awaitShutdown();
   }
+
+  public void shutdown() {
+    server.shutdown();
+  }
 }

@@ -53,8 +53,6 @@ public class MessageParser {
 
     size += address.length;
 
-    System.out.println("Add: " + address.length);
-
     ByteBuf buf = Unpooled.buffer(size);
 
     buf.setShort(2, (short) Message.TYPE_RPS_PEER); // Setting type
