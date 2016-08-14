@@ -1,5 +1,6 @@
 package de.tum.group34.gossip;
 
+import de.tum.group34.ExponentialBackoff;
 import de.tum.group34.model.Peer;
 import de.tum.group34.serialization.MessageParser;
 import io.netty.buffer.ByteBuf;
@@ -30,12 +31,14 @@ public class GossipSender {
    */
   public Observable<Void> sendOwnPeerPeriodically(long time, TimeUnit unit, int ttl) {
     return this.client.createConnectionRequest()
+        .retryWhen(ExponentialBackoff.create(10, 2, TimeUnit.SECONDS))
         .flatMap(connection ->
             Observable.interval(0, time, unit)
                 .onBackpressureDrop()
                 .doOnNext(messageId -> log.info("Staring broadcasting my own identity"))
                 .flatMap(interval -> connection.writeBytes(
-                    Observable.just(MessageParser.buildGossipAnnouncePush(ownIdentity, ttl).array()))
+                    Observable.just(
+                        MessageParser.buildGossipAnnouncePush(ownIdentity, ttl).array()))
                     .doOnNext(aVoid -> log.info("Broadcastet successfully my own identity")
                     )
                     .onBackpressureDrop()
