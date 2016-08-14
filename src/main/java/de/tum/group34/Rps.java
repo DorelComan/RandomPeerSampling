@@ -84,6 +84,8 @@ public class Rps {
         .toBlocking()
         .first();
 
+    System.out.println("START");
+
     Brahms brahms =
         new Brahms(initialList, nseClient, pullClient, pushReceiver,
             pushSender, new RxTcpClientFactory("Brahms"));
