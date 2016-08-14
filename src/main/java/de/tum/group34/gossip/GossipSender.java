@@ -35,11 +35,11 @@ public class GossipSender {
         .flatMap(connection ->
             Observable.interval(0, time, unit)
                 .onBackpressureDrop()
-                .doOnNext(messageId -> log.info("Staring broadcasting my own identity"))
+                .doOnNext(messageId -> log.info("Starting broadcasting my own identity"))
                 .flatMap(interval -> connection.writeBytes(
                     Observable.just(
                         MessageParser.buildGossipAnnouncePush(ownIdentity, ttl).array()))
-                    .doOnNext(aVoid -> log.info("Broadcastet successfully my own identity")
+                    .doOnNext(aVoid -> log.info("Broadcasted successfully my own identity")
                     )
                     .onBackpressureDrop()
 

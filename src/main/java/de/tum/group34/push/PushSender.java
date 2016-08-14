@@ -53,6 +53,9 @@ public class PushSender {
    */
   Observable<PushResult> sendMyIdTo(Peer to) {
     // TODO exponential retry?
+
+    System.out.println("Sending " + to.getIpAddress());
+
     return clientFactory.newClient(
         new InetSocketAddress(to.getIpAddress().getAddress(), pushServerPort))
         .createConnectionRequest()

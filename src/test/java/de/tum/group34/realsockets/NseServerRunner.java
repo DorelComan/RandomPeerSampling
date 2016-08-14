@@ -14,7 +14,7 @@ import java.util.Scanner;
  */
 public class NseServerRunner {
 
-    public static final int PORT = 9944;
+    public static final int PORT = 3333;
 
     private ByteBuf buf;
 

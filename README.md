@@ -17,6 +17,10 @@ config\1.conf
 - Test gossipPush
 - Tes pull send-receive
 
+- Work on error of NseCLient if NSE Server is closed
+
+- Brahms with one element in localview didn't work, probably rand() has problems;
+
 
 # MessageParser  - methods - 
  - isRPSQuery               ByteBuf -> Boolean [read RPS_Query]

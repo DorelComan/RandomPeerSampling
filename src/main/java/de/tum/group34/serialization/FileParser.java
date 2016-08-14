@@ -1,8 +1,6 @@
 package de.tum.group34.serialization;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -13,6 +11,7 @@ import java.nio.file.Paths;
 
 import org.apache.commons.configuration2.INIConfiguration;
 import org.apache.commons.configuration2.ex.ConfigurationException;
+import org.jets3t.service.security.EncryptionUtil;
 
 public class FileParser {
 
@@ -32,7 +31,9 @@ public class FileParser {
     String pathStr = ini.getString("HOSTKEY");
     Path path = Paths.get(pathStr);
 
-    return Files.readAllBytes(path);
+    InputStream pemStream = new ByteArrayInputStream(Files.readAllBytes(path));
+
+    return EncryptionUtil.convertRsaPemToDer(pemStream);
   }
 
   public InetSocketAddress getGossipAddress() throws URISyntaxException {
