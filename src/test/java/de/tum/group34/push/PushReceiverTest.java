@@ -1,5 +1,6 @@
 package de.tum.group34.push;
 
+import de.tum.group34.RxTcpClientFactory;
 import de.tum.group34.model.Peer;
 import de.tum.group34.protocol.Message;
 import de.tum.group34.protocol.MessageParserException;
@@ -7,7 +8,7 @@ import de.tum.group34.protocol.gossip.ApiMessage;
 import de.tum.group34.protocol.gossip.NotificationMessage;
 import de.tum.group34.protocol.gossip.NotifyMessage;
 import de.tum.group34.protocol.gossip.ValidationMessage;
-import de.tum.group34.pull.MockPeers;
+import de.tum.group34.pull.RandomData;
 import de.tum.group34.serialization.SerializationUtils;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBuf;
@@ -17,11 +18,13 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.junit.*;
 import rx.Observable;
 import rx.functions.Func1;
+import rx.schedulers.Schedulers;
 
 /**
  * @author Hannes Dorfmann
@@ -37,7 +40,7 @@ public class PushReceiverTest {
     List<Message> serverReceivedMessages = new ArrayList<>();
     List<Peer> receivedGossipPeers = new ArrayList<>();
 
-    Peer pushingPeer = MockPeers.getPeer();
+    Peer pushingPeer = RandomData.getPeer();
     //System.out.println("Peer sent: " + pushingPeer.getIpAddress().toString());
 
     int msgId = 123;
@@ -47,7 +50,7 @@ public class PushReceiverTest {
     notificationMessage.send(notificationMessageBuffer);
     byte[] notificationMessageBytes = notificationMessageBuffer.array();
 
-    //byte[] notificationMessageBytes = MessageParser.buildGossipPush(pushingPeer, 500).array();
+    //byte[] notificationMessageBytes = MessageParser.buildGossipAnnouncePush(pushingPeer, 500).array();
 
     TcpServer<ByteBuf, ByteBuf> server = TcpServer.newServer(port)
         .enableWireLogging("PushReceiverTest", LogLevel.DEBUG)
@@ -111,6 +114,7 @@ public class PushReceiverTest {
     Assert.assertEquals(Arrays.asList(pushingPeer), receivedGossipPeers);
 
     Assert.assertEquals(2, serverReceivedMessages.size());
+
     NotifyMessage registerForNotificationsMessage = (NotifyMessage) serverReceivedMessages.get(0);
     ValidationMessage validationMessage = (ValidationMessage) serverReceivedMessages.get(1);
     Assert.assertEquals(de.tum.group34.serialization.Message.GOSSIP_PUSH,
@@ -188,5 +192,39 @@ public class PushReceiverTest {
     Assert.assertFalse(validationMessage.isValid());
     Assert.assertEquals(de.tum.group34.serialization.Message.GOSSIP_PUSH,
         registerForNotificationsMessage.getDatatype());
+  }
+
+  @Test
+  public void receivePush() {
+
+    int port = 3040;
+
+    List<Peer> peerList = new ArrayList<>();
+
+    Peer ownPeer = new Peer(new InetSocketAddress("127.0.0.1", port));
+    ownPeer.setHostkey(RandomData.getHostKey());
+
+    Peer receivingPeer = new Peer(new InetSocketAddress("127.0.0.1", port));
+    PushSender sender = new PushSender(ownPeer, new RxTcpClientFactory("Push-Sender-Test"), port);
+
+    PushReceiver receiver = new PushReceiver(TcpServer.newServer(port), 1, TimeUnit.SECONDS);
+
+    receiver.getPushList()
+        .observeOn(Schedulers.newThread())
+        .subscribeOn(Schedulers.newThread())
+        .subscribe(
+            peers -> {
+              peerList.addAll(peers);
+              receiver.shutdown();
+            },
+            throwable -> receiver.shutdown()
+        );
+
+    sender.sendMyId(Collections.singletonList(receivingPeer)).subscribe();
+
+    receiver.awaitShutdown();
+
+    Assert.assertEquals(1, peerList.size());
+    Assert.assertEquals(Collections.singletonList(ownPeer), peerList);
   }
 }

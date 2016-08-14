@@ -14,7 +14,6 @@ import io.reactivex.netty.protocol.tcp.server.TcpServer;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URISyntaxException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
@@ -32,19 +31,30 @@ public class Rps {
   public static void main(final String[] args)
       throws InterruptedException, IOException, ConfigurationException, URISyntaxException {
 
-    if(args.length != 1){
+    if (args.length != 1) {
       System.out.println("Usage of Rps: 'java Rps [path of config_file.conf]'");
       return;
     }
+
+    //
+    // Config
+    //
+    int pushServerPort = 33234;
 
     FileParser fileParser = new FileParser(args[0]);
     Peer ownIdentity = new Peer();
     ownIdentity.setHostkey(fileParser.getHostkey());
 
     PullClient pullClient = new PullClient();
-    PushSender pushSender = new PushSender();
-    PushReceiver pushReceiver = initPushReceiver();
-    pushReceiver.registerToGossip(fileParser.getGossipAddress())
+    PushSender pushSender =
+        new PushSender(ownIdentity, new RxTcpClientFactory(PushSender.class.getName()),
+            pushServerPort);
+
+    PushReceiver pushReceiver =
+        new PushReceiver(TcpServer.newServer(pushServerPort), 10, TimeUnit.SECONDS);
+
+    pushReceiver.registerToGossip(InetSocketAddress.createUnresolved("127.0.0.1",
+        fileParser.getGossipAddress().getPort())) //TODO: UNRESOLVED?
         .subscribe(aVoid -> {
             },
             throwable -> {
@@ -55,17 +65,17 @@ public class Rps {
             });
     /*
     NseClient nseClient =
-            new NseClient(new RxTcpClientFactory("NseClient"), fileParser.getNseAddress(),
+        new NseClient(new RxTcpClientFactory("NseClient"), fileParser.getNseAddress(),
             30, TimeUnit.SECONDS);
 
     GossipSender gossipSender =
-            new GossipSender(ownIdentity, TcpClient.newClient(fileParser.getGossipAddress()));
+        new GossipSender(ownIdentity, TcpClient.newClient(fileParser.getGossipAddress()));
     gossipSender.sendOwnPeerPeriodically(30, TimeUnit.MINUTES, 20).subscribe();
 
     List<Peer> initialList = pushReceiver.gossipSocket().toBlocking().first();
 
     Brahms brahms =
-            new Brahms(initialList, nseClient, pullClient, pushReceiver,
+        new Brahms(initialList, nseClient, pullClient, pushReceiver,
             pushSender, new RxTcpClientFactory("Brahms"));
 
     new Thread(() -> {
@@ -77,17 +87,13 @@ public class Rps {
     }).start();
 
     QueryServer queryServer =
-            new QueryServer(TcpServer.newServer(fileParser.getQueryServerPort()), brahms);
+        new QueryServer(TcpServer.newServer(fileParser.getQueryServerPort()), brahms);
     PullServer pullServer =
-            new PullServer(brahms, TcpServer.newServer(PULL_SERVER_PORT));
+        new PullServer(brahms, TcpServer.newServer(PULL_SERVER_PORT));
 
     queryServer.awaitShutdown();
     pullServer.awaitShutdown(); */
     pushReceiver.awaitShutdown();
 
-  }
-
-  private static PushReceiver initPushReceiver() {
-    return new PushReceiver(TcpServer.newServer(11005), 10, TimeUnit.SECONDS);
   }
 }

@@ -5,9 +5,11 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class MockPeers {
+public class RandomData {
 
-  private MockPeers() {
+  private static Random random = new Random();
+
+  private RandomData() {
   }
 
   public static Peer getPeer() {
@@ -15,7 +17,6 @@ public class MockPeers {
   }
 
   public static ArrayList<Peer> getPeerList(int n) {
-    Random random = new Random();
     ArrayList<Peer> peers = new ArrayList<>();
 
     for (int i = 0; i < n; i++) {
@@ -26,5 +27,11 @@ public class MockPeers {
     }
 
     return peers;
+  }
+
+  public static byte[] getHostKey() {
+    byte[] bytes = new byte[512];
+    random.nextBytes(bytes);
+    return bytes;
   }
 }

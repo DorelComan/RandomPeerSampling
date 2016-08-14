@@ -1,7 +1,7 @@
 package de.tum.group34.serialization;
 
 import de.tum.group34.model.Peer;
-import de.tum.group34.pull.MockPeers;
+import de.tum.group34.pull.RandomData;
 import io.netty.buffer.ByteBuf;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -52,7 +52,7 @@ public class SerializationTest {
   @Test
   public void xxlPeerList() {
     int elements = 1000;
-    List<Peer> peers = MockPeers.getPeerList(elements);
+    List<Peer> peers = RandomData.getPeerList(elements);
     ByteBuf buf = SerializationUtils.toByteBuf(peers);
     ByteBuf copy = buf.copy();
     List<Peer> peers2 = SerializationUtils.fromByteBuf(copy);

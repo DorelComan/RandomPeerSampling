@@ -1,7 +1,6 @@
 package de.tum.group34.serialization;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
@@ -17,6 +16,8 @@ import java.util.List;
 import org.apache.commons.io.IOUtils;
 
 /**
+ * Some helper / util methods for serialization / deserialization
+ *
  * @author Hannes Dorfmann
  */
 public class SerializationUtils {
@@ -65,9 +66,9 @@ public class SerializationUtils {
     }
   }
 
-  public static <T> T fromBytes(ByteBuf bytes) {
+  public static <T> T fromByteBuf(ByteBuf bytes) {
     try (ByteBufInputStream bis = new ByteBufInputStream(bytes)) {
-      return fromBytes(bis);
+      return fromInputStream(bis);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -80,24 +81,13 @@ public class SerializationUtils {
    * @param <T> The generic type (will automatically cast the object to the desired Type)
    * @return The object
    */
-  private static <T> T fromBytes(InputStream inputStream) {
+  private static <T> T fromInputStream(InputStream inputStream) {
     try (ObjectInput in = new ObjectInputStream(inputStream)) {
       T object = (T) in.readObject();
       return object;
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
-  }
-
-  /**
-   * Reads a serializeable object from a {@link ByteBuf}
-   *
-   * @param buf The input
-   * @param <T> The generic type of the object
-   * @return The deserialized object
-   */
-  public static <T> T fromByteBuf(ByteBuf buf) {
-    return fromBytes(buf);
   }
 
   public static <T> T fromByteArrays(List<byte[]> array) {
@@ -108,15 +98,16 @@ public class SerializationUtils {
       }
 
       byte[] bytes = bos.toByteArray();
-
-      if (bytes[bytes.length - 1] != END_DELIMITER) {
+      byte last = bytes[bytes.length - 1];
+      if (last != END_DELIMITER) {
         throw new MessageException(
             "END DELIMITER wasn't set. END DELIMITER should be: " + END_DELIMITER);
       }
 
-      try (ByteArrayInputStream in = new ByteArrayInputStream(
-          Arrays.copyOfRange(bytes, 0, bytes.length - 1))) {
-        return fromBytes(in);
+      byte[] bytesWithoutDelimiter = Arrays.copyOfRange(bytes, 0, bytes.length - 1);
+
+      try (ByteArrayInputStream in = new ByteArrayInputStream(bytesWithoutDelimiter)) {
+        return fromInputStream(in);
       }
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -142,15 +133,16 @@ public class SerializationUtils {
    *
    * @param bytes the byte array
    * @return Byte Buffer
-   */
+
   public static ByteBuf byteArrayToByteBuf(byte[] bytes) {
 
-    try (ByteBufOutputStream out = new ByteBufOutputStream(
-        ByteBufAllocator.DEFAULT.buffer(bytes.length))) {
-      out.write(bytes);
-      return out.buffer();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+  try (ByteBufOutputStream out = new ByteBufOutputStream(
+  ByteBufAllocator.DEFAULT.buffer(bytes.length))) {
+  out.write(bytes);
+  return out.buffer();
+  } catch (IOException e) {
+  throw new RuntimeException(e);
   }
+  }
+   */
 }

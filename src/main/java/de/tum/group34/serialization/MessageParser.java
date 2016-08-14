@@ -110,7 +110,7 @@ public class MessageParser {
   /**
    * Announce Message to be sent to Gossip to push the Peer trough the network
    */
-  public static ByteBuf buildGossipPush(Peer peer, int ttl) {
+  public static ByteBuf buildGossipAnnouncePush(Peer peer, int ttl) {
 
     byte[] peerBuf = SerializationUtils.toBytes(peer);
     int size = 8 + peerBuf.length; // Size of message if IPv4
@@ -122,8 +122,6 @@ public class MessageParser {
     byteBuf.setByte(4, (byte) (ttl & 0xFF));
     byteBuf.setByte(5, (byte) ((ttl >> 8) & 0xFF));
     byteBuf.setBytes(8, peerBuf);
-
-    System.out.println("size: " + byteBuf.capacity());
 
     return byteBuf;
   }
@@ -181,7 +179,7 @@ public class MessageParser {
   public static boolean isPullLocalView(ByteBuf buf) {
 
     return MessageParser.unsignedIntFromShort(buf.getShort(2)) == Message.PULL_LOCAL_VIEW
-            && !(buf.capacity() != 4 && MessageParser.unsignedIntFromShort(buf.getShort(0)) != 4);
+        && !(buf.capacity() != 4 && MessageParser.unsignedIntFromShort(buf.getShort(0)) != 4);
   }
 
   public static byte[] getRpsQuery() {

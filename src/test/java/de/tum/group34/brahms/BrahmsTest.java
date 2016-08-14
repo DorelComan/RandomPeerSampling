@@ -4,7 +4,7 @@ import de.tum.group34.Brahms;
 import de.tum.group34.RxTcpClientFactory;
 import de.tum.group34.model.Peer;
 import de.tum.group34.nse.NseClient;
-import de.tum.group34.pull.MockPeers;
+import de.tum.group34.pull.RandomData;
 import de.tum.group34.pull.PullClient;
 import de.tum.group34.push.PushReceiver;
 import de.tum.group34.push.PushSender;
@@ -24,17 +24,17 @@ public class BrahmsTest {
     // Class clazz = List.class;
     // ArgumentCaptor<List<Peer>> argumentCaptor = ArgumentCaptor.forClass(clazz);
     Mockito.when(pullClient.makePullRequests(Mockito.any()))
-        .thenReturn(Observable.just(MockPeers.getPeerList(5)));
+        .thenReturn(Observable.just(RandomData.getPeerList(5)));
 
     PushSender pushSender = Mockito.mock(PushSender.class);
 
     PushReceiver pushReceiver = Mockito.mock(PushReceiver.class);
-    Mockito.when(pushReceiver.getPushList()).thenReturn(Observable.just(MockPeers.getPeerList(5)));
+    Mockito.when(pushReceiver.getPushList()).thenReturn(Observable.just(RandomData.getPeerList(5)));
 
     NseClient nseClient = Mockito.mock(NseClient.class);
     Mockito.when(nseClient.getNetworkSize()).thenReturn(Observable.just(1000));
 
-    List<Peer> initialList = MockPeers.getPeerList(1);
+    List<Peer> initialList = RandomData.getPeerList(1);
 
     Brahms brahms = new Brahms(initialList, nseClient, pullClient, pushReceiver, pushSender,
         new RxTcpClientFactory("Brahms"));

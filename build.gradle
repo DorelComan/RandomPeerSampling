@@ -37,10 +37,16 @@ dependencies {
   compile 'com.jakewharton.rxrelay:rxrelay:1.1.0'
   compile "commons-io:commons-io:2.5"
 
-  // compile fileTree(include: ['*.jar'], dir: 'libs')
   compile "org.mockito:mockito-core:1.+"
   compile 'com.google.code.findbugs:annotations:3.0.0'
   compile 'org.apache.commons:commons-configuration2:2.0'
+
+
+  /*
+  compile "org.powermock:powermock-module-junit4:1.6.5"
+  compile "org.powermock:powermock-core:1.6.5"
+  compile "org.powermock:powermock-api-mockito:1.6.5"
+*/
 }
 
 build.dependsOn jacocoTestReport

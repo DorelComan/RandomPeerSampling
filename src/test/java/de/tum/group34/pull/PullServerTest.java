@@ -22,13 +22,12 @@ public class PullServerTest {
   }
 
   @Test
-  @Ignore
   public void respondWitLocalView() throws IOException {
 
     int port = 7726;
 
     Brahms brahms = Mockito.mock(Brahms.class);
-    List<Peer> peerList = MockPeers.getPeerList(15);
+    List<Peer> peerList = RandomData.getPeerList(15);
     Mockito.when(brahms.getLocalView()).thenReturn(peerList);
 
     PullServer pullServer = new PullServer(brahms, TcpServer.newServer(port));
