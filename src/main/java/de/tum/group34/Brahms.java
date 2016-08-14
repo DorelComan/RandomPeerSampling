@@ -109,7 +109,7 @@ public class Brahms {
       if ((pushList.size() <= nmbPushes && pushList.size() != 0 && pullList.size() != 0)
           || (pushList.size() == 0 && getLocalView().size() == 1 && pullList.size() != 0)) {
 
-        System.out.println("Modifing stuff");//todo
+        //System.out.println("Modifing stuff");//todo
         tempList = new ArrayList<>();
         tempList.addAll(rand(pushList, nmbPushes));
         tempList.addAll(rand(pullList, nmbPulls));

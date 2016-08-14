@@ -90,6 +90,9 @@ public class MessageParser {
     }
 
     int size = unsignedIntFromShort(buf.getShort(0)); // Reading size of the header
+
+    //System.out.println("readble: " + buf_size + "size " + size);
+
     if (size != buf_size) {    // verifying the declared size and the received one
       throw new MessageException();
     }
@@ -101,7 +104,7 @@ public class MessageParser {
       throw new MessageException();
     }
 
-    ByteBuf dst = Unpooled.buffer(512); //512 size of Peer
+    ByteBuf dst = Unpooled.buffer(size - 8);
     buf.getBytes(8, dst);
 
     Peer peer = SerializationUtils.fromByteBuf(dst);
@@ -114,7 +117,7 @@ public class MessageParser {
   public static ByteBuf buildGossipAnnouncePush(Peer peer, int ttl) {
 
     byte[] peerBuf = SerializationUtils.toBytes(peer);
-    int size = 8 + peerBuf.length; // Size of message if IPv4
+    int size = 8 + peerBuf.length; //
     ByteBuf byteBuf = Unpooled.buffer(size);
 
     byteBuf.setShort(0, (short) size);
@@ -124,6 +127,7 @@ public class MessageParser {
     byteBuf.setByte(5, (byte) ((ttl >> 8) & 0xFF));
     byteBuf.setBytes(8, peerBuf);
 
+    System.out.println("Size : " + size + "bufsize: " + byteBuf.capacity());
     return byteBuf;
   }
 

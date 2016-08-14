@@ -95,14 +95,13 @@ public class PushReceiver {
                   @Override public Observable<PeerSharingMessage> call(ByteBuf byteBuf) {
 
                     //todo: take out
-                    System.out.println(
+                   /* System.out.println(
                         "\nClient rcv MessageType : " + MessageParser.unsignedIntFromShort(
                             byteBuf.getShort(2)));
                     System.out.println(
                         "Client rcv DataType received: " + MessageParser.unsignedIntFromShort(
                             byteBuf.getShort(6)));
-                    // System.out.println("Client rcv Peer received: " +
-                    //MessageParser.buildPeerFromGossipPush(byteBuf).getPeer().getIpAddress().toString());
+                     System.out.println("Client rcv Peer received: " + byteBuf.getShort(0)); */
 
                     return Observable.fromCallable(
                         () -> MessageParser.buildPeerFromGossipPush(byteBuf))
