@@ -22,6 +22,7 @@ import org.junit.*;
 public class GossipSenderTest {
 
   @Test
+  @Ignore
   public void sendOwnPeerPeriodicallyMultipleTimes() throws InterruptedException {
 
     List<AnnounceMessage> serverReceivedMessages = new ArrayList<>();
