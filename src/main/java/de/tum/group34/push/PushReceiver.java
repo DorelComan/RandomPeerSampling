@@ -85,7 +85,7 @@ public class PushReceiver {
     return TcpClient.newClient(gossipSocketAddress)
         .enableWireLogging(LOG_TAG, LogLevel.DEBUG)
         .createConnectionRequest()
-        .retryWhen(ExponentialBackoff.create(10, 2, TimeUnit.SECONDS))
+        .retryWhen(ExponentialBackoff.create(10, 3, TimeUnit.SECONDS))
         .flatMap(connection ->
             connection.writeBytes(
                 Observable.just(MessageParser.buildRegisterForNotificationsMessages().array()))
