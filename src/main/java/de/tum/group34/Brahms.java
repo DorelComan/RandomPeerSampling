@@ -93,7 +93,7 @@ public class Brahms {
       pushSender.sendMyId(peersToPushMyId)
           .toBlocking()
           .firstOrDefault(Collections.emptyList());
-      
+
       System.out.println("After push");
       // Send pull requests and save incoming lists in pullList
       ArrayList<Peer> pullList = new ArrayList<>();
