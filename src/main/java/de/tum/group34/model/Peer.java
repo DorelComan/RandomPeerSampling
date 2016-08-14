@@ -11,10 +11,8 @@ import java.util.Arrays;
  */
 public class Peer implements Serializable, Cloneable {
 
-  // TODO: how to determine own IP Address
   private InetSocketAddress ipAddress; // SocketAddress (includes port)
   private byte[] hostkey;
-  private int msgId; // todo We should put the message here
   private int pushServerPort;
   private int pullServerPort;
 
@@ -52,6 +50,8 @@ public class Peer implements Serializable, Cloneable {
 
     Peer peer = (Peer) o;
 
+    if (pushServerPort != peer.pushServerPort) return false;
+    if (pullServerPort != peer.pullServerPort) return false;
     if (ipAddress != null ? !ipAddress.equals(peer.ipAddress) : peer.ipAddress != null) {
       return false;
     }
@@ -61,13 +61,9 @@ public class Peer implements Serializable, Cloneable {
   @Override public int hashCode() {
     int result = ipAddress != null ? ipAddress.hashCode() : 0;
     result = 31 * result + Arrays.hashCode(hostkey);
+    result = 31 * result + pushServerPort;
+    result = 31 * result + pullServerPort;
     return result;
-  }
-
-  @Override public String toString() {
-    return "Peer{" +
-        "ipAddress=" + ipAddress +
-        '}';
   }
 
   @SuppressFBWarnings("CN_IDIOM_NO_SUPER_CALL")
@@ -75,6 +71,8 @@ public class Peer implements Serializable, Cloneable {
   public Peer clone() {
     Peer peer = new Peer(this.ipAddress);
     peer.hostkey = this.hostkey;
+    peer.pullServerPort = pullServerPort;
+    peer.pushServerPort = pushServerPort;
     return peer;
   }
 
@@ -92,5 +90,13 @@ public class Peer implements Serializable, Cloneable {
 
   public void setPullServerPort(int pullServerPort) {
     this.pullServerPort = pullServerPort;
+  }
+
+  @Override public String toString() {
+    return "Peer{" +
+        "ipAddress=" + ipAddress +
+        ", pushServerPort=" + pushServerPort +
+        ", pullServerPort=" + pullServerPort +
+        '}';
   }
 }
