@@ -4,7 +4,6 @@ import de.tum.group34.ByteBufAggregatorOperator;
 import de.tum.group34.model.Peer;
 import de.tum.group34.serialization.MessageParser;
 import de.tum.group34.serialization.SerializationUtils;
-import de.tum.group34.test.MockPullServer;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.logging.LogLevel;
 import io.reactivex.netty.protocol.tcp.client.TcpClient;
@@ -43,8 +42,7 @@ public class PullClient {
    * @param peer The Peer we want to send a pull request to
    * @return the local view of the contacted peer
    */
-  private Observable<List<Peer>> executePullRequest(Peer peer) {
-
+  public Observable<List<Peer>> executePullRequest(Peer peer) {
     return TcpClient.newClient(peer.getPullServerAdress())
         .enableWireLogging("PullClient", LogLevel.DEBUG)
         .createConnectionRequest()

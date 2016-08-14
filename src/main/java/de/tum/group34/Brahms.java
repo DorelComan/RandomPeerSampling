@@ -10,6 +10,7 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.apache.commons.lang3.tuple.Pair;
 import rx.Observable;
 import rx.subjects.BehaviorSubject;
 
@@ -71,11 +72,9 @@ public class Brahms {
 
     List<Peer> tempList;
 
-    Integer iter = 0; //todo
-
     while (true) { // every iteration to be executed periodically
 
-      System.out.println("\n -- ITER: " + iter++ + " -- ");
+      System.out.println("-- new algorithm round -- ");
 
       setSizeEstimation();
       System.out.println("\nSampl: " + samplSize + " sizeEst " + sizeEst);
@@ -89,7 +88,7 @@ public class Brahms {
       pushSender.sendMyId(peersToPushMyId)
           .toBlocking()
           .firstOrDefault(Collections.emptyList());
-      
+
       // Send pull requests and save incoming lists in pullList
       ArrayList<Peer> pullList = new ArrayList<>();
       List<Peer> randomList = rand(getLocalView(), nmbPulls);
@@ -108,7 +107,7 @@ public class Brahms {
       pushList.forEach(peer -> System.out.println(peer.getIpAddress().toString()));//todo
 
       if ((pushList.size() <= nmbPushes && pushList.size() != 0 && pullList.size() != 0)
-              || (pushList.size() == 0 && getLocalView().size() == 1 && pullList.size() != 0) ) {
+          || (pushList.size() == 0 && getLocalView().size() == 1 && pullList.size() != 0)) {
 
         System.out.println("Modifing stuff");//todo
         tempList = new ArrayList<>();
@@ -119,50 +118,51 @@ public class Brahms {
         viewListSubject.onNext(getLocalView()); // Inform any waiting
       }
 
+      // validate samplers
+      validateSamples();
+
       pushList.addAll(pullList); // pushList + pullList to be added at sample
       updateSample(pushList);
-
-
-
-      //List<Peer> peersThatAreAlive = getPeersThatAreAlive(getLocalView()).toBlocking().first(); TODO: uncomment
-      //setLocalView(peersThatAreAlive);
-
-      // TODO
-      // System.out.println("\nNew Sample");
-      // samplList.forEach(sampler -> System.out.println(sampler.sample().getIpAddress().toString()));
-
-      System.out.println("\nNew Local"); //TODO: take down
-      getLocalView().forEach(peer -> System.out.println(peer.getIpAddress().toString()));
-      
     }
   }
 
   /**
-   * Checks if the peers are still alive (TCP connection can be established)
+   * Checks if a Sampler is still valid by checking the underlying peers TCP connection
    *
-   * @param peersToCheck The list of peers we want to check if they are still alive
-   * @return A list of peers that are alive. The peer that are not alive has been filtered out from
-   * original input parameter.
+   * @param samplersToCheck The list of Samplers we want to check if they are still alive
+   * @return A list of indexes from the passed in samplersToCheck list with Samplers that are not
+   * valid anymore
    */
-  Observable<List<Peer>> getPeersThatAreAlive(List<Peer> peersToCheck) {
-    return Observable.from(peersToCheck)
-        .flatMap(peer ->
-            tcpClientFactory.newClient(peer.getIpAddress())
-                .createConnectionRequest()
-                .flatMap(connection -> connection
-                    .ignoreInput().map(aVoid -> true)) // Peer alive -> return true
-                .onErrorReturn(throwable -> false) // Peer no longer alive -> return false
-                .filter(peerAlive -> peerAlive) // Only continues with peers that are alive
-                .map(aVoid -> peer)
-        ).toList();
+  private Observable<List<Integer>> probeSamplers(List<Sampler> samplersToCheck) {
+
+    List<Pair<Integer, Sampler>> indexedSamples = new ArrayList<>(samplersToCheck.size());
+    for (int i = 0; i < samplersToCheck.size(); i++) {
+      Sampler s = samplersToCheck.get(i);
+      if (s.sample() != null) {
+        indexedSamples.add(Pair.of(i, s));
+      }
+    }
+
+    return Observable.from(indexedSamples)
+        .flatMap(indexedSampler -> pullClient.executePullRequest(indexedSampler.getRight().sample())
+            .map(peers -> -1) // Peer is alive / Sampler is valid
+            .onErrorReturn(e -> indexedSampler.getLeft()) // Peer not alive anymore
+        )
+        .filter(index -> index >= 0)
+        .toList();
   }
 
-  public void validateSamples() {
+  /**
+   * Validate the Samplers and replace invalid Samplers with new ones
+   */
+  private void validateSamples() {
 
-    for (int i = 0; i < samplSize; i++) {
-      if (!samplList.get(i).validate()) {
-        samplList.set(i, new Sampler());
-      }
+    List<Integer> invalidSamplerIndexes =
+        probeSamplers(samplList).toBlocking().firstOrDefault(Collections.emptyList());
+
+    // Replace invalid Samplers with new Samplers
+    for (int index : invalidSamplerIndexes) {
+      samplList.set(index, new Sampler());
     }
   }
 
