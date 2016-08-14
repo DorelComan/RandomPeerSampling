@@ -4,7 +4,6 @@ import de.tum.group34.ByteBufAggregatorOperator;
 import de.tum.group34.model.Peer;
 import de.tum.group34.serialization.MessageParser;
 import de.tum.group34.serialization.SerializationUtils;
-import de.tum.group34.test.MockPullServer;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.logging.LogLevel;
 import io.reactivex.netty.protocol.tcp.client.TcpClient;
@@ -56,7 +55,7 @@ public class PullClient {
         .createConnectionRequest()
         .flatMap(
             connection ->
-                connection.write(Observable.just(MessageParser.getPullLocalView()))
+                connection.writeBytes(Observable.just(MessageParser.getPullLocalView().array()))
                     .cast(ByteBuf.class)
                     .concatWith(connection.getInput())
         )
