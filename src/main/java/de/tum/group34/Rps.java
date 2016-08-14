@@ -48,7 +48,7 @@ public class Rps {
     FileParser fileParser = new FileParser(args[0]);
     Peer ownIdentity = new Peer(); // TODO: should set our address
     ownIdentity.setPullServerPort(PULL_SERVER_PORT);
-    ownIdentity.setPushServerPort(PUSH_SERVER_PORT);
+    ownIdentity.setPushServerPort(fileParser.getPushServerPort());
     ownIdentity.setHostkey(fileParser.getHostkey());
 
     // PullClient pullClient = new PullClient(); // todo: commented for the tests
