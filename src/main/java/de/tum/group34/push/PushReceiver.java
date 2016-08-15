@@ -82,8 +82,6 @@ public class PushReceiver {
    */
   public Observable<Void> registerToGossip(SocketAddress gossipSocketAddress) {
 
-    // TODO exponential backoff
-
     return TcpClient.newClient(gossipSocketAddress)
         .enableWireLogging(LOG_TAG, LogLevel.DEBUG)
         .createConnectionRequest()
@@ -97,15 +95,6 @@ public class PushReceiver {
                 .map(SerializationUtils::byteArrayListToByteBuf)
                 .flatMap(new Func1<ByteBuf, Observable<PeerSharingMessage>>() {
                   @Override public Observable<PeerSharingMessage> call(ByteBuf byteBuf) {
-
-                    //todo: take out
-                   /* System.out.println(
-                        "\nClient rcv MessageType : " + MessageParser.unsignedIntFromShort(
-                            byteBuf.getShort(2)));
-                    System.out.println(
-                        "Client rcv DataType received: " + MessageParser.unsignedIntFromShort(
-                            byteBuf.getShort(6)));
-                     System.out.println("Client rcv Peer received: " + byteBuf.getShort(0)); */
 
                     return Observable.fromCallable(
                         () -> MessageParser.buildPeerFromGossipPush(byteBuf))

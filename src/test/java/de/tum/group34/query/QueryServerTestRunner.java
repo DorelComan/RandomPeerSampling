@@ -32,7 +32,7 @@ public class QueryServerTestRunner {
     NseServerRunner server = new NseServerRunner();
     new Thread(server::start).start();
 
-    NseClient nseClient = new NseClient(new RxTcpClientFactory("NseClient"), //Todo Modify
+    NseClient nseClient = new NseClient(new RxTcpClientFactory("NseClient"),
         new InetSocketAddress("127.0.0.1", NseServerRunner.PORT), 1, TimeUnit.SECONDS);
 
     PushSender pushSender = Mockito.mock(PushSender.class);

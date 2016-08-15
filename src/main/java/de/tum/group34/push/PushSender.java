@@ -37,9 +37,6 @@ public class PushSender {
    */
   public Observable<List<Peer>> sendMyId(List<Peer> receivers) {
 
-    //TODO: mocking the peers we are sending push, creating them dinamycally
-    //receivers.forEach(MockPushReceiver::new);
-
     List<Observable<PushResult>> sendToPeersObservables =
         receivers.stream().map(this::sendMyIdTo).collect(
             Collectors.toList());

@@ -26,7 +26,7 @@ public class PullServer {
     this.server = server.enableWireLogging(LOG_TAG, LogLevel.DEBUG)
         .start(
             connection ->
-                connection.getInput().doOnNext((byteBuf)-> System.out.println("Someone" + byteBuf)).
+                connection.getInput()/*. doOnNext((byteBuf)-> System.out.println("Someone" + byteBuf))*/.
                         doOnNext(MessageParser::isPullLocalViewMessage).flatMap(
                     byteBuf -> connection.writeBytesAndFlushOnEach(
                         Observable.just(SerializationUtils.toBytes(brahms.getLocalView()))

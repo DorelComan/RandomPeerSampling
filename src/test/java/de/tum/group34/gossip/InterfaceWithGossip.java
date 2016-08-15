@@ -18,7 +18,7 @@ public class InterfaceWithGossip {
 
 
         PushReceiver pushReceiver = initPushReceiver();
-        pushReceiver.registerToGossip(InetSocketAddress.createUnresolved("127.0.0.1", 7001)) //TODO: UNRESOLVED?
+        pushReceiver.registerToGossip(InetSocketAddress.createUnresolved("127.0.0.1", 7001))
                 .subscribe(aVoid -> {
                         },
                         throwable -> {

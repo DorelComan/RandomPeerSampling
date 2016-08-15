@@ -29,8 +29,10 @@ public class PullClient {
 
       ArrayList<Peer> result = new ArrayList<Peer>();
       for (Object resp : responses) {
-        List<Peer> response = (List<Peer>) resp;
-        result.addAll(response);
+        if (resp != null) {
+          List<Peer> response = (List<Peer>) resp;
+          result.addAll(response);
+        }
       }
       return result;
     });

@@ -60,7 +60,7 @@ public class ValidationMessage extends ApiMessage {
         boolean valid;
 
         try {
-            buf.getInt(); //TODO: Added to make it work, skipping the first 4 bytes
+            buf.getInt(); //skipped for our tests
             msgId = Message.getUnsignedShort(buf);
             valid = (1 == Message.getUnsignedShort(buf));
             message = new ValidationMessage(msgId, valid);

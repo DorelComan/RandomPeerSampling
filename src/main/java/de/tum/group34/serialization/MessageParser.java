@@ -19,7 +19,7 @@ public class MessageParser {
     int buf_size = buf.readableBytes();
 
     if (buf_size > Message.MAX_LENGTH) {
-      throw new MessageException(); // TODO: pass message string
+      throw new MessageException();
     }
 
     int size = unsignedIntFromShort(buf.getShort(0));// Reading size of the header
@@ -34,7 +34,6 @@ public class MessageParser {
       throw new MessageException();
 
     }
-    System.out.println("\n\nTANANANANANANANANNAN\n\n");
   }
 
   /**
@@ -67,7 +66,6 @@ public class MessageParser {
 
     buf.setBytes(8 + address.length, peer.getHostkey());
     buf.setShort(0, (short) size);
-
     return buf;
   }
 
@@ -158,7 +156,6 @@ public class MessageParser {
 
   public static ByteBuf getNseQuery() {
 
-    //TODO: take a better look if short is correct
     ByteBuf buf = Unpooled.buffer(4);
     buf.setShort(0, 4);
     buf.setShort(2, (short) Message.NSE_QUERY);
