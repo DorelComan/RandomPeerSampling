@@ -42,10 +42,13 @@ public class QueryServerTestRunner {
 
     List<Peer> initialList = RandomData.getPeerList(1);
 
-    Brahms brahms = new Brahms(initialList, nseClient, pullClient, pushReceiver, pushSender,
+    Peer own = new Peer();
+    own.setIpAddress(new InetSocketAddress("127.0.0.1", 30700));
+
+    Brahms brahms = new Brahms(own, nseClient, pullClient, pushReceiver, pushSender,
         new RxTcpClientFactory("Brahms"));
     new Thread(() -> {
-      brahms.start();
+      brahms.start(initialList);
     }).start();
 
     QueryServer queryServer = new QueryServer(TcpServer.newServer(3558), brahms);

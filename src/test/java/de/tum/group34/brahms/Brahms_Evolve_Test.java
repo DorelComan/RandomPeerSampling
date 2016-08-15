@@ -59,8 +59,10 @@ public class Brahms_Evolve_Test {
         });
         t1.start();
 
-        Brahms brahms = new Brahms(initialList, nseClient, pullClient, pushReceiver, pushSender, new RxTcpClientFactory("Brahms"));
-        brahms.start();
+        Peer own = new Peer();
+        own.setIpAddress(new InetSocketAddress("127.0.0.1", 30700));
+        Brahms brahms = new Brahms(own,  nseClient, pullClient, pushReceiver, pushSender, new RxTcpClientFactory("Brahms"));
+        brahms.start(initialList);
     }
 }
 

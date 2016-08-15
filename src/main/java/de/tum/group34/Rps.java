@@ -50,15 +50,16 @@ public class Rps {
 
     FileParser fileParser = new FileParser(args[0]);
     Peer ownIdentity = new Peer(fileParser.getOnionAddress(), fileParser.getPushServerPort(),
-            fileParser.getPullServerPort(),fileParser.getHostkey()); // TODO: should set our address
+        fileParser.getPullServerPort(), fileParser.getHostkey()); // TODO: should set our address
 
     PullClient pullClient = new PullClient();
 
-     PushSender pushSender =
+    PushSender pushSender =
         new PushSender(ownIdentity, new RxTcpClientFactory(PushSender.class.getName()));
 
     PushReceiver pushReceiver =
-        new PushReceiver(TcpServer.newServer(fileParser.getPushServerPort()), DELAY_PUSH_RECEIVER, TIME_UNIT_DELAY_PUSH);
+        new PushReceiver(TcpServer.newServer(fileParser.getPushServerPort()), DELAY_PUSH_RECEIVER,
+            TIME_UNIT_DELAY_PUSH);
 
     pushReceiver.registerToGossip(fileParser.getGossipAddress())
         .subscribe(aVoid -> {
@@ -79,23 +80,23 @@ public class Rps {
     gossipSender.sendOwnPeerPeriodically(DELAY_GOSSIP_SENDER, TIME_UNIT_GOSSIP_SENDER,
         TTL_GOSSIP_SENDER).subscribe();
 
-    List<Peer> initialList = pushReceiver.gossipSocket()
-        .filter(peers -> !peers.isEmpty())
-        .toBlocking()
-        .first();
-
     System.out.println("START");
 
     Brahms brahms =
-        new Brahms(ownIdentity,initialList, nseClient, pullClient, pushReceiver,
+        new Brahms(ownIdentity, nseClient, pullClient, pushReceiver,
             pushSender, new RxTcpClientFactory("Brahms"));
-
-    new Thread(brahms::start).start();
 
     QueryServer queryServer =
         new QueryServer(TcpServer.newServer(fileParser.getQueryServerPort()), brahms);
     PullServer pullServer =
         new PullServer(brahms, TcpServer.newServer(fileParser.getPullServerPort()));
+
+    List<Peer> initialList = pushReceiver.gossipSocket()
+        .filter(peers -> !peers.isEmpty())
+        .toBlocking()
+        .first();
+
+    new Thread(() -> brahms.start(initialList)).start();
 
     queryServer.awaitShutdown();
     pullServer.awaitShutdown();

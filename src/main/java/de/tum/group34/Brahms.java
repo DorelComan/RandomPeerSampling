@@ -16,7 +16,6 @@ import rx.subjects.BehaviorSubject;
 
 public class Brahms {
 
-  private static final long SLEEP_TIME = 5000; //Time between iterations of the algorithm
   private Peer ownIdentity;
 
   private BehaviorSubject<List<Peer>> viewListSubject = BehaviorSubject.create();
@@ -41,45 +40,23 @@ public class Brahms {
   /**
    * Initialization of the algorithm
    */
-  public Brahms(List<Peer> list, NseClient nseClient, PullClient pullClient,
+  public Brahms(Peer ownIdentity, NseClient nseClient, PullClient pullClient,
       PushReceiver pushReceiver, PushSender pushSender, TcpClientFactory tcpClientFactory) {
 
-    alfa = beta = 0.45;
-    gamma = 0.1;
-
-    setLocalView(list);
-    samplList = new ArrayList<>();
+    this.ownIdentity = ownIdentity;
     this.tcpClientFactory = tcpClientFactory;
     this.nseClient = nseClient;
     this.pullClient = pullClient;
     this.pushReceiver = pushReceiver;
     this.pushSender = pushSender;
-
-    System.out.println("Initial list:");//todo
-    list.forEach(peer -> System.out.println(peer.getIpAddress().toString()));//todo
-
-    setSizeEstimation(); // Setting the size estimation for the network thanks to NSE
-
-    for (int i = 0; i < samplSize; i++) // Setting the list of samplers
-      samplList.add(new Sampler());
-
-    updateSample(list);
   }
 
-  public Brahms(Peer ownIdentity, List<Peer> list, NseClient nseClient, PullClient pullClient,
-                PushReceiver pushReceiver, PushSender pushSender, TcpClientFactory tcpClientFactory){
-
-    this.ownIdentity = ownIdentity;
+  private void init(List<Peer> list) {
     alfa = beta = 0.45;
     gamma = 0.1;
 
     setLocalView(list);
     samplList = new ArrayList<>();
-    this.tcpClientFactory = tcpClientFactory;
-    this.nseClient = nseClient;
-    this.pullClient = pullClient;
-    this.pushReceiver = pushReceiver;
-    this.pushSender = pushSender;
 
     System.out.println("Initial list:");//todo
     list.forEach(peer -> System.out.println(peer.getIpAddress().toString()));//todo
@@ -95,8 +72,9 @@ public class Brahms {
   /**
    * Method which start the Brahms algorithm, it do infinte iterations updating the localView
    */
-  public void start() {
+  public void start(List<Peer> initialList) {
 
+    init(initialList);
     List<Peer> tempList;
 
     int firstTime = 0; //Just to know it's the first time we enter
@@ -140,8 +118,9 @@ public class Brahms {
       if ((pushList.size() <= nmbPushes && pushList.size() != 0 && pullList.size() != 0)
           || (pushList.size() == 0 && firstTime == 0 && pullList.size() != 0)) {
 
-        if(firstTime == 0){
-          pushList.addAll(getLocalView()); // We have to get the first pushed peers from the Gossip in the PushList
+        if (firstTime == 0) {
+          pushList.addAll(
+              getLocalView()); // We have to get the first pushed peers from the Gossip in the PushList
           firstTime = 1;
         }
         System.out.println("\nModifing stuff\n");//todo
@@ -163,7 +142,6 @@ public class Brahms {
 
       System.out.println("Sampler");
       samplList.forEach(sampler -> System.out.println(sampler.sample()));
-
     }
   }
 
@@ -302,11 +280,11 @@ public class Brahms {
     list.forEach(peer -> viewList.add(peer.clone()));
   }
 
-  private void deleteOwnIdentityFromList(List<Peer> list){
+  private void deleteOwnIdentityFromList(List<Peer> list) {
 
     List<Peer> tempList = new ArrayList<>(list);
     tempList.forEach(peer -> {
-      if(ownIdentity.getIpAddress().toString().equals(peer.getIpAddress().toString())){
+      if (ownIdentity.getIpAddress().toString().equals(peer.getIpAddress().toString())) {
         list.remove(peer);
       }
     });

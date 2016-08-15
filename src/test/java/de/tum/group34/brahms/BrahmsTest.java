@@ -4,10 +4,11 @@ import de.tum.group34.Brahms;
 import de.tum.group34.RxTcpClientFactory;
 import de.tum.group34.model.Peer;
 import de.tum.group34.nse.NseClient;
-import de.tum.group34.pull.RandomData;
 import de.tum.group34.pull.PullClient;
+import de.tum.group34.pull.RandomData;
 import de.tum.group34.push.PushReceiver;
 import de.tum.group34.push.PushSender;
+import java.net.InetSocketAddress;
 import java.util.List;
 import org.mockito.Mockito;
 import rx.Observable;
@@ -36,10 +37,13 @@ public class BrahmsTest {
 
     List<Peer> initialList = RandomData.getPeerList(1);
 
-    Brahms brahms = new Brahms(initialList, nseClient, pullClient, pushReceiver, pushSender,
+    Peer own = new Peer();
+    own.setIpAddress(new InetSocketAddress("127.0.0.1", 30700));
+
+    Brahms brahms = new Brahms(own, nseClient, pullClient, pushReceiver, pushSender,
         new RxTcpClientFactory("Brahms"));
 
-    brahms.start();
+    brahms.start(initialList);
   }
 }
 
