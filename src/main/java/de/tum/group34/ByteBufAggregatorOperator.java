@@ -77,7 +77,7 @@ public final class ByteBufAggregatorOperator
 
       @Override
       public void onNext(ByteBuf value) {
-        if (!completed) {
+        if (!completed /* && value.capacity() > 0 */) {
 
           byte[] bytes = SerializationUtils.byteBufToByteArray(value);
           int last = bytes.length - 1;

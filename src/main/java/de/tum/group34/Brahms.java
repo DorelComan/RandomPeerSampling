@@ -72,6 +72,8 @@ public class Brahms {
 
     List<Peer> tempList;
 
+    int firstTime = 0; //Just to know it's the first time we enter
+
     while (true) { // every iteration to be executed periodically
 
       System.out.println("-- new algorithm round -- ");
@@ -85,19 +87,21 @@ public class Brahms {
 
       // Push to Peers from local View -
       List<Peer> peersToPushMyId = rand(getLocalView(), nmbPushes);
+      System.out.println("Pushing" + peersToPushMyId);
       pushSender.sendMyId(peersToPushMyId)
           .toBlocking()
           .firstOrDefault(Collections.emptyList());
 
       // Send pull requests and save incoming lists in pullList
+      System.out.println("Pulling");
       ArrayList<Peer> pullList = new ArrayList<>();
       List<Peer> randomList = rand(getLocalView(), nmbPulls);
       pullList.addAll(pullClient.makePullRequests(randomList)
           .toBlocking()
-          .first());
+          .firstOrDefault(new ArrayList<>()));
 
       System.out.println("\nPulled peers: " + pullList.size());//todo
-      // pullList.forEach(peer -> System.out.println(peer.getIpAddress().toString()));//todo
+      pullList.forEach(peer -> System.out.println(peer.getIpAddress().toString()));//todo
 
       // Save all push receive in pushList
       ArrayList<Peer> pushList = new ArrayList<>();
@@ -107,8 +111,10 @@ public class Brahms {
       pushList.forEach(peer -> System.out.println(peer.getIpAddress().toString()));//todo
 
       if ((pushList.size() <= nmbPushes && pushList.size() != 0 && pullList.size() != 0)
-          || (pushList.size() == 0 && getLocalView().size() == 1 && pullList.size() != 0)) {
+          || (pushList.size() == 0 && firstTime == 0 && pullList.size() != 0)) {
 
+        if(firstTime == 0)
+          firstTime = 1;
         //System.out.println("Modifing stuff");//todo
         tempList = new ArrayList<>();
         tempList.addAll(rand(pushList, nmbPushes));
@@ -123,6 +129,13 @@ public class Brahms {
 
       pushList.addAll(pullList); // pushList + pullList to be added at sample
       updateSample(pushList);
+
+      System.out.println("Local");
+      getLocalView().forEach(peer -> System.out.println(peer));
+
+      System.out.println("Sampler");
+      samplList.forEach(sampler -> System.out.println(sampler.sample()));
+
     }
   }
 
@@ -162,6 +175,7 @@ public class Brahms {
 
     // Replace invalid Samplers with new Samplers
     for (int index : invalidSamplerIndexes) {
+      System.out.println("INVALID " + samplList.get(index).sample());
       samplList.set(index, new Sampler());
     }
   }

@@ -18,6 +18,9 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Class for emulating the NSE module where you can also modify the value dinamically
+ */
 public class NSE_Evolving {
 
     public static void main(String[] args) throws InterruptedException {
