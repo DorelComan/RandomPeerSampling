@@ -14,7 +14,7 @@ apply plugin: 'java'
 apply plugin: 'jacoco'
 apply plugin: 'findbugs'
 apply plugin: 'idea'
-apply plugin: 'com.github.ksoichiro.console.reporter'
+//apply plugin: 'com.github.ksoichiro.console.reporter'
 apply plugin: 'application'
 
 run {

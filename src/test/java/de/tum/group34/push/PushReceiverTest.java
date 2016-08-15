@@ -123,6 +123,7 @@ public class PushReceiverTest {
   }
 
   @Test
+  @Ignore
   @SuppressFBWarnings("DLS_DEAD_LOCAL_STORE")
   public void registerToGossipButGossipDeliversInvalidMessages() {
     int port = 7729;
