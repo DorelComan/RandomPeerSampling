@@ -10,10 +10,9 @@ import java.net.UnknownHostException;
  */
 public class QueryClientRunner {
 
-  public static void main(String args[]) {
+  public static void main(String args[]) throws InterruptedException {
 
-    QueryClient.query("127.0.0.1", 3558)
-        .take(1)
+    QueryClient.query("127.0.0.1", 4053)
         .map(byteBuf -> {
 
           ByteBuf addBuf = Unpooled.buffer(4);
@@ -28,9 +27,7 @@ public class QueryClientRunner {
 
           System.out.println("address: " + address.toString() + " port: " + byteBuf.getShort(4));
 
-          return byteBuf.getShort(4);
-        })
-        .toBlocking()
-        .forEach(System.out::println);
+          return "address: " + address.toString() + " port: " + byteBuf.getShort(4);
+        }).toBlocking().forEach(System.out::println);
   }
 }
