@@ -127,7 +127,6 @@ public class MessageParser {
     byteBuf.setByte(5, (byte) ((ttl >> 8) & 0xFF));
     byteBuf.setBytes(8, peerBuf);
 
-    System.out.println("Size : " + size + "bufsize: " + byteBuf.capacity());
     return byteBuf;
   }
 

@@ -87,7 +87,7 @@ public class Rps {
     System.out.println("START");
 
     Brahms brahms =
-        new Brahms(initialList, nseClient, pullClient, pushReceiver,
+        new Brahms(ownIdentity,initialList, nseClient, pullClient, pushReceiver,
             pushSender, new RxTcpClientFactory("Brahms"));
 
     new Thread(brahms::start).start();

@@ -16,6 +16,9 @@ import rx.subjects.BehaviorSubject;
 
 public class Brahms {
 
+  private static final long SLEEP_TIME = 5000; //Time between iterations of the algorithm
+  private Peer ownIdentity;
+
   private BehaviorSubject<List<Peer>> viewListSubject = BehaviorSubject.create();
   private SecureRandom secureRandom = new SecureRandom();
 
@@ -41,6 +44,32 @@ public class Brahms {
   public Brahms(List<Peer> list, NseClient nseClient, PullClient pullClient,
       PushReceiver pushReceiver, PushSender pushSender, TcpClientFactory tcpClientFactory) {
 
+    alfa = beta = 0.45;
+    gamma = 0.1;
+
+    setLocalView(list);
+    samplList = new ArrayList<>();
+    this.tcpClientFactory = tcpClientFactory;
+    this.nseClient = nseClient;
+    this.pullClient = pullClient;
+    this.pushReceiver = pushReceiver;
+    this.pushSender = pushSender;
+
+    System.out.println("Initial list:");//todo
+    list.forEach(peer -> System.out.println(peer.getIpAddress().toString()));//todo
+
+    setSizeEstimation(); // Setting the size estimation for the network thanks to NSE
+
+    for (int i = 0; i < samplSize; i++) // Setting the list of samplers
+      samplList.add(new Sampler());
+
+    updateSample(list);
+  }
+
+  public Brahms(Peer ownIdentity, List<Peer> list, NseClient nseClient, PullClient pullClient,
+                PushReceiver pushReceiver, PushSender pushSender, TcpClientFactory tcpClientFactory){
+
+    this.ownIdentity = ownIdentity;
     alfa = beta = 0.45;
     gamma = 0.1;
 
@@ -91,7 +120,6 @@ public class Brahms {
           .firstOrDefault(Collections.emptyList());
 
       // Send pull requests and save incoming lists in pullList
-      System.out.println("Pulling");
       ArrayList<Peer> pullList = new ArrayList<>();
       List<Peer> randomList = rand(getLocalView(), nmbPulls);
       pullList.addAll(pullClient.makePullRequests(randomList)
@@ -100,6 +128,7 @@ public class Brahms {
 
       System.out.println("\nPulled peers: " + pullList.size());//todo
       pullList.forEach(peer -> System.out.println(peer.getIpAddress().toString()));//todo
+      deleteOwnIdentityFromList(pullList);
 
       // Save all push receive in pushList
       ArrayList<Peer> pushList = new ArrayList<>();
@@ -111,9 +140,11 @@ public class Brahms {
       if ((pushList.size() <= nmbPushes && pushList.size() != 0 && pullList.size() != 0)
           || (pushList.size() == 0 && firstTime == 0 && pullList.size() != 0)) {
 
-        if(firstTime == 0)
+        if(firstTime == 0){
+          pushList.addAll(getLocalView()); // We have to get the first pushed peers from the Gossip in the PushList
           firstTime = 1;
-        //System.out.println("Modifing stuff");//todo
+        }
+        System.out.println("\nModifing stuff\n");//todo
         tempList = new ArrayList<>();
         tempList.addAll(rand(pushList, nmbPushes));
         tempList.addAll(rand(pullList, nmbPulls));
@@ -124,7 +155,6 @@ public class Brahms {
 
       // validate samplers
       validateSamples();
-
       pushList.addAll(pullList); // pushList + pullList to be added at sample
       updateSample(pushList);
 
@@ -270,5 +300,14 @@ public class Brahms {
 
     viewList = new ArrayList<>();
     list.forEach(peer -> viewList.add(peer.clone()));
+  }
+
+  private void deleteOwnIdentityFromList(List<Peer> list){
+
+    List<Peer> tempList = new ArrayList<>(list);
+    tempList.forEach(peer -> {
+      if(peer.getIpAddress().toString().equals(peer.getIpAddress().toString()))
+        list.remove(peer);
+    });
   }
 }
