@@ -5,7 +5,6 @@ import io.netty.buffer.Unpooled;
 import io.netty.handler.logging.LogLevel;
 import io.reactivex.netty.protocol.tcp.server.TcpServer;
 import java.nio.charset.Charset;
-import java.util.Scanner;
 
 /**
  * A very simply Mock NSE Module that answers with some random / or predefined NetworkSize numbers
@@ -27,7 +26,7 @@ public class NseServerRunner {
     public void start(){
 
         setBuf(Unpooled.buffer());
-        setSize(1000);
+        setSize(4);
 
         TcpServer<ByteBuf, ByteBuf> server =
                 TcpServer.newServer(PORT).enableWireLogging("Mock NSE Module", LogLevel.DEBUG)

@@ -5,10 +5,10 @@ import de.tum.group34.model.Peer;
 import de.tum.group34.serialization.MessageParser;
 import de.tum.group34.serialization.SerializationUtils;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.handler.logging.LogLevel;
 import io.reactivex.netty.protocol.tcp.client.TcpClient;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import rx.Observable;
@@ -20,13 +20,12 @@ public class PullClient {
 
   public Observable<ArrayList<Peer>> makePullRequests(List<Peer> peers) {
 
-    //TODO: row used to Mock the other Peers, creating them dinamically
-    //peers.forEach(MockPullServer::new);
-
     List<Observable<List<Peer>>> requestObservables =
-        peers.stream().map((peer -> executePullRequest(peer))).collect(Collectors.toList());
+        peers.stream()
+            .map((peer -> executePullRequest(peer).onErrorReturn(t -> Collections.emptyList())))
+            .collect(Collectors.toList());
 
-    return Observable.combineLatest(requestObservables, responses -> {
+    return Observable.zip(requestObservables, responses -> {
 
       ArrayList<Peer> result = new ArrayList<Peer>();
       for (Object resp : responses) {
@@ -52,11 +51,7 @@ public class PullClient {
                 connection.writeBytes(Observable.just(MessageParser.getPullLocalView().array()))
                     .cast(ByteBuf.class)
                     .concatWith(connection.getInput())
-        ).onErrorReturn((throwable) -> {
-              List<Peer> peers = new ArrayList<>();
-              peers.add(peer);
-              return SerializationUtils.toByteBuf(peers);
-            })
+        )
         .lift(ByteBufAggregatorOperator.create())
         .map(SerializationUtils::fromByteArrays);
   }

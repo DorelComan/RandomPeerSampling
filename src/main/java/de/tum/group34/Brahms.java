@@ -16,8 +16,6 @@ import rx.subjects.BehaviorSubject;
 
 public class Brahms {
 
-  private static final long SLEEP_TIME = 5000; //Time between iterations of the algorithm
-
   private BehaviorSubject<List<Peer>> viewListSubject = BehaviorSubject.create();
   private SecureRandom secureRandom = new SecureRandom();
 
@@ -158,7 +156,7 @@ public class Brahms {
 
     return Observable.from(indexedSamples)
         .flatMap(indexedSampler -> pullClient.executePullRequest(indexedSampler.getRight().sample())
-            .map(peers -> -1) // Peer is alive / Sampler is valid
+            .map(peers -> -1) // Peer is alive / Sampler is valid indicated by -1
             .onErrorReturn(e -> indexedSampler.getLeft()) // Peer not alive anymore
         )
         .filter(index -> index >= 0)
