@@ -126,9 +126,9 @@ public class Brahms {
           .toBlocking()
           .firstOrDefault(new ArrayList<>()));
 
+      //deleteOwnIdentityFromList(pullList);
       System.out.println("\nPulled peers: " + pullList.size());//todo
       pullList.forEach(peer -> System.out.println(peer.getIpAddress().toString()));//todo
-      deleteOwnIdentityFromList(pullList);
 
       // Save all push receive in pushList
       ArrayList<Peer> pushList = new ArrayList<>();
@@ -306,8 +306,10 @@ public class Brahms {
 
     List<Peer> tempList = new ArrayList<>(list);
     tempList.forEach(peer -> {
-      if(peer.getIpAddress().toString().equals(peer.getIpAddress().toString()))
+      if(ownIdentity.getIpAddress().toString().equals(peer.getIpAddress().toString())){
+        System.out.println("DELETE: " + peer.getIpAddress());
         list.remove(peer);
+      }
     });
   }
 }

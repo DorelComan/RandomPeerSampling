@@ -26,7 +26,7 @@ public class NseServerRunner {
     public void start(){
 
         setBuf(Unpooled.buffer());
-        setSize(4);
+        setSize(1000);
 
         TcpServer<ByteBuf, ByteBuf> server =
                 TcpServer.newServer(PORT).enableWireLogging("Mock NSE Module", LogLevel.DEBUG)
