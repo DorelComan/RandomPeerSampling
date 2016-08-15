@@ -23,8 +23,7 @@ public class QueryClient {
         .flatMap(connection ->
             connection.writeBytes(Observable.just(MessageParser.getRpsQuery()))
                 .cast(ByteBuf.class)
-                .concatWith(connection.getInput()
-                )
+                .concatWith(connection.getInput())
 
         );
   }

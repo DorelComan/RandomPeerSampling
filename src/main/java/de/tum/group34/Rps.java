@@ -37,7 +37,7 @@ public class Rps {
   private static final TimeUnit TIME_UNIT_NSE_DELAY = TimeUnit.SECONDS;
 
   // Variables for PushReceiver
-  private static final long DELAY_PUSH_RECEIVER = 10;
+  private static final long DELAY_PUSH_RECEIVER = 15;
   private static final TimeUnit TIME_UNIT_DELAY_PUSH = TimeUnit.SECONDS;
 
   public static void main(final String[] args)
@@ -50,7 +50,7 @@ public class Rps {
 
     FileParser fileParser = new FileParser(args[0]);
     Peer ownIdentity = new Peer(fileParser.getOnionAddress(), fileParser.getPushServerPort(),
-            fileParser.getPullServerPort(),fileParser.getHostkey()); // TODO: should set our address
+            fileParser.getPullServerPort(),fileParser.getHostkey());
 
     PullClient pullClient = new PullClient();
 
@@ -83,8 +83,6 @@ public class Rps {
         .filter(peers -> !peers.isEmpty())
         .toBlocking()
         .first();
-
-    System.out.println("START");
 
     Brahms brahms =
         new Brahms(ownIdentity,initialList, nseClient, pullClient, pushReceiver,

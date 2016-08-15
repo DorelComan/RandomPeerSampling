@@ -55,9 +55,6 @@ public class Brahms {
     this.pushReceiver = pushReceiver;
     this.pushSender = pushSender;
 
-    System.out.println("Initial list:");//todo
-    list.forEach(peer -> System.out.println(peer.getIpAddress().toString()));//todo
-
     setSizeEstimation(); // Setting the size estimation for the network thanks to NSE
 
     for (int i = 0; i < samplSize; i++) // Setting the list of samplers
@@ -81,9 +78,6 @@ public class Brahms {
     this.pushReceiver = pushReceiver;
     this.pushSender = pushSender;
 
-    System.out.println("Initial list:");//todo
-    list.forEach(peer -> System.out.println(peer.getIpAddress().toString()));//todo
-
     setSizeEstimation(); // Setting the size estimation for the network thanks to NSE
 
     for (int i = 0; i < samplSize; i++) // Setting the list of samplers
@@ -106,7 +100,7 @@ public class Brahms {
       System.out.println("-- new algorithm round -- ");
 
       setSizeEstimation();
-      System.out.println("\nSampl: " + samplSize + " sizeEst " + sizeEst);
+      System.out.println("\nLocalView Size: " + viewSize + " sizeEst of Net " + sizeEst);
 
       int nmbPushes = ((int) Math.round(alfa * viewSize));
       int nmbPulls = (int) Math.round(beta * viewSize);
@@ -114,7 +108,6 @@ public class Brahms {
 
       // Push to Peers from local View -
       List<Peer> peersToPushMyId = rand(getLocalView(), nmbPushes);
-      System.out.println("Pushing" + peersToPushMyId);
       pushSender.sendMyId(peersToPushMyId)
           .toBlocking()
           .firstOrDefault(Collections.emptyList());
@@ -127,15 +120,10 @@ public class Brahms {
           .firstOrDefault(new ArrayList<>()));
 
       deleteOwnIdentityFromList(pullList);
-      System.out.println("\nPulled peers: " + pullList.size());//todo
-      pullList.forEach(peer -> System.out.println(peer.getIpAddress().toString()));//todo
 
       // Save all push receive in pushList
       ArrayList<Peer> pushList = new ArrayList<>();
       pushList.addAll(pushReceiver.getPushList().toBlocking().first());
-
-      System.out.println("\nPushReceived: " + pushList.size());//todo
-      pushList.forEach(peer -> System.out.println(peer.getIpAddress().toString()));//todo
 
       if ((pushList.size() <= nmbPushes && pushList.size() != 0 && pullList.size() != 0)
           || (pushList.size() == 0 && firstTime == 0 && pullList.size() != 0)) {
@@ -144,7 +132,6 @@ public class Brahms {
           pushList.addAll(getLocalView()); // We have to get the first pushed peers from the Gossip in the PushList
           firstTime = 1;
         }
-        System.out.println("\nModifing stuff\n");//todo
         tempList = new ArrayList<>();
         tempList.addAll(rand(pushList, nmbPushes));
         tempList.addAll(rand(pullList, nmbPulls));
@@ -158,12 +145,11 @@ public class Brahms {
       pushList.addAll(pullList); // pushList + pullList to be added at sample
       updateSample(pushList);
 
-      System.out.println("Local");
-      getLocalView().forEach(peer -> System.out.println(peer));
+      System.out.println("\nLocalView");
+      getLocalView().forEach(peer -> System.out.println(peer.getIpAddress()));
 
-      System.out.println("Sampler");
-      samplList.forEach(sampler -> System.out.println(sampler.sample()));
-
+      System.out.println("\nSamplerList");
+      samplList.forEach(sampler -> System.out.println(sampler.sample().getIpAddress()));
     }
   }
 
@@ -203,7 +189,7 @@ public class Brahms {
 
     // Replace invalid Samplers with new Samplers
     for (int index : invalidSamplerIndexes) {
-      System.out.println("INVALID " + samplList.get(index).sample());
+      System.out.println("INVALID: " + samplList.get(index).sample().getIpAddress());
       samplList.set(index, new Sampler());
     }
   }
@@ -287,7 +273,7 @@ public class Brahms {
     return viewListSubject
         .flatMap(viewList -> {
           Integer i = secureRandom.nextInt(viewList.size());
-          //System.out.println("Getting Peer\n");
+          System.out.println("Getting Peer\n");
           return Observable.just(viewList.get(i));
         });
   }

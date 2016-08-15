@@ -12,7 +12,7 @@ public class QueryClientRunner {
 
   public static void main(String args[]) {
 
-    QueryClient.query("127.0.0.1", 3558)
+    QueryClient.query("127.0.0.1", 4053)
         .take(1)
         .map(byteBuf -> {
 
