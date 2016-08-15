@@ -272,11 +272,8 @@ public class Brahms {
 
   private void deleteOwnIdentityFromList(List<Peer> list) {
 
-    List<Peer> tempList = new ArrayList<>(list);
-    tempList.forEach(peer -> {
-      if (ownIdentity.getIpAddress().toString().equals(peer.getIpAddress().toString())) {
-        list.remove(peer);
-      }
-    });
+    while (list.contains(ownIdentity)) {
+      list.remove(ownIdentity);
+    }
   }
 }
