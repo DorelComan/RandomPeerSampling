@@ -5,6 +5,7 @@ import de.tum.group34.model.Peer;
 import de.tum.group34.serialization.MessageParser;
 import de.tum.group34.serialization.SerializationUtils;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.handler.logging.LogLevel;
 import io.reactivex.netty.protocol.tcp.client.TcpClient;
 import java.util.ArrayList;
@@ -51,7 +52,11 @@ public class PullClient {
                 connection.writeBytes(Observable.just(MessageParser.getPullLocalView().array()))
                     .cast(ByteBuf.class)
                     .concatWith(connection.getInput())
-        )
+        ).onErrorReturn((throwable) -> {
+              List<Peer> peers = new ArrayList<>();
+              peers.add(peer);
+              return SerializationUtils.toByteBuf(peers);
+            })
         .lift(ByteBufAggregatorOperator.create())
         .map(SerializationUtils::fromByteArrays);
   }

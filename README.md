@@ -44,4 +44,6 @@ PullClient.makePullRequest()
     - GossipSend
     - GossipNotification to receive 
     
-    
+#TODO
+
+- check if pull list has our peer but not Put it into the list
