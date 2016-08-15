@@ -1,6 +1,7 @@
 package de.tum.group34.push;
 
 import de.tum.group34.Brahms;
+import de.tum.group34.ByteBufAggregatorOperator;
 import de.tum.group34.ExponentialBackoff;
 import de.tum.group34.model.Peer;
 import de.tum.group34.model.PeerSharingMessage;
@@ -49,7 +50,8 @@ public class PushReceiver {
             connection ->
                 connection.getInput()
                     .doOnNext(byteBuf -> log.info("Push Responding Socket received a Message"))
-                    .map(SerializationUtils::<Peer>fromByteBuf)
+                    .lift(ByteBufAggregatorOperator.create())
+                    .map(SerializationUtils::<Peer>fromByteArrays)
                     .doOnNext(pushReceivingSocketBridge::onNext)
                     .map(peer -> null)
         );
@@ -91,6 +93,8 @@ public class PushReceiver {
                 Observable.just(MessageParser.buildRegisterForNotificationsMessages().array()))
                 .cast(ByteBuf.class)
                 .concatWith(connection.getInput())
+                .lift(ByteBufAggregatorOperator.create())
+                .map(SerializationUtils::byteArrayListToByteBuf)
                 .flatMap(new Func1<ByteBuf, Observable<PeerSharingMessage>>() {
                   @Override public Observable<PeerSharingMessage> call(ByteBuf byteBuf) {
 

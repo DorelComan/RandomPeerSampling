@@ -1,6 +1,7 @@
 package de.tum.group34.serialization;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
@@ -129,20 +130,26 @@ public class SerializationUtils {
   }
 
   /**
-   * Converts a ByteArray to a ByteBuffer
+   * Converts a list of Byte arrays  to one ByteBuffer
    *
-   * @param bytes the byte array
+   * @param bytes the byte arrays
    * @return Byte Buffer
-
-  public static ByteBuf byteArrayToByteBuf(byte[] bytes) {
-
-  try (ByteBufOutputStream out = new ByteBufOutputStream(
-  ByteBufAllocator.DEFAULT.buffer(bytes.length))) {
-  out.write(bytes);
-  return out.buffer();
-  } catch (IOException e) {
-  throw new RuntimeException(e);
-  }
-  }
    */
+  public static ByteBuf byteArrayListToByteBuf(List<byte[]> bytes) {
+
+    int size = 0;
+    for (byte[] b : bytes) {
+      size += b.length;
+    }
+
+    try (ByteBufOutputStream out = new ByteBufOutputStream(
+        ByteBufAllocator.DEFAULT.buffer(size))) {
+      for (byte[] b : bytes) {
+        out.write(b);
+      }
+      return out.buffer();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
 }
