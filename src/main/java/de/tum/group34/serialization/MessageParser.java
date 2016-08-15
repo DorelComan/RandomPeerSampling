@@ -32,7 +32,9 @@ public class MessageParser {
 
     if (type != Message.TYPE_RPS_QUERY) {
       throw new MessageException();
+
     }
+    System.out.println("\n\nTANANANANANANANANNAN\n\n");
   }
 
   /**
@@ -63,7 +65,7 @@ public class MessageParser {
 
     buf.setBytes(8, address);
 
-    buf.setBytes(size, peer.getHostkey());
+    buf.setBytes(8 + address.length, peer.getHostkey());
     buf.setShort(0, (short) size);
 
     return buf;
